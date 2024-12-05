@@ -1,7 +1,12 @@
 """
+Librairie pour recolter les informations des combattants de l'UFC
 
+Développée par :
+    - [Gregory Jaillet](https://github.com/Greg-jllt)
+    - [Hugo Cochereau](https://github.com/hugocoche)
 """
 
+from collections import defaultdict
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,20 +17,30 @@ from selenium.common.exceptions import TimeoutException, WebDriverException
 from warnings import warn
 from rich.console import Console
 from FightPredix import extraire_info_combattant
+from typing import Any, Optional
 
 import re
 import time
 import pandas as pd
 
 
-def _recolte_pages_combattants(soup):
-    elements = soup.find_all("a", href = re.compile(r'/athlete/[\w]+-[\w]+') ,class_="e-button--black")
-    hrefs = [f'https://www.ufc.com{element['href']}' for element in elements]
+def _recolte_pages_combattants(soup: BeautifulSoup) -> list:
+    """
+    Fonction qui recolte les liens des combattants sur une page
+    """
+
+    elements = soup.find_all(
+        "a", href=re.compile(r"/athlete/[\w]+-[\w]+"), class_="e-button--black"
+    )
+    hrefs = [f"https://www.ufc.com{element['href']}" for element in elements]
     return hrefs
 
 
+def _visite_page_combattant(driver: webdriver, url: str) -> Optional[defaultdict]:
+    """
+    Fonction qui visite la page d'un combattant et recolte ses informations
+    """
 
-def _visite_page_combattant(driver, url):
     driver.get(url)
     time.sleep(1)
     html_content = driver.page_source
@@ -34,12 +49,15 @@ def _visite_page_combattant(driver, url):
     return dictio
 
 
+def _click_chargement_plus(main_driver: webdriver) -> None:
+    """
+    Fonction qui clique sur le bouton de chargement plus d'elements
+    """
 
-def _click_chargement_plus(main_driver):
     element = WebDriverWait(main_driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, "//a[@title='Load more items']"))
     )
-    
+
     main_driver.execute_script("arguments[0].scrollIntoView(true);", element)
 
     time.sleep(1)
@@ -50,18 +68,25 @@ def _click_chargement_plus(main_driver):
     time.sleep(2)
 
 
+def _deja_present(data: pd.DataFrame, url: str) -> bool:
+    """
+    Fonction qui verifie si un combattant est deja present dans la base de donnees
+    """
 
-def _deja_present(data : pd.DataFrame, url : str) -> bool:
-    pattern = re.compile(r'/athlete/([\w]+-[\w]+)')
-    match = pattern.search(url)
-    nom = match.group(1).replace('-', ' ')
-    if nom in data['Name'].values:
+    pattern = re.compile(r"/athlete/([\w]+-[\w]+)")
+    match = pattern.search(url)  # type: ignore
+    if match:
+        nom = match.group(1).replace("-", " ")
+    else:
+        nom = ""
+    if nom in data["Name"].values:
         return True
     return False
 
 
-
-def page_principal(main_driver : webdriver , Data : pd.DataFrame=None, essais :int=None) -> pd.DataFrame:
+def page_principal(
+    main_driver: webdriver, Data: pd.DataFrame = None, essais: int = 0
+) -> pd.DataFrame:
     """
     Fonction permettant de recolter les informations des combattants de l'UFC
 
@@ -69,25 +94,26 @@ def page_principal(main_driver : webdriver , Data : pd.DataFrame=None, essais :i
         main_driver (webdriver): Objet webdriver de la page principale
         Data (pd.Dataframe, optional): Dataframe contenant les informations des combattants deja recoltees. None par default.
         essais (int, optional): Nombre de tentatives. None par default.
+
+    Returns:
+        pd.Dataframe: Dataframe contenant les informations des combattants
     """
 
-    result = []
-                # Wrapper
-    hrefs = []
+    result: list[Any] = list()
+    # Wrapper
+    hrefs = list()
 
     if Data is None:
-        Data = pd.DataFrame(columns=['Name'])
+        Data = pd.DataFrame(columns=["Name"])
 
-    def _page_principal_sub(main_driver, essais):
-
-        if essais :
+    def _page_principal_sub(main_driver: webdriver, essais: int = 0) -> pd.DataFrame:
+        if essais:
             essais += 1
             print(f"Attempt {essais}")
             if essais == 3:
                 main_driver.quit()
                 return pd.concat([Data, pd.DataFrame(result)], ignore_index=True)
-        try :
-
+        try:
             front_content = main_driver.page_source
 
             front_soup = BeautifulSoup(front_content, "html.parser")
@@ -99,17 +125,20 @@ def page_principal(main_driver : webdriver , Data : pd.DataFrame=None, essais :i
             for url in temp_liste:
                 if url not in hrefs and not _deja_present(Data, url):
                     dictio = _visite_page_combattant(sub_driver, url)
-                    result.append(dictio)
+                    if dictio:
+                        result.append(dictio)
                     hrefs.append(url)
 
-            sub_driver.quit()  
+            sub_driver.quit()
 
             _click_chargement_plus(main_driver)
 
-            return _page_principal_sub(main_driver,essais)
-            
+            return _page_principal_sub(main_driver, essais)
+
         except TimeoutException:
-            warn("TimeoutException : Le bouton de chargement n'a pas ete trouve. Fin de la pagination.")
+            warn(
+                "TimeoutException : Le bouton de chargement n'a pas ete trouve. Fin de la pagination."
+            )
         except WebDriverException as e:
             warn(f"Erreur WebDriver : {e}")
         except Exception as e:
@@ -123,17 +152,15 @@ def page_principal(main_driver : webdriver , Data : pd.DataFrame=None, essais :i
     return _page_principal_sub(main_driver, essais)
 
 
-
 if __name__ == "__main__":
-
     console = Console()
 
     essais = 1
-    
+
     main_driver = webdriver.Chrome()
 
     main_driver.get("https://www.ufc.com/athletes/all?filters%5B0%5D=status%3A23")
 
-    test = page_principal(main_driver, essais= essais)
+    test = page_principal(main_driver, essais=essais)
 
     console.print(test)
