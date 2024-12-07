@@ -1,28 +1,17 @@
 """Teste les fonctions de lib_front_page.py"""
 
-import pytest
+import os
+import sys
+import pandas as pd
+
+# import pytest
+from FightPredix.lib_front_page import _recolte_pages_combattants, _deja_present
+from bs4 import BeautifulSoup
 
 
-@pytest.fixture
-def webdriver():
-    from selenium import webdriver
+from .fixtures import webdriver, url, url_combattant
 
-    driver = webdriver.Chrome()
-
-    def finalizer():
-        """
-        teardown : ferme le navigateur à la fin du test afin de ne laisser aucune instance de navigateur ouverte
-        """
-
-        driver.close()
-        driver.quit()
-
-    return driver
-
-
-@pytest.fixture
-def url():
-    return "https://www.ufc.com/athletes/all"
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 def test_requete_page_souhaitee(webdriver, url):
@@ -32,3 +21,44 @@ def test_requete_page_souhaitee(webdriver, url):
 
     webdriver.get(url)
     assert webdriver.current_url == url
+
+
+def test_recolte_pages_combattants(webdriver, url):
+    """
+    On vérifie que la fonction _recolte_pages_combattants renvoie bien une liste de liens
+    """
+
+    webdriver.get(url)
+
+    front_content = webdriver.page_source
+
+    front_soup = BeautifulSoup(front_content, "html.parser")
+
+    liste_liens = _recolte_pages_combattants(front_soup)
+    assert isinstance(liste_liens, list)
+    for liens in liste_liens:
+        assert isinstance(liens, str)
+        assert "https" in liens
+        assert "ufc.com" in liens
+        assert "/athlete/" in liens
+        assert " " not in liens
+
+
+def test_deja_presents():
+    """
+    On vérifie que la fonction _deja_present renvoie bien True si l'élément est déjà présent
+    """
+
+    Data = pd.DataFrame({"Name": ["jean jean"]})
+
+    assert _deja_present(Data, "https://www.ufc.com/athlete/jean-jean")
+    assert not _deja_present(Data, "https://www.ufc.com/athlete/alfrd-alfred")
+
+
+def test_url_combattant_souhaitee(webdriver, url_combattant):
+    """
+    On vérifie que l'url du combattant souhaité est bien atteinte
+    """
+
+    webdriver.get(url_combattant)
+    assert webdriver.current_url == url_combattant

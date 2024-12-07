@@ -36,7 +36,9 @@ def _recolte_pages_combattants(soup: BeautifulSoup) -> list:
     return hrefs
 
 
-def _visite_page_combattant(driver: webdriver, url: str) -> Optional[defaultdict]:
+def _visite_page_combattant(
+    driver: webdriver.Chrome, url: str
+) -> Optional[defaultdict]:
     """
     Fonction qui visite la page d'un combattant et recolte ses informations
     """
@@ -49,7 +51,7 @@ def _visite_page_combattant(driver: webdriver, url: str) -> Optional[defaultdict
     return dictio
 
 
-def _click_chargement_plus(main_driver: webdriver) -> None:
+def _click_chargement_plus(main_driver: webdriver.Chrome) -> None:
     """
     Fonction qui clique sur le bouton de chargement plus d'elements
     """
@@ -85,7 +87,7 @@ def _deja_present(data: pd.DataFrame, url: str) -> bool:
 
 
 def page_principal(
-    main_driver: webdriver, Data: pd.DataFrame = None, essais: int = 0
+    main_driver: webdriver.Chrome, Data: pd.DataFrame = pd.DataFrame(), essais: int = 0
 ) -> pd.DataFrame:
     """
     Fonction permettant de recolter les informations des combattants de l'UFC
@@ -106,7 +108,19 @@ def page_principal(
     if Data is None:
         Data = pd.DataFrame(columns=["Name"])
 
-    def _page_principal_sub(main_driver: webdriver, essais: int = 0) -> pd.DataFrame:
+    def _page_principal_sub(
+        main_driver: webdriver.Chrome, essais: int = 0
+    ) -> pd.DataFrame:
+        """
+        Fonction interne permettant de recolter les informations des combattants de l'UFC
+
+        Args:
+            main_driver (webdriver): Objet webdriver de la page principale
+            essais (int, optional): Nombre de tentatives. None par default.
+
+        Returns:
+            pd.Dataframe: Dataframe contenant les informations des combattants
+        """
         if essais:
             essais += 1
             print(f"Attempt {essais}")
