@@ -9,12 +9,12 @@ from FightPredix.lib_front_page import _recolte_pages_combattants, _deja_present
 from bs4 import BeautifulSoup
 
 
-from .fixtures import webdriver, url, url_combattant
+from .fixtures import webdriver, url, url_combattant  # noqa: F401
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
-def test_requete_page_souhaitee(webdriver, url):
+def test_requete_page_souhaitee(webdriver, url):  # noqa: F811
     """
     On vérifie que la page souhaitée a bien été atteinte
     """
@@ -23,7 +23,7 @@ def test_requete_page_souhaitee(webdriver, url):
     assert webdriver.current_url == url
 
 
-def test_recolte_pages_combattants(webdriver, url):
+def test_recolte_pages_combattants(webdriver, url):  # noqa: F811
     """
     On vérifie que la fonction _recolte_pages_combattants renvoie bien une liste de liens
     """
@@ -55,7 +55,7 @@ def test_deja_presents():
     assert not _deja_present(Data, "https://www.ufc.com/athlete/alfrd-alfred")
 
 
-def test_url_combattant_souhaitee(webdriver, url_combattant):
+def test_url_combattant_souhaitee(webdriver, url_combattant):  # noqa: F811
     """
     On vérifie que l'url du combattant souhaité est bien atteinte
     """
