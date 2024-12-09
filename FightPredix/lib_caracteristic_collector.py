@@ -6,6 +6,7 @@ Développée par :
     - [Hugo Cochereau](https://github.com/hugocoche)
 """
 
+from typing import Any
 from bs4 import BeautifulSoup
 from collections import defaultdict
 import bs4
@@ -222,6 +223,99 @@ def _mesures_combattant(soup: BeautifulSoup, dictio: defaultdict) -> None:
 
     for obj in liste_objective:
         dictio[obj] = temp_data.get(obj, None)  # Pour eviter les eventuelles decalages
+
+
+def _creer_soup_tenant_du_titre(url: str) -> BeautifulSoup:
+    """
+    Fonction qui récupère le contenu HTML wikipedia de la liste des champions par catégories de poids
+    """
+
+    driver = webdriver.Chrome()
+    driver.get(url)
+    driver.implicitly_wait(10)
+    html_content = driver.page_source
+    driver.quit()
+    return BeautifulSoup(html_content, "html.parser")
+
+
+def _creation_categories_poids(
+    soup: BeautifulSoup,
+) -> tuple[defaultdict[str, bs4.element.Tag], defaultdict[str, bs4.element.Tag]]:
+    """
+    Fonction qui crée les catégories de poids masculine et féminine
+    """
+
+    categorie_masculine: defaultdict = defaultdict()
+    categorie_feminine: defaultdict = defaultdict()
+
+    tables = soup.select("table.wikitable")
+    tables
+
+    for table in tables:
+        if "Période de règne" in table.text:
+            if table.find_previous("h2").text == "Catégories masculines":
+                categorie_masculine[table.find_previous("h3").text] = table
+            elif table.find_previous("h2").text == "Catégories féminines":
+                categorie_feminine[table.find_previous("h3").text] = table
+
+    return categorie_masculine, categorie_feminine
+
+
+def _recuperation_liste_noms_champions(
+    soup: BeautifulSoup,
+    categorie_homme: dict[str, bs4.element.Tag],
+    categorie_femme: dict[str, bs4.element.Tag],
+) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+    """
+    Fonction qui récupère la liste des noms des tenants du titre
+    """
+
+    listes_champions_homme: dict[str, list[str]] = {
+        poids: list() for poids in categorie_homme.keys()
+    }
+    listes_champions_femme: dict[str, list[str]] = {
+        poids: list() for poids in categorie_femme.keys()
+    }
+
+    for poids, tableau in categorie_homme.items():
+        liste_noms = list()
+        lignes = tableau.find_all("a")
+        lignes_avec_flagicon = [
+            ligne
+            for ligne in lignes
+            if ligne.find_previous_sibling("span", class_="flagicon")
+        ]
+        for ligne in lignes_avec_flagicon:
+            liste_noms.append(ligne.text)
+        listes_champions_homme[poids] = liste_noms
+
+    for poids, tableau in categorie_femme.items():
+        liste_noms = list()
+        lignes = tableau.find_all("a")
+        lignes_avec_flagicon = [
+            ligne
+            for ligne in lignes
+            if ligne.find_previous_sibling("span", class_="flagicon")
+        ]
+        for ligne in lignes_avec_flagicon:
+            liste_noms.append(ligne.text)
+        listes_champions_femme[poids] = liste_noms
+
+    return listes_champions_homme, listes_champions_femme
+
+
+def _recuperation_anciens_champions() -> bs4.element.Tag:
+    """
+    Fonction qui récupère le tableau de la liste des champions par catégories de poids
+    """
+    soup = _creer_soup_tenant_du_titre(
+        "https://fr.wikipedia.org/wiki/Liste_des_champions_de_l'UFC"
+    )
+    categorie_masculine, categorie_feminine = _creation_categories_poids(soup)
+    listes_champions_homme, listes_champions_femme = _recuperation_liste_noms_champions(
+        soup, categorie_masculine, categorie_feminine
+    )
+    return listes_champions_homme, listes_champions_femme
 
 
 def extraire_info_combattant(soup: BeautifulSoup) -> defaultdict | None:

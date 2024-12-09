@@ -1,21 +1,164 @@
-# """Teste les fonctions de lib_characteristics_collection.py"""
+"""Teste les fonctions de lib_characteristics_collection.py"""
 
-# import pandas as pd
-# import pytest
-# from FightPredix.lib_caracteristic_collector import (
-#     _infos_principal_combattant,
-#     _combattant_actif,
-#     _bio_combattant,
-#     _tenant_titre,
-#     _stats_combattant,
-#     _stats_corps_combattant,
-#     _pourcentage_touche_takedown,
-#     _mesures_combattant,
-# )
-# from bs4 import BeautifulSoup
-# from collections import defaultdict
+import pandas as pd
+import requests_cache
+import pytest
+from FightPredix.lib_caracteristic_collector import (
+    _infos_principal_combattant,
+    _combattant_actif,
+    _bio_combattant,
+    _tenant_titre,
+    _stats_combattant,
+    _stats_corps_combattant,
+    _pourcentage_touche_takedown,
+    _mesures_combattant,
+    _creer_soup_tenant_du_titre,
+    _recuperation_liste_noms_champions,
+    _creation_categories_poids,
+    _recuperation_anciens_champions,
+)
+from bs4 import BeautifulSoup
+from collections import defaultdict
 
-# from .fixtures import webdriver, url, url_combattant, soup_combattant
+from .fixtures import (
+    driver,
+    url,
+    url_combattant,
+    soup_combattant,
+    url_anciens_champions,
+    soup_anciens_champions,
+)
+
+requests_cache.install_cache(
+    "test_cache", expire_after=3600
+)  # Cache expire après 1 heure
+
+
+def test_cree_soup_tenant_du_titre(driver, url_anciens_champions):
+    """
+    Fonction qui teste la fonction _creer_soup_tenant_du_titre
+    """
+    driver.get(url_anciens_champions)
+    assert driver.current_url == url_anciens_champions
+    soup = _creer_soup_tenant_du_titre(url_anciens_champions)
+    assert soup is not None
+
+
+def test_creation_categories_poids(soup_anciens_champions):
+    """
+    Fonction qui teste la fonction _creation_categories_poids
+    """
+
+    categorie_homme, categorie_femme = _creation_categories_poids(
+        soup_anciens_champions
+    )
+    assert isinstance(categorie_homme, defaultdict)
+    assert isinstance(categorie_femme, defaultdict)
+    for poids in ["Poids pailles", "Poids mouches", "Poids coqs", "Poids plumes"]:
+        assert poids in categorie_femme.keys()
+    for poids in [
+        "Poids mouches",
+        "Poids coqs",
+        "Poids plumes",
+        "Poids légers",
+        "Poids mi-moyens",
+        "Poids moyens",
+        "Poids mi-lourds",
+        "Poids lourds",
+    ]:
+        assert poids in categorie_homme.keys()
+
+
+def test_recuperation_liste_noms_champions(soup_anciens_champions):
+    """
+    Fonction qui teste la fonction _recuperation_liste_noms_champions
+    """
+
+    liste_homme, liste_femme = _recuperation_liste_noms_champions(
+        soup_anciens_champions,
+        categorie_homme=_creation_categories_poids(soup_anciens_champions)[0],
+        categorie_femme=_creation_categories_poids(soup_anciens_champions)[1],
+    )
+
+    assert isinstance(liste_homme, dict)
+    assert isinstance(liste_femme, dict)
+
+    for nom in liste_homme:
+        assert isinstance(nom, str)
+        assert nom != ""
+
+    for nom in liste_femme:
+        assert isinstance(nom, str)
+        assert nom != ""
+
+    for nom in ["Demetrious Johnson", "Henry Cejudo", "Deiveson Figueiredo"]:
+        assert nom in liste_homme["Poids mouches"]
+
+    for nom in [
+        "Rose Namajunas",
+        "Jéssica Andrade",
+        "Weili Zhang",
+        "Carla Esparza",
+    ]:
+        assert nom in liste_femme["Poids pailles"]
+
+    for nom in ["John Dodson", "Joseph Benavidez", "Alexandre Pantoja"]:
+        assert nom not in liste_homme["Poids mouches"]
+
+
+def test_recuperation_anciens_champions():
+    """
+    Fonction qui teste la fonction _recuperation_anciens_champions
+    """
+
+    liste_homme, liste_femme = _recuperation_anciens_champions()
+
+    assert isinstance(liste_homme, dict)
+    assert isinstance(liste_femme, dict)
+
+    for nom in liste_homme:
+        assert isinstance(nom, str)
+        assert nom != ""
+
+    for nom in liste_femme:
+        assert isinstance(nom, str)
+        assert nom != ""
+
+    for nom in ["Demetrious Johnson", "Henry Cejudo", "Deiveson Figueiredo"]:
+        assert nom in liste_homme["Poids mouches"]
+
+    for nom in [
+        "Rose Namajunas",
+        "Jéssica Andrade",
+        "Weili Zhang",
+        "Carla Esparza",
+    ]:
+        assert nom in liste_femme["Poids pailles"]
+
+    for nom in ["John Dodson", "Joseph Benavidez", "Alexandre Pantoja"]:
+        assert nom not in liste_homme["Poids mouches"]
+
+    for nom in liste_homme:
+        assert isinstance(nom, str)
+        assert nom != ""
+
+    for nom in liste_femme:
+        assert isinstance(nom, str)
+        assert nom != ""
+
+    for nom in ["Demetrious Johnson", "Henry Cejudo", "Deiveson Figueiredo"]:
+        assert nom in liste_homme["Poids mouches"]
+
+    for nom in [
+        "Rose Namajunas",
+        "Jéssica Andrade",
+        "Weili Zhang",
+        "Carla Esparza",
+    ]:
+        assert nom in liste_femme["Poids pailles"]
+
+    for nom in ["John Dodson", "Joseph Benavidez", "Alexandre Pantoja"]:
+        assert nom not in liste_homme["Poids mouches"]
 
 
 # def test_infos_principal_combattant(soup_combattant):
