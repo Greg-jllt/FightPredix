@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 
 @pytest.fixture
-def webdriver():
+def driver():
     """
     Fixture initialisant le webdriver Chrome
     """
@@ -50,12 +50,12 @@ def url_combattant():
 
 
 @pytest.fixture
-def soup_combattant(webdriver, url_combattant):
+def soup_combattant(driver, url_combattant):
     """
     Fixture retournant l'objet BeautifulSoup de la page d'un combattant
     """
 
-    webdriver.get(url_combattant)
-    html_content = webdriver.page_source
+    driver.get(url_combattant)
+    html_content = driver.page_source
     soup = BeautifulSoup(html_content, "html.parser")
     return soup
