@@ -8,16 +8,14 @@ def Dataframe_caracteristiques():
 
     Data = cherche_combattant_UFC_stats(Data)
 
-    Data = ...
-
     Data.to_csv("ufc_fighters_carac.csv", index=False)
 
     return Data
 
-def Dataframe_combats():
+# def Dataframe_combats():
 
-    Data = main_combat_recolte()
+#     Data = main_combat_recolte()
 
-    Data.to_csv("ufc_fights_combats.csv", index=False)
+#     Data.to_csv("ufc_fights_combats.csv", index=False)
 
-    return Data
+#     return Data
