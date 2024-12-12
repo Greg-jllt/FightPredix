@@ -253,7 +253,7 @@ def _integration_metriques(
     return data
 
 
-def cherche_combattant_UFC_stat(data : pd.DataFrame, driver : webdriver.Chrome) -> pd.DataFrame:
+def cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome) -> pd.DataFrame:
     """
     Fonction qui recolte les statistiques des combattants sur le site UFC Stats
 

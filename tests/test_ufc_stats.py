@@ -4,15 +4,11 @@ import pandas as pd
 import pytest
 
 from FightPredix.lib_ufc_stats import (
-    _temp_dict_ufc_stats,
-    _accès_cbt_page,
     _recolte_ufc_stats,
     _recolte_victoires,
     _collecteur_finish,
     _traitement_metriques,
-    _nettoyage_metriques,
-    _integration_metriques,
-    cherche_combattant_UFC_stat,
+
 )
 
 from .fixtures import driver_ufc_stats as driver 
