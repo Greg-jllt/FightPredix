@@ -50,6 +50,25 @@ def url_combattant():
 
 
 @pytest.fixture
+def driver_ufc_stats():
+    """
+    Fonction qui accède à une page web
+    """
+    from selenium import webdriver
+    driver = webdriver.Chrome()
+    driver.get("http://www.ufcstats.com/fighter-details/07f72a2a7591b409")
+    return driver
+
+
+def driver_ufc_stats_combats():
+    """
+    Fonction qui accède à une page web de combats 
+    """
+    from selenium import webdriver
+    driver = webdriver.Chrome()
+    return driver, ["http://www.ufcstats.com/event-details/ad23903ef3af7406"]
+
+@pytest.fixture
 def soup_combattant(webdriver, url_combattant):
     """
     Fixture retournant l'objet BeautifulSoup de la page d'un combattant

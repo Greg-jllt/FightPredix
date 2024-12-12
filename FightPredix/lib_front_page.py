@@ -86,12 +86,12 @@ def _deja_present(data: pd.DataFrame, url: str) -> bool:
     return False
 
 
-def page_principal(
-    main_driver: webdriver.Chrome, Data: pd.DataFrame = pd.DataFrame(), essais: int = 0
+def page_principal_UFC(
+    main_driver: webdriver.Chrome, Data: pd.DataFrame = None , essais: int = None
 ) -> pd.DataFrame:
     """
     Fonction permettant de recolter les informations des combattants de l'UFC
-
+"
     Args:
         main_driver (webdriver): Objet webdriver de la page principale
         Data (pd.Dataframe, optional): Dataframe contenant les informations des combattants deja recoltees. None par default.
@@ -175,6 +175,6 @@ if __name__ == "__main__":
 
     main_driver.get("https://www.ufc.com/athletes/all?filters%5B0%5D=status%3A23")
 
-    test = page_principal(main_driver, essais=essais)
+    test = page_principal_UFC(main_driver, essais=essais)
 
     console.print(test)

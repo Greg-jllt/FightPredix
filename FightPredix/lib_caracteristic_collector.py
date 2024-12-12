@@ -18,23 +18,22 @@ import pandas as pd
 
 def _infos_principal_combattant(
     fiche_combattant: bs4.element.ResultSet, dictio: defaultdict
-) -> None:
+) -> dict :
     """
     Fonction qui extrait les informations principales d'un combattant
     """
 
     for item in fiche_combattant:
-        if any(
-            clss in ["hero-profile__division-title", "hero-profile__division-body"]
-            for clss in item.get("class", [])
-        ):
+        if item.get("class") == ["hero-profile__nickname"] :
+            dictio["nickname"] = item.text.strip() 
+        if any(clss in ['hero-profile__division-title', 'hero-profile__division-body'] for clss in item.get('class', [])):
             text = item.text.strip()
-            if " (W-L-D)" in text:
-                record, _ = text.split(" (")
-                wins, losses, draws = record.split("-")
-                dictio["Win"] = int(wins)
-                dictio["Losses"] = int(losses)
-                dictio["Draws"] = int(draws)
+            if ' (W-L-D)' in text:
+                record, _ = text.split(' (')
+                wins, losses, draws = record.split('-')
+                dictio['Win'] = int(wins)
+                dictio['Losses'] = int(losses)
+                dictio['Draws'] = int(draws)
             else:
                 dictio["Division"] = text
                 if "Women's" in text:
@@ -58,7 +57,7 @@ def _combattant_actif(soup: BeautifulSoup, dictio: defaultdict) -> None:
 
 def _bio_combattant(
     info_combattant: bs4.element.ResultSet, dictio: defaultdict, required: list[str]
-) -> None:
+) -> dict:
     """
     Fonction qui extrait les informations biographiques d'un combattant
     """
@@ -77,7 +76,7 @@ def _bio_combattant(
                 )
 
 
-def _tenant_titre(soup: BeautifulSoup, dictio: defaultdict) -> None:
+def _tenant_titre(soup: BeautifulSoup, dictio: defaultdict) -> dict:
     """
     Fonction qui determine si un combattant est le tenant du titre
     """
@@ -91,7 +90,7 @@ def _tenant_titre(soup: BeautifulSoup, dictio: defaultdict) -> None:
         dictio["Title_holder"] = False
 
 
-def _stats_combattant(soup: BeautifulSoup, dictio: defaultdict) -> None:
+def _stats_combattant(soup: BeautifulSoup, dictio: defaultdict) -> dict:
     """
     Fonction qui extrait les statistiques d'un combattant
     """
@@ -114,7 +113,7 @@ def _stats_combattant(soup: BeautifulSoup, dictio: defaultdict) -> None:
             dictio[obj] = None
 
 
-def _stats_corps_combattant(soup: BeautifulSoup, dictio: defaultdict) -> None:
+def _stats_corps_combattant(soup: BeautifulSoup, dictio: defaultdict) -> dict:
     """
     Fonction qui extrait les statistiques de corps d'un combattant
     """
@@ -131,22 +130,23 @@ def _stats_corps_combattant(soup: BeautifulSoup, dictio: defaultdict) -> None:
                 )  # 1 On prend l'entier , mettre 0 pour prendre le pourcentage
         else:
             dictio[f"sig_str_{part}"] = None
+    
 
 
-def _pourcentage_touche_takedown(soup: BeautifulSoup, dictio: defaultdict) -> None:
+def _pourcentage_touche_takedown(soup: BeautifulSoup, dictio: defaultdict) -> dict:
     """
     Fonction qui extrait les pourcentages de takedown et de saisie d'un combattant
     """
 
     liste_objective = ["Précision_saisissante", "Précision_de_Takedown"]
-    percentage_text = soup.select("svg.e-chart-circle > title")
+    pourcentage_text = soup.select("svg.e-chart-circle > title")
     pattern = re.compile(r"([a-zA-Zéèêàç\s]+)(\d+%)")
 
-    if not percentage_text:
+    if not pourcentage_text:
         dictio["Précision_saisissante"] = None
         dictio["Précision_de_Takedown"] = None
     else:
-        for chaine in percentage_text:
+        for chaine in pourcentage_text:
             match = pattern.match(chaine.text)
             if match:
                 mots = match.group(1).strip().replace(" ", "_")
@@ -185,7 +185,7 @@ def _convert_minutes(time_str: str) -> float | None:
         return None
 
 
-def _mesures_combattant(soup: BeautifulSoup, dictio: defaultdict) -> None:
+def _mesures_combattant(soup: BeautifulSoup, dictio: defaultdict) -> dict:
     """
     Fonction qui extrait les mesures d'un combattant
     """
@@ -224,7 +224,19 @@ def _mesures_combattant(soup: BeautifulSoup, dictio: defaultdict) -> None:
         dictio[obj] = temp_data.get(obj, None)  # Pour eviter les eventuelles decalages
 
 
-def extraire_info_combattant(soup: BeautifulSoup) -> defaultdict | None:
+def _recolte_image(soup, dictio)-> dict:
+    """
+    Fonction qui recolte l'image d'un combattant
+    """
+    image = soup.select_one("div.hero-profile__image-wrap > img")
+    if image:
+        dictio["img_cbt"] = image.get("src")
+    else :
+        dictio["img_cbt"] = "https://www.ufc.com/themes/custom/ufc/assets/img/no-profile-image.png" 
+    return dictio
+
+
+def extraire_info_combattant(soup: BeautifulSoup) -> defaultdict:
     """
     Permet d'extraire les informations d'un combattant a partir d'un objet BeautifulSoup
 
@@ -262,6 +274,7 @@ def extraire_info_combattant(soup: BeautifulSoup) -> defaultdict | None:
     _stats_corps_combattant(soup, dictio)
     _pourcentage_touche_takedown(soup, dictio)
     _mesures_combattant(soup, dictio)
+    _recolte_image(soup, dictio)
 
     return dictio
 
