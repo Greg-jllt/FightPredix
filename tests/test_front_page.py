@@ -9,28 +9,28 @@ from FightPredix.lib_front_page import _recolte_pages_combattants, _deja_present
 from bs4 import BeautifulSoup
 
 
-from .fixtures import webdriver, url, url_combattant  # noqa: F401
+from .fixtures import driver, url, url_combattant  # noqa: F401
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
-def test_requete_page_souhaitee(webdriver, url):  # noqa: F811
+def test_requete_page_souhaitee(driver, url):  # noqa: F811
     """
     On vérifie que la page souhaitée a bien été atteinte
     """
 
-    webdriver.get(url)
-    assert webdriver.current_url == url
+    driver.get(url)
+    assert driver.current_url == url
 
 
-def test_recolte_pages_combattants(webdriver, url):  # noqa: F811
+def test_recolte_pages_combattants(driver, url):  # noqa: F811
     """
     On vérifie que la fonction _recolte_pages_combattants renvoie bien une liste de liens
     """
 
-    webdriver.get(url)
+    driver.get(url)
 
-    front_content = webdriver.page_source
+    front_content = driver.page_source
 
     front_soup = BeautifulSoup(front_content, "html.parser")
 
@@ -55,10 +55,10 @@ def test_deja_presents():
     assert not _deja_present(Data, "https://www.ufc.com/athlete/alfrd-alfred")
 
 
-def test_url_combattant_souhaitee(webdriver, url_combattant):  # noqa: F811
+def test_url_combattant_souhaitee(driver, url_combattant):  # noqa: F811
     """
     On vérifie que l'url du combattant souhaité est bien atteinte
     """
 
-    webdriver.get(url_combattant)
-    assert webdriver.current_url == url_combattant
+    driver.get(url_combattant)
+    assert driver.current_url == url_combattant
