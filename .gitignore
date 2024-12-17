@@ -8,3 +8,5 @@
 env/
 
 .coverage
+
+data_scrapee/

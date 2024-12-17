@@ -7,6 +7,8 @@ import os
 import sys
 import pytest
 from bs4 import BeautifulSoup
+from selenium import webdriver
+
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -16,7 +18,6 @@ def driver():
     """
     Fixture initialisant le webdriver Chrome
     """
-    from selenium import webdriver
 
     driver = webdriver.Chrome()
 
