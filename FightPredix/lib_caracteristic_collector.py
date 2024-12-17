@@ -6,49 +6,52 @@ Développée par :
     - [Hugo Cochereau](https://github.com/hugocoche)
 """
 
-from bs4 import BeautifulSoup
 from collections import defaultdict
-import bs4
 from selenium import webdriver
 from rich.console import Console
+from selenium.webdriver.common.by import By
 
 import re
-import pandas as pd
 
 
 def _infos_principal_combattant(
-    fiche_combattant: bs4.element.ResultSet, dictio: defaultdict
+    driver , dictio: defaultdict
 ) -> dict :
     """
     Fonction qui extrait les informations principales d'un combattant
     """
 
-    for item in fiche_combattant:
-        if item.get("class") == ["hero-profile__nickname"] :
-            dictio["nickname"] = item.text.strip() 
-        if any(clss in ['hero-profile__division-title', 'hero-profile__division-body'] for clss in item.get('class', [])):
-            text = item.text.strip()
+    nickname_elements = driver.find_elements(By.CSS_SELECTOR, "p.hero-profile__nickname")
+    dictio["Nickname"] = nickname_elements[0].text.strip() if nickname_elements else None
+
+
+    elements = driver.find_elements(By.CSS_SELECTOR, ".hero-profile__division-title, .hero-profile__division-body")
+
+    if elements:
+        texts = [el.text.strip() for el in elements]
+
+        for text in texts:
             if ' (W-L-D)' in text:
                 record, _ = text.split(' (')
-                wins, losses, draws = record.split('-')
-                dictio['Win'] = int(wins)
-                dictio['Losses'] = int(losses)
-                dictio['Draws'] = int(draws)
+                dictio.update(dict(zip(['Win', 'Losses', 'Draws'], map(int, record.split('-')))))
             else:
-                dictio["Division"] = text
-                if "Women's" in text:
-                    dictio["Genre"] = "Female"
-                else:
-                    dictio["Genre"] = "Male"
+                dictio.update({
+                    "Division": text,
+                    "Genre": "Female" if "Women's" in text else "Male"
+                })
+        return True
+    return False
+    
 
 
-def _combattant_actif(soup: BeautifulSoup, dictio: defaultdict) -> None:
+
+def _combattant_actif(driver, dictio: defaultdict) -> None:
     """
     Fonction qui determine si un combattant est actif ou non
     """
 
     if any(
-        "Actif" in tag.text for tag in soup.find_all("p", class_="hero-profile__tag")
+        "Actif" in tag.text for tag in driver.find_elements(By.CSS_SELECTOR, "p.hero-profile__tag")
     ):
         dictio["Actif"] = True
     else:
@@ -56,53 +59,69 @@ def _combattant_actif(soup: BeautifulSoup, dictio: defaultdict) -> None:
 
 
 def _bio_combattant(
-    info_combattant: bs4.element.ResultSet, dictio: defaultdict, required: list[str]
+    driver , dictio: defaultdict
 ) -> dict:
     """
     Fonction qui extrait les informations biographiques d'un combattant
     """
+    required = [
+        "STYLE DE COMBAT",
+        "ÂGE",
+        "LA TAILLE" ,
+        "POIDS" ,
+        "DÉBUT DE L'OCTOGONE",
+        "REACH",
+        "PORTÉE DE LA JAMBE",
+    ]
 
-    for item in info_combattant:
-        label = item.find("div", class_="c-bio__label")
-        text = item.find("div", class_="c-bio__text")
+    labels = driver.find_elements(By.CSS_SELECTOR, "div.c-bio__label")
+    texts = driver.find_elements(By.CSS_SELECTOR, "div.c-bio__text")
 
-        if label and text:
-            if label.text.strip() in required:
-                if text.find("div"):
-                    text = text.find("div")  # cas de couche caché
-                val = text.text.strip() if text else None
-                dictio[label.text.strip()] = (
-                    float(val) if bool(re.fullmatch(r"\d+(\.\d+)?", val)) else val
+    for lbl, txt in zip(labels, texts):
+        lbl_text = lbl.text.strip() if lbl else None
+        txt_content = txt.text.strip() if txt else None
+        if lbl_text and lbl_text in required:
+            div_emboitee = None
+            try:
+                div_emboitee = txt.find_element(By.CSS_SELECTOR, "div")
+            except Exception:
+                pass 
+            
+            val = div_emboitee.text.strip() if div_emboitee else txt_content
+            
+            if val:
+                dictio[lbl_text] = (
+                    float(val) if re.fullmatch(r"\d+(\.\d+)?", val) else val
                 )
 
 
-def _tenant_titre(soup: BeautifulSoup, dictio: defaultdict) -> dict:
+
+
+def _tenant_titre(driver, dictio: defaultdict) -> dict:
     """
     Fonction qui determine si un combattant est le tenant du titre
     """
 
     if any(
         "Title Holder" in tag.text
-        for tag in soup.find_all("p", class_="hero-profile__tag")
+        for tag in driver.find_elements(By.CSS_SELECTOR, "p.hero-profile__tag")
     ):
         dictio["Title_holder"] = True
     else:
         dictio["Title_holder"] = False
 
 
-def _stats_combattant(soup: BeautifulSoup, dictio: defaultdict) -> dict:
+def _stats_combattant(driver, dictio: defaultdict) -> dict:
     """
     Fonction qui extrait les statistiques d'un combattant
     """
 
     liste_objective = ["Permanent", "Clinch", "Sol", "KO/TKO", "DEC", "SUB"]
-    groups = soup.find_all("div", class_="c-stat-3bar__group")
+    groups = driver.find_elements(By.CSS_SELECTOR, "div.c-stat-3bar__group")
     if groups:
         for group in groups:
-            label = group.find(
-                "div", class_="c-stat-3bar__label"
-            )  # case bas gauche et bas droite de la section stats
-            value = group.find("div", class_="c-stat-3bar__value")
+            label = group.find_element(By.CSS_SELECTOR, "div.c-stat-3bar__label")
+            value = group.find_element(By.CSS_SELECTOR, "div.c-stat-3bar__value")
             if label and value:
                 cleaned_value = re.sub(r"\s*\(.*?\)", "", value.text).strip()
                 dictio[label.text.strip()] = int(cleaned_value)
@@ -113,7 +132,7 @@ def _stats_combattant(soup: BeautifulSoup, dictio: defaultdict) -> dict:
             dictio[obj] = None
 
 
-def _stats_corps_combattant(soup: BeautifulSoup, dictio: defaultdict) -> dict:
+def _stats_corps_combattant(driver, dictio: defaultdict) -> dict:
     """
     Fonction qui extrait les statistiques de corps d'un combattant
     """
@@ -121,56 +140,38 @@ def _stats_corps_combattant(soup: BeautifulSoup, dictio: defaultdict) -> dict:
     # ['sig_str_head', 'sig_str_body', 'sig_str_leg']
     body_part = ["head", "body", "leg"]
     for part in body_part:
-        small_soup = soup.find("g", id=f"e-stat-body_x5F__x5F_{part}-txt")
-        if small_soup:
-            texts = small_soup.find_all("text")
+        
+        btext_elements = driver.find_elements(By.CSS_SELECTOR, f"g#e-stat-body_x5F__x5F_{part}-txt")
+        
+        if btext_elements:
+            btext = btext_elements[0] 
+            texts = btext.find_elements(By.TAG_NAME, "text")
+            
             if len(texts) > 1:
-                dictio[f"sig_str_{part}"] = int(
-                    texts[1].text.strip()
-                )  # 1 On prend l'entier , mettre 0 pour prendre le pourcentage
+                dictio[f"sig_str_{part}"] = int(texts[1].text.strip())  # 1 On prend l'entier , mettre 0 pour prendre le pourcentage
+
         else:
             dictio[f"sig_str_{part}"] = None
     
 
 
-def _pourcentage_touche_takedown(soup: BeautifulSoup, dictio: defaultdict) -> dict:
+def _pourcentage_touche_takedown(driver,  dictio: defaultdict) -> dict:
     """
     Fonction qui extrait les pourcentages de takedown et de saisie d'un combattant
     """
 
     liste_objective = ["Précision_saisissante", "Précision_de_Takedown"]
-    pourcentage_text = soup.select("svg.e-chart-circle > title")
-    pattern = re.compile(r"([a-zA-Zéèêàç\s]+)(\d+%)")
+    pourcentage_text = driver.find_elements(By.CLASS_NAME, "e-chart-circle__percent")
 
     if not pourcentage_text:
         dictio["Précision_saisissante"] = None
         dictio["Précision_de_Takedown"] = None
     else:
-        for chaine in pourcentage_text:
-            match = pattern.match(chaine.text)
-            if match:
-                mots = match.group(1).strip().replace(" ", "_")
-                pourcentage = match.group(2).strip()
-                dictio[mots] = float(pourcentage.rstrip("%"))
+        for i, pourcentage in enumerate(pourcentage_text):
+            dictio[f"{liste_objective[i]}"] = float(pourcentage.text.rstrip("%")) / 100
         mot_manquants = [mot for mot in liste_objective if mot not in dictio.keys()]
         if mot_manquants:
             dictio[f"{mot_manquants[0]}"] = None
-
-
-def _extraire_temps(element: str) -> float | None:
-    """
-    Fonction qui extrait le temps de combat moyen
-    """
-
-    if not element:
-        return None
-    try:
-        if element.find("div", class_="c-stat-compare__percent"):  # type: ignore
-            element.find("div", class_="c-stat-compare__percent").extract()  # type: ignore
-        text = element.text.strip()  # type: ignore
-        return float(re.sub(r"[^\d.]+", "", text))
-    except ValueError:
-        return None
 
 
 def _convert_minutes(time_str: str) -> float | None:
@@ -185,58 +186,55 @@ def _convert_minutes(time_str: str) -> float | None:
         return None
 
 
-def _mesures_combattant(soup: BeautifulSoup, dictio: defaultdict) -> dict:
+def _mesures_combattant(driver, dictio: defaultdict) -> dict:
     """
     Fonction qui extrait les mesures d'un combattant
     """
 
-    liste_objective = [
-        "Sig. Str. A atterri",
-        "Sig. Frappes Encaissées",
-        "Takedown avg",
-        "Envoi avg",
-        "Sig. Str.défense",
-        "Défense de démolition",
-        "Knockdown Avg",
-        "Temps de combat moyen",
-    ]
+    liste_objective = ['SIG. STR. A ATTERRI', 
+                       'SIG. FRAPPES ENCAISSÉES', 
+                       'TAKEDOWN AVG', 'ENVOI AVG', 
+                       'SIG. STR.DÉFENSE', 
+                       'DÉFENSE DE DÉMOLITION', 
+                       'KNOCKDOWN AVG', 
+                       'TEMPS DE COMBAT MOYEN']
 
-    groups = soup.find_all("div", class_="c-stat-compare__group")
 
     temp_data = {}
 
-    for group in groups:
-        label = group.find("div", class_="c-stat-compare__label")
-        value = group.find("div", class_="c-stat-compare__number")
+    labels = driver.find_elements(By.CSS_SELECTOR, "div.c-stat-compare__label")
+    values = driver.find_elements(By.CSS_SELECTOR, "div.c-stat-compare__number")
 
+    for label, value in zip(labels, values):
         if label:
             label_text = label.text.strip()
             if value:
                 value_text = value.text.strip()
+
                 if ":" in value_text:
                     temp_data[label_text] = _convert_minutes(value_text)
                 else:
-                    temp_data[label_text] = _extraire_temps(value)
+                    temp_data[label_text] = float(re.sub(r"[^\d.]+", "", value_text))
             else:
                 temp_data[label_text] = None
-
+    
     for obj in liste_objective:
         dictio[obj] = temp_data.get(obj, None)  # Pour eviter les eventuelles decalages
 
 
-def _recolte_image(soup, dictio)-> dict:
+def _recolte_image(driver, dictio)-> dict:
     """
     Fonction qui recolte l'image d'un combattant
     """
-    image = soup.select_one("div.hero-profile__image-wrap > img")
+    image = driver.find_elements(By.CSS_SELECTOR,"div.hero-profile__image-wrap > img")
     if image:
-        dictio["img_cbt"] = image.get("src")
+        dictio["img_cbt"] = image[0].get_attribute("src")
     else :
-        dictio["img_cbt"] = "https://www.ufc.com/themes/custom/ufc/assets/img/no-profile-image.png" 
+        dictio["img_cbt"] = "NO" 
     return dictio
 
 
-def extraire_info_combattant(soup: BeautifulSoup) -> defaultdict:
+def extraire_info_combattant(driver) -> defaultdict:
     """
     Permet d'extraire les informations d'un combattant a partir d'un objet BeautifulSoup
 
@@ -245,42 +243,36 @@ def extraire_info_combattant(soup: BeautifulSoup) -> defaultdict:
 
     Returns:
         dict: Dictionnaire contenant les informations du combattant
+
     """
     dictio = defaultdict(str)
-    recap_combattant = soup.select_one("div.hero-profile > div.hero-profile__info")
-    info_combattant = soup.select("div.c-bio__field")
-    if recap_combattant:
-        fiche_combattant, cbt_name = (
-            recap_combattant.find_all("p"),
-            recap_combattant.find("h1").text,
-        )
-    else:
+
+    cbt_name = driver.find_element(By.CSS_SELECTOR, "div.hero-profile > div.hero-profile__info > h1").text
+
+    if not cbt_name:
         return None
-    required = [
-        "Style de combat",
-        "Âge",
-        "La Taille",
-        "Poids",
-        "Reach",
-        "Portée de la jambe",
-    ]
+
     dictio["Name"] = cbt_name
 
-    _infos_principal_combattant(fiche_combattant, dictio)
-    _combattant_actif(soup, dictio)
-    _bio_combattant(info_combattant, dictio, required)
-    _tenant_titre(soup, dictio)
-    _stats_combattant(soup, dictio)
-    _stats_corps_combattant(soup, dictio)
-    _pourcentage_touche_takedown(soup, dictio)
-    _mesures_combattant(soup, dictio)
-    _recolte_image(soup, dictio)
+    verif = _infos_principal_combattant(driver, dictio)
+    if verif:
+        _combattant_actif(driver, dictio)
+        _bio_combattant(driver, dictio)
+        _tenant_titre(driver, dictio)
+        _stats_combattant(driver, dictio)
+        _stats_corps_combattant(driver, dictio)
+        _pourcentage_touche_takedown(driver, dictio)
+        _mesures_combattant(driver, dictio)
+        _recolte_image(driver, dictio)
+    else: 
+        pass
 
     return dictio
 
 
 if __name__ == "__main__":
-    console = Console
+
+    console = Console()
 
     driver = webdriver.Chrome()
 
@@ -288,16 +280,8 @@ if __name__ == "__main__":
 
     driver.get(url)
 
-    driver.implicitly_wait(10)
+    dictio = extraire_info_combattant(driver)
 
-    html_content = driver.page_source
+    console.print(dictio)
 
     driver.quit()
-
-    soup = BeautifulSoup(html_content, "html.parser")
-
-    dictio = extraire_info_combattant(soup)
-
-    data = pd.dataframe(dictio)
-
-    console.print()

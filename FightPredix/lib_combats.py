@@ -6,7 +6,13 @@ from selenium.webdriver.common.by import By
 from selenium import webdriver
 
 import pandas as pd
+from datetime import datetime
 
+from .outils import configure_logger
+
+
+date = datetime.now().strftime("%Y-%m-%d")
+logger = configure_logger(f"{date}_crawler_combats_stats")
 
 
 def _recolte_events(driver) -> list:
@@ -37,8 +43,13 @@ def _explore_events(liste_events:list, driver : webdriver.Chrome) -> list:
             "resultat": 0 if i%2==0 else 1
         }
         for event in liste_events
+        if (logger.info(f"Processing event: {event}"), True)[1]
         for _ in [driver.get(event)]
         for i, cbt in enumerate(driver.find_elements(By.CSS_SELECTOR, "td.b-fight-details__table-col.l-page_align_left[style='width:100px']"))
+        if (
+            logger.info(f"Found fighter pair: {cbt.find_elements(By.TAG_NAME, 'p')[0].text} vs {cbt.find_elements(By.TAG_NAME, 'p')[1].text}"),  # Log des combattants
+            True
+        )[1]
     ]
 
 

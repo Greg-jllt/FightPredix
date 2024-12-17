@@ -9,12 +9,19 @@ Développée par :
 from collections import Counter
 from selenium.webdriver.common.by import By
 from rapidfuzz import fuzz
-from warnings import warn
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from rich.console import Console
+
+from .outils import configure_logger
 
 import re
 import pandas as pd
+import traceback
+from datetime import datetime
 
+date = datetime.now().strftime("%Y-%m-%d")
+logger = configure_logger(f"{date}_crawler_UFC_stats")
 
 def _temp_dict_ufc_stats(cplt_name: str, rows) -> dict:
     """
@@ -52,19 +59,15 @@ def _accès_cbt_page(temp_dict: dict, driver: webdriver.Chrome) -> None:
     for row in rows[2:]:
 
         cells = row.find_elements(By.XPATH, "./td")
-        prenom_cell = cells[0].text.strip()
-        nom_cell = cells[1].text.strip()
+        prenom_cell = cells[0].text.strip() if len(cells) > 0 else ""
+        nom_cell = cells[1].text.strip() if len(cells) > 1 else ""
 
-        print(prenom_cell, nom_cell)
-
-        if prenom_cell == prenom and nom_cell == nom:
+        if (prenom_cell == prenom or not prenom) and (nom_cell == nom or not nom):
             try:
                 link = row.find_element(By.XPATH, ".//a")
                 link.click()
             except:
-                print(
-                    "Aucun lien trouvé pour cette ligne, mais le combattant a été identifié."
-                )
+                logger.error(f"Aucun lien n'a été trouvé pour {prenom} {nom}")
             break
 
 
@@ -85,7 +88,7 @@ def _recolte_ufc_stats(driver: webdriver.Chrome) -> dict:
         )
         .strip()
         for item in liste_items
-        if item.text.strip()
+        if item.text.strip() and item.text.strip() != "DOB:"
     }
 
 
@@ -153,6 +156,8 @@ def _traitement_metriques(driver: webdriver.Chrome) -> dict:
 
     final_dict = _nettoyage_metriques(temp_dict)
 
+    logger.info(f"Metriques recoltees : {final_dict}")
+
     return final_dict
 
 
@@ -211,44 +216,43 @@ def _integration_metriques(
 
     dictio = _traitement_metriques(driver)
 
+    
     mapping = {
         "HEIGHT": "La Taille",
         "WEIGHT": "Poids",
         "REACH": "Reach",
         "STANCE": "Style de combat",
-        "DOB": "Âge",
-        "SLpM": "sig_str_head",
-        "Str. Acc.": "sig_str_body",
-        "SApM": "sig_str_leg",
-        "Str. Def": "Précision_saisissante",
+        "Str. Acc.": "Précision_saisissante",
         "TD Acc.": "Précision_de_Takedown",
-        "TD Avg.": "Sig. Str. A atterri",
-        "TD Def.": "Sig. Frappes Encaissées",
-        "Sub. Avg.": "Takedown avg",
-        "Sub. Avg.": "Envoi avg",
-        "Str. Def.": "Sig. Str.défense",
-        "TD Def.": "Défense de démolition",
-        "Knockdown Avg": "Knockdown Avg",
-        "Fight Time": "Temps de combat moyen",
+        "SLpM": "SIG. STR. A ATTERRI",
+        "SApM": "SIG. FRAPPES ENCAISSÉES",
+        "TD Avg.": "TAKEDOWN AVG",
+        "Sub. Avg.": "ENVOI AVG",
+        "Str. Def.": "SIG. STR.DÉFENSE",
+        "TD Def.": "DÉFENSE DE DÉMOLITION",        
     }
 
-    if cplt_name in data["Name"].values:
+    try: 
+        if cplt_name in data["Name"].values:
 
-        combattant_row = data[data["Name"] == cplt_name].index[0]
+            combattant_row = data[data["Name"] == cplt_name].index[0]
 
-        for key, value in dictio.items():
-            if key in mapping.keys():
-                data_key = mapping[key]
-            else:
-                data_key = key
+            for key, value in dictio.items():
+                data_key = mapping.get(key, key)
+                
+                if data_key not in data.columns:
+                    data[data_key] = None
 
-            if pd.isna(data.loc[combattant_row, data_key]) or (
-                data.loc[combattant_row, data_key] < value
-                if isinstance(value, (int, float))
-                and data_key in ["Win", "Losses", "Draws"]
-                else False
-            ):
-                data.loc[combattant_row, data_key] = value
+                if pd.isna(data.loc[combattant_row, data_key]) or (
+                    data.loc[combattant_row, data_key] < value
+                    if isinstance(value, (int, float))
+                    and data_key in ["Win", "Losses", "Draws"]
+                    else False
+                ):
+                    data.loc[combattant_row, data_key] = value
+    except Exception as e:
+        logger.warning(f"Erreur lors de la recherche du combattant {cplt_name} : {e}")
+        logger.error(traceback.print_exc())
 
     return data
 
@@ -261,37 +265,51 @@ def cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome)
         data (pd.DataFrame): dataframe contenant les informations des combattants
         driver (webdriver.Chrome): driver de la page du combattant
     """
+    logger.info("Recherche des combattants sur le site UFC Stats")
 
     for cplt_name, nickname in zip(data["Name"], data["Nickname"]):
-        prenom, nom = cplt_name.split(" ")
+        logger.info(f"combattant {cplt_name}")
+        try :
+            parts = cplt_name.split(" ")
+            prenom, nom = parts[0], parts[1] if len(parts) > 1 else ""
 
-        url = f"http://www.ufcstats.com/statistics/fighters/search?query={nom.lower()}"
-        driver.get(url)
+            url = f"http://www.ufcstats.com/statistics/fighters/search?query={nom.lower()}"
+            driver.get(url)
 
-        for clé in [prenom, nickname]:
-            if clé is not None:
+            for clé in [prenom, nickname]:
                 rows = driver.find_elements(
                     By.CSS_SELECTOR, "tbody > tr.b-statistics__table-row"
                 )
-                rows_count = len(rows)
-                if rows_count >= 2:
+                if len(rows) >= 2:
                     break
-                url = f"http://www.ufcstats.com/statistics/fighters/search?query={clé}"
-                driver.get(url)
-        else:
-            warn(f"Le combattant {cplt_name} n'a pas été trouvé")
-            break
+                if clé is not None:
+                    url = f"http://www.ufcstats.com/statistics/fighters/search?query={clé.lower()}"
+                    driver.get(url)
+            else:
+                logger.warning(f"Le combattant {cplt_name} n'a pas été trouvé")
+                continue
 
-        temp_dict = _temp_dict_ufc_stats(cplt_name, rows)
+            temp_dict = _temp_dict_ufc_stats(cplt_name, rows)
 
-        _accès_cbt_page(temp_dict, driver)
+            _accès_cbt_page(temp_dict, driver)
 
-        data = _integration_metriques(data, cplt_name, driver)
-
-    driver.quit()
+            data = _integration_metriques(data, cplt_name, driver)
+        except Exception as e:
+            logger.warning(f"Erreur lors de la recherche du combattant {cplt_name} : {e}")
+            logger.error(traceback.print_exc())
+            continue
 
     return data
 
 
 if __name__ == "__main__":
-    ...
+
+    Data = pd.read_csv("Data_ufc_fighters_t1.csv")
+
+    chrome_options = Options()
+
+    chrome_options.add_argument("--headless")
+
+    driver = webdriver.Chrome(options=chrome_options)
+
+    Data = cherche_combattant_UFC_stats(data=Data, driver=driver)

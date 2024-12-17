@@ -2,20 +2,57 @@ from .lib_front_page import page_principal_UFC
 from .lib_combats import main_combat_recolte
 from .lib_ufc_stats import cherche_combattant_UFC_stats
 
-def Dataframe_caracteristiques():
+from selenium.webdriver.chrome.options import Options
+from rich.console import Console
+from selenium import webdriver
+from pathlib import Path
 
-    Data = page_principal_UFC()
+import pandas as pd
 
-    Data = cherche_combattant_UFC_stats(Data)
+def Dataframe_caracteristiques(driver: webdriver.Chrome) -> pd.DataFrame:
 
-    Data.to_csv("ufc_fighters_carac.csv", index=False)
+    Data = page_principal_UFC(main_driver=driver)
+
+    return  Data
+
+
+def Dataframe_caracteristiques_ufc_stats(data: pd.DataFrame, driver: webdriver.Chrome) -> pd.DataFrame:
+    
+    Data = cherche_combattant_UFC_stats(data=data, driver=driver)
+
+    Data.to_csv("FightPredix/Data/Data_ufc_fighters.csv", index=False)
 
     return Data
 
-# def Dataframe_combats():
 
-#     Data = main_combat_recolte()
+def Dataframe_combats(driver: webdriver.Chrome) -> pd.DataFrame:
 
-#     Data.to_csv("ufc_fights_combats.csv", index=False)
+    Data = main_combat_recolte(driver=driver)
 
-#     return Data
+    Data.to_csv("FightPredix/Data/Data_ufc_combats.csv", index=False)
+
+    return Data
+
+def main():
+
+    chrome_options = Options()
+    
+    chrome_options.add_argument("--headless")
+
+    main_driver = webdriver.Chrome(options=chrome_options)
+
+    Data = Dataframe_caracteristiques(main_driver)
+
+    main_driver = webdriver.Chrome(options=chrome_options)
+
+    Data = Dataframe_caracteristiques_ufc_stats(Data,main_driver)
+
+    Data = Dataframe_combats(main_driver)
+
+    main_driver.quit()
+
+    return Data
+
+if __name__ == "__main__":
+
+    main()
