@@ -16,8 +16,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from rich.console import Console
-from FightPredix import extraire_info_combattant
-from typing import Any, Optional
+from FightPredix import _extraire_info_combattant
+from typing import Any
 from datetime import datetime
 
 import re
@@ -46,7 +46,7 @@ def _recolte_pages_combattants(driver) -> list:
 
 def _visite_page_combattant(
     driver: webdriver.Chrome, url: str
-) -> Optional[defaultdict]:
+) -> defaultdict:
     """
     Fonction qui visite la page d'un combattant et recolte ses informations
     """
@@ -54,8 +54,7 @@ def _visite_page_combattant(
     driver.get(url)
     time.sleep(1)
 
-
-    dictio = extraire_info_combattant(driver)
+    dictio = _extraire_info_combattant(driver)
     return dictio
 
 
@@ -94,7 +93,7 @@ def _deja_present(data: pd.DataFrame, url: str) -> bool:
     return False
 
 
-def page_principal_UFC(
+def _page_principal_UFC(
     main_driver: webdriver.Chrome, Data: pd.DataFrame = None
 ) -> pd.DataFrame:
     """
@@ -173,6 +172,6 @@ if __name__ == "__main__":
 
     main_driver = webdriver.Chrome()
 
-    test = page_principal_UFC(main_driver)
+    test = _page_principal_UFC(main_driver)
 
     console.print(test)

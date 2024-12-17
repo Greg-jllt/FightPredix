@@ -81,9 +81,9 @@ if os.path.exists(file_path):
     if fighter_1 == "None" or fighter_2 == "None" or fighter_1 == fighter_2:
         st.write("## Please select two different fighters.")
     else: 
-        _, c1, _ = st.columns([1.5, 0.5, 1.5], vertical_alignment="center")
-        c1.button("Predict")
         data = df.loc[(df["Name"] == fighter_1) | (df["Name"] == fighter_2), ["Name", "Poids","La Taille", "Âge","Win","Losses", "Draws", "KO/TKO", "SUB", "DEC"]]
         data.set_index("Name", inplace=True)
         data = data.round(1)
         st.table(data.style.format("{:.0f}"))
+        _, c1, _ = st.columns([1.5, 0.5, 1.5], vertical_alignment="center")
+        c1.button("Predict")

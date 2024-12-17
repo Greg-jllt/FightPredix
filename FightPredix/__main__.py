@@ -1,6 +1,6 @@
-from .lib_front_page import page_principal_UFC
-from .lib_combats import main_combat_recolte
-from .lib_ufc_stats import cherche_combattant_UFC_stats
+from .lib_front_page import _page_principal_UFC
+from .lib_combats import _main_combat_recolte
+from .lib_ufc_stats import _cherche_combattant_UFC_stats
 
 from selenium.webdriver.chrome.options import Options
 from rich.console import Console
@@ -11,14 +11,14 @@ import pandas as pd
 
 def Dataframe_caracteristiques(driver: webdriver.Chrome) -> pd.DataFrame:
 
-    Data = page_principal_UFC(main_driver=driver)
+    Data = _page_principal_UFC(main_driver=driver)
 
     return  Data
 
 
 def Dataframe_caracteristiques_ufc_stats(data: pd.DataFrame, driver: webdriver.Chrome) -> pd.DataFrame:
     
-    Data = cherche_combattant_UFC_stats(data=data, driver=driver)
+    Data = _cherche_combattant_UFC_stats(data=data, driver=driver)
 
     Data.to_csv("FightPredix/Data/Data_ufc_fighters.csv", index=False)
 
@@ -27,7 +27,7 @@ def Dataframe_caracteristiques_ufc_stats(data: pd.DataFrame, driver: webdriver.C
 
 def Dataframe_combats(driver: webdriver.Chrome) -> pd.DataFrame:
 
-    Data = main_combat_recolte(driver=driver)
+    Data = _main_combat_recolte(driver=driver)
 
     Data.to_csv("FightPredix/Data/Data_ufc_combats.csv", index=False)
 

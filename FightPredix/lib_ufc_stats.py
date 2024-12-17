@@ -64,8 +64,7 @@ def _accès_cbt_page(temp_dict: dict, driver: webdriver.Chrome) -> None:
 
         if (prenom_cell == prenom or not prenom) and (nom_cell == nom or not nom):
             try:
-                link = row.find_element(By.XPATH, ".//a")
-                link.click()
+                row.find_element(By.XPATH, ".//a").click()
             except:
                 logger.error(f"Aucun lien n'a été trouvé pour {prenom} {nom}")
             break
@@ -148,9 +147,9 @@ def _traitement_metriques(driver: webdriver.Chrome) -> dict:
         "KO/TKO": finishes["KO/TKO"],
         "SUB": finishes["SUB"],
         "DEC": finishes["DEC"],
-        "Win": resultats[0],
-        "Losses": resultats[1],
-        "Draws": resultats[2],
+        "WIN": resultats[0],
+        "LOSSES": resultats[1],
+        "DRAWS": resultats[2],
         **stats,
     }
 
@@ -218,9 +217,9 @@ def _integration_metriques(
 
     
     mapping = {
-        "HEIGHT": "La Taille",
-        "WEIGHT": "Poids",
-        "REACH": "Reach",
+        "HEIGHT": "LA TAILLE",
+        "WEIGHT": "POIDS",
+        "REACH": "REACH",
         "STANCE": "Style de combat",
         "Str. Acc.": "Précision_saisissante",
         "TD Acc.": "Précision_de_Takedown",
@@ -228,7 +227,7 @@ def _integration_metriques(
         "SApM": "SIG. FRAPPES ENCAISSÉES",
         "TD Avg.": "TAKEDOWN AVG",
         "Sub. Avg.": "ENVOI AVG",
-        "Str. Def.": "SIG. STR.DÉFENSE",
+        "Str. Def": "SIG. STR.DÉFENSE",
         "TD Def.": "DÉFENSE DE DÉMOLITION",        
     }
 
@@ -257,7 +256,7 @@ def _integration_metriques(
     return data
 
 
-def cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome) -> pd.DataFrame:
+def _cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome) -> pd.DataFrame:
     """
     Fonction qui recolte les statistiques des combattants sur le site UFC Stats
 
@@ -312,4 +311,4 @@ if __name__ == "__main__":
 
     driver = webdriver.Chrome(options=chrome_options)
 
-    Data = cherche_combattant_UFC_stats(data=Data, driver=driver)
+    Data = _cherche_combattant_UFC_stats(data=Data, driver=driver)

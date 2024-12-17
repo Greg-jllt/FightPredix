@@ -4,6 +4,7 @@ Librairie de fonctions pour la recolte des combats
 
 from selenium.webdriver.common.by import By
 from selenium import webdriver
+from rapidfuzz import fuzz
 
 import pandas as pd
 from datetime import datetime
@@ -53,7 +54,7 @@ def _explore_events(liste_events:list, driver : webdriver.Chrome) -> list:
     ]
 
 
-def main_combat_recolte(driver: webdriver.Chrome) -> pd.DataFrame:
+def _main_combat_recolte(driver: webdriver.Chrome) -> pd.DataFrame:
     """
     fonction principale de recolte des combats sur UFC stats 
 
@@ -66,3 +67,35 @@ def main_combat_recolte(driver: webdriver.Chrome) -> pd.DataFrame:
     res = _explore_events(liste_events, driver)
 
     return pd.DataFrame(res)
+
+
+
+def _difference_combats(caracteristiques : pd.DataFrame, combats : pd.DataFrame) -> pd.DataFrame :
+    """
+    Fonction qui calcule la difference entre les caracteristiques des combattants pour le dataset de combats
+    """
+    
+    for i, combat in combats.iterrows():
+
+        combattant_1 = combat["combattant_1"]
+        combattant_2 = combat["combattant_2"]
+
+        for nom in caracteristiques["Name"].values:
+            if fuzz.ratio(nom, combattant_1) > 95:
+                stats_combattant_1 = caracteristiques[caracteristiques["Name"] == nom].iloc[0]
+                break
+        
+        for nom in caracteristiques["Name"].values:
+            if fuzz.ratio(nom, combattant_2) > 95:
+                stats_combattant_2 = caracteristiques[caracteristiques["Name"] == nom].iloc[0]
+                break
+
+
+        numeric_columns = caracteristiques.select_dtypes(include=["number"]).columns
+
+        for column in numeric_columns:
+
+            if isinstance(stats_combattant_1[column], (int, float)) and isinstance(stats_combattant_2[column], (int, float)):
+                combats.loc[i, f"diff_{column}"] = stats_combattant_1[column] - stats_combattant_2[column]
+
+    return combats

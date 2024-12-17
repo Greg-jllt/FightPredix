@@ -29,16 +29,16 @@ def test_infos_principal_combattant(webdriver, url_combattant):
     """
     webdriver.get(url_combattant)
     dictio = defaultdict()
-    dictio["Name"] = webdriver.find_element(By.CSS_SELECTOR, "div.hero-profile > div.hero-profile__info > h1").text
-    assert dictio["Name"] == "DANNY ABBADI"
+    dictio["NAME"] = webdriver.find_element(By.CSS_SELECTOR, "div.hero-profile > div.hero-profile__info > h1").text
+    assert dictio["NAME"] == "DANNY ABBADI"
 
     _infos_principal_combattant(webdriver, dictio)
 
-    assert dictio["Win"] == 2
-    assert dictio["Losses"] == 2
-    assert dictio["Draws"] == 0
-    assert dictio["Division"] == "Lightweight Division"
-    assert dictio["Genre"] == "Male"
+    assert dictio["WIN"] == 2
+    assert dictio["LOSSES"] == 2
+    assert dictio["DRAWS"] == 0
+    assert dictio["DIVISION"] == "Lightweight Division"
+    assert dictio["GENRE"] == "Male"
 
 
 def test_combattant_actif(webdriver, url_combattant):
@@ -82,9 +82,9 @@ def test_stats_combattants(webdriver,url_combattant):
     dictio = defaultdict()
     _stats_combattant(webdriver, dictio)
 
-    assert dictio["Permanent"] is None
-    assert dictio["Clinch"] is None
-    assert dictio["Sol"] is None
+    assert dictio["PERMANENT"] is None
+    assert dictio["CLINCH"] is None
+    assert dictio["SOL"] is None
     assert dictio["KO/TKO"] is None
     assert dictio["DEC"] is None
     assert dictio["SUB"] is None
@@ -111,8 +111,8 @@ def test_pourcentage_touche_takedown(webdriver, url_combattant):
     dictio = defaultdict()
     _pourcentage_touche_takedown(webdriver, dictio)
 
-    assert dictio["Précision_saisissante"] is None
-    assert dictio["Précision_de_Takedown"] is None
+    assert dictio["PRÉCISION SAISISSANTE"] is None
+    assert dictio["PRÉCISION DE TAKEDOWN"] is None
 
 
 def test_mesures_combattant(webdriver, url_combattant):

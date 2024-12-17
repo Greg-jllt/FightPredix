@@ -16,13 +16,13 @@ import re
 
 def _infos_principal_combattant(
     driver , dictio: defaultdict
-) -> dict :
+) -> bool:
     """
     Fonction qui extrait les informations principales d'un combattant
     """
 
     nickname_elements = driver.find_elements(By.CSS_SELECTOR, "p.hero-profile__nickname")
-    dictio["Nickname"] = nickname_elements[0].text.strip() if nickname_elements else None
+    dictio["NICKNAME"] = nickname_elements[0].text.strip() if nickname_elements else None
 
 
     elements = driver.find_elements(By.CSS_SELECTOR, ".hero-profile__division-title, .hero-profile__division-body")
@@ -33,11 +33,11 @@ def _infos_principal_combattant(
         for text in texts:
             if ' (W-L-D)' in text:
                 record, _ = text.split(' (')
-                dictio.update(dict(zip(['Win', 'Losses', 'Draws'], map(int, record.split('-')))))
+                dictio.update(dict(zip(['WIN', 'LOSSES', 'DRAWS'], map(int, record.split('-')))))
             else:
                 dictio.update({
-                    "Division": text,
-                    "Genre": "Female" if "Women's" in text else "Male"
+                    "DIVISION": text,
+                    "GENRE": "Female" if "Women's" in text else "Male"
                 })
         return True
     return False
@@ -45,7 +45,7 @@ def _infos_principal_combattant(
 
 
 
-def _combattant_actif(driver, dictio: defaultdict) -> None:
+def _combattant_actif(driver : webdriver.Chrome, dictio: defaultdict) -> None :
     """
     Fonction qui determine si un combattant est actif ou non
     """
@@ -58,9 +58,7 @@ def _combattant_actif(driver, dictio: defaultdict) -> None:
         dictio["Actif"] = False
 
 
-def _bio_combattant(
-    driver , dictio: defaultdict
-) -> dict:
+def _bio_combattant(driver : webdriver.chrome , dictio: defaultdict) -> None:
     """
     Fonction qui extrait les informations biographiques d'un combattant
     """
@@ -97,7 +95,7 @@ def _bio_combattant(
 
 
 
-def _tenant_titre(driver, dictio: defaultdict) -> dict:
+def _tenant_titre(driver, dictio: defaultdict) -> None:
     """
     Fonction qui determine si un combattant est le tenant du titre
     """
@@ -111,12 +109,12 @@ def _tenant_titre(driver, dictio: defaultdict) -> dict:
         dictio["Title_holder"] = False
 
 
-def _stats_combattant(driver, dictio: defaultdict) -> dict:
+def _stats_combattant(driver, dictio: defaultdict):
     """
     Fonction qui extrait les statistiques d'un combattant
     """
 
-    liste_objective = ["Permanent", "Clinch", "Sol", "KO/TKO", "DEC", "SUB"]
+    liste_objective = ["PERMANENT", "CLINCH", "SOL", "KO/TKO", "DEC", "SUB"]
     groups = driver.find_elements(By.CSS_SELECTOR, "div.c-stat-3bar__group")
     if groups:
         for group in groups:
@@ -132,7 +130,7 @@ def _stats_combattant(driver, dictio: defaultdict) -> dict:
             dictio[obj] = None
 
 
-def _stats_corps_combattant(driver, dictio: defaultdict) -> dict:
+def _stats_corps_combattant(driver, dictio: defaultdict) -> None:
     """
     Fonction qui extrait les statistiques de corps d'un combattant
     """
@@ -155,23 +153,22 @@ def _stats_corps_combattant(driver, dictio: defaultdict) -> dict:
     
 
 
-def _pourcentage_touche_takedown(driver,  dictio: defaultdict) -> dict:
+def _pourcentage_touche_takedown(driver,  dictio: defaultdict) -> None:
     """
     Fonction qui extrait les pourcentages de takedown et de saisie d'un combattant
     """
 
-    liste_objective = ["Précision_saisissante", "Précision_de_Takedown"]
+    liste_objective = ["PRÉCISION SAISISSANTE", "PRÉCISION DE TAKEDOWN"]
+
+    labels = driver.find_elements(By.CSS_SELECTOR, "h2.e-t3")
     pourcentage_text = driver.find_elements(By.CLASS_NAME, "e-chart-circle__percent")
 
-    if not pourcentage_text:
-        dictio["Précision_saisissante"] = None
-        dictio["Précision_de_Takedown"] = None
-    else:
-        for i, pourcentage in enumerate(pourcentage_text):
-            dictio[f"{liste_objective[i]}"] = float(pourcentage.text.rstrip("%")) / 100
-        mot_manquants = [mot for mot in liste_objective if mot not in dictio.keys()]
-        if mot_manquants:
-            dictio[f"{mot_manquants[0]}"] = None
+    for titre, pourcentage in zip(labels, pourcentage_text):
+        dictio[f"{titre.text}"] = float(pourcentage.text.rstrip("%")) / 100
+    mot_manquants = [mot for mot in liste_objective if mot not in dictio.keys()]
+    if mot_manquants:
+        for mot in mot_manquants:
+            dictio[f"{mot}"] = None
 
 
 def _convert_minutes(time_str: str) -> float | None:
@@ -186,7 +183,7 @@ def _convert_minutes(time_str: str) -> float | None:
         return None
 
 
-def _mesures_combattant(driver, dictio: defaultdict) -> dict:
+def _mesures_combattant(driver, dictio: defaultdict) -> None:
     """
     Fonction qui extrait les mesures d'un combattant
     """
@@ -222,7 +219,7 @@ def _mesures_combattant(driver, dictio: defaultdict) -> dict:
         dictio[obj] = temp_data.get(obj, None)  # Pour eviter les eventuelles decalages
 
 
-def _recolte_image(driver, dictio)-> dict:
+def _recolte_image(driver : webdriver.Chrome, dictio : dict) -> None:
     """
     Fonction qui recolte l'image d'un combattant
     """
@@ -231,10 +228,9 @@ def _recolte_image(driver, dictio)-> dict:
         dictio["img_cbt"] = image[0].get_attribute("src")
     else :
         dictio["img_cbt"] = "NO" 
-    return dictio
 
 
-def extraire_info_combattant(driver) -> defaultdict:
+def _extraire_info_combattant(driver: webdriver.Chrome) -> defaultdict:
     """
     Permet d'extraire les informations d'un combattant a partir d'un objet BeautifulSoup
 
@@ -252,7 +248,7 @@ def extraire_info_combattant(driver) -> defaultdict:
     if not cbt_name:
         return None
 
-    dictio["Name"] = cbt_name
+    dictio["NAME"] = cbt_name
 
     verif = _infos_principal_combattant(driver, dictio)
     if verif:
@@ -280,7 +276,7 @@ if __name__ == "__main__":
 
     driver.get(url)
 
-    dictio = extraire_info_combattant(driver)
+    dictio = _extraire_info_combattant(driver)
 
     console.print(dictio)
 
