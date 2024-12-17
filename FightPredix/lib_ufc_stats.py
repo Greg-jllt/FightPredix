@@ -232,9 +232,9 @@ def _integration_metriques(
     }
 
     try: 
-        if cplt_name in data["Name"].values:
+        if cplt_name in data["NAME"].values:
 
-            combattant_row = data[data["Name"] == cplt_name].index[0]
+            combattant_row = data[data["NAME"] == cplt_name].index[0]
 
             for key, value in dictio.items():
                 data_key = mapping.get(key, key)
@@ -245,7 +245,7 @@ def _integration_metriques(
                 if pd.isna(data.loc[combattant_row, data_key]) or (
                     data.loc[combattant_row, data_key] < value
                     if isinstance(value, (int, float))
-                    and data_key in ["Win", "Losses", "Draws"]
+                    and data_key in ["WIN", "LOSSES", "DRAWS"]
                     else False
                 ):
                     data.loc[combattant_row, data_key] = value
@@ -266,7 +266,7 @@ def _cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome
     """
     logger.info("Recherche des combattants sur le site UFC Stats")
 
-    for cplt_name, nickname in zip(data["Name"], data["Nickname"]):
+    for cplt_name, nickname in zip(data["NAME"], data["NICKNAME"]):
         logger.info(f"combattant {cplt_name}")
         try :
             parts = cplt_name.split(" ")
