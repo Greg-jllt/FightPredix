@@ -72,7 +72,7 @@ def _main_combat_recolte(driver: webdriver.Chrome) -> pd.DataFrame:
 
 def _difference_combats(caracteristiques : pd.DataFrame, combats : pd.DataFrame) -> pd.DataFrame :
     """
-    Fonction qui calcule la difference entre les caracteristiques des combattants pour le dataset de combats
+    Fonction qui calcule la difference entre les caracteristiques des combattants
     """
     
     for i, combat in combats.iterrows():
@@ -81,15 +81,15 @@ def _difference_combats(caracteristiques : pd.DataFrame, combats : pd.DataFrame)
         combattant_2 = combat["combattant_2"]
 
         for nom in caracteristiques["NAME"].values:
-            if fuzz.ratio(nom, combattant_1) > 95:
-                stats_combattant_1 = caracteristiques[caracteristiques["NAME"] == nom].iloc[0]
+            if fuzz.ratio(nom.lower(), combattant_1.lower()) > 95:
+                stats_combattant_1 = caracteristiques[caracteristiques["NAME"].str.lower() == nom.lower()].iloc[0]
                 break
         
         for nom in caracteristiques["NAME"].values:
-            if fuzz.ratio(nom, combattant_2) > 95:
-                stats_combattant_2 = caracteristiques[caracteristiques["NAME"] == nom].iloc[0]
+            if fuzz.ratio(nom.lower(), combattant_2.lower()) > 95:
+                stats_combattant_2 = caracteristiques[caracteristiques["NAME"].str.lower() == nom.lower()].iloc[0]
                 break
-
+    
 
         numeric_columns = caracteristiques.select_dtypes(include=["number"]).columns
 
