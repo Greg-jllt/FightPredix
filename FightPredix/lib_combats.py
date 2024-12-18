@@ -80,14 +80,14 @@ def _difference_combats(caracteristiques : pd.DataFrame, combats : pd.DataFrame)
         combattant_1 = combat["combattant_1"]
         combattant_2 = combat["combattant_2"]
 
-        for nom in caracteristiques["Name"].values:
+        for nom in caracteristiques["NAME"].values:
             if fuzz.ratio(nom, combattant_1) > 95:
-                stats_combattant_1 = caracteristiques[caracteristiques["Name"] == nom].iloc[0]
+                stats_combattant_1 = caracteristiques[caracteristiques["NAME"] == nom].iloc[0]
                 break
         
-        for nom in caracteristiques["Name"].values:
+        for nom in caracteristiques["NAME"].values:
             if fuzz.ratio(nom, combattant_2) > 95:
-                stats_combattant_2 = caracteristiques[caracteristiques["Name"] == nom].iloc[0]
+                stats_combattant_2 = caracteristiques[caracteristiques["NAME"] == nom].iloc[0]
                 break
 
 
