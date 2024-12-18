@@ -12,13 +12,16 @@ from rapidfuzz import fuzz
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from rich.console import Console
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from datetime import datetime
+import time
 
 from .outils import configure_logger
 
 import re
 import pandas as pd
 import traceback
-from datetime import datetime
 
 date = datetime.now().strftime("%Y-%m-%d")
 logger = configure_logger(f"{date}_crawler_UFC_stats")
@@ -64,7 +67,8 @@ def _accès_cbt_page(temp_dict: dict, driver: webdriver.Chrome) -> None:
 
         if (prenom_cell == prenom or not prenom) and (nom_cell == nom or not nom):
             try:
-                row.find_element(By.XPATH, ".//a").click()
+                link = row.find_element(By.XPATH, ".//a").get_attribute("href")
+                driver.get(link)
             except:
                 logger.error(f"Aucun lien n'a été trouvé pour {prenom} {nom}")
             break
@@ -303,12 +307,14 @@ def _cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome
 
 if __name__ == "__main__":
 
-    Data = pd.read_csv("Data_ufc_fighters_t1.csv")
+    Data = pd.DataFrame(
+            {"NAME": ["Mizuki"] , "NICKNAME": [""]},
+    )
 
-    chrome_options = Options()
+    # chrome_options = Options()
 
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless")
 
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome()
 
     Data = _cherche_combattant_UFC_stats(data=Data, driver=driver)
