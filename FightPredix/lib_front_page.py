@@ -88,7 +88,7 @@ def _deja_present(data: pd.DataFrame, url: str) -> bool:
         nom = match.group(1).replace("-", " ")
     else:
         nom = ""
-    if nom in data["Name"].values:
+    if nom in data["NAME"].values:
         return True
     return False
 
@@ -115,7 +115,7 @@ def _page_principal_UFC(
     main_driver.get("https://www.ufc.com/athletes/all?filters%5B0%5D=status%3A23")
 
     if Data is None:
-        Data = pd.DataFrame(columns=["Name"])
+        Data = pd.DataFrame(columns=["NAME"])
 
     def _page_principal_sub(
         main_driver: webdriver.Chrome
