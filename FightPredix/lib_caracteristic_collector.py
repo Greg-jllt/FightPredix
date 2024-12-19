@@ -39,8 +39,8 @@ def _infos_principal_combattant(
                     "DIVISION": text,
                     "GENRE": "Female" if "Women's" in text else "Male"
                 })
-        return True
-    return False
+    
+    return True if "WIN" in dictio.keys() else False
     
 
 
@@ -199,21 +199,26 @@ def _mesures_combattant(driver, dictio: defaultdict) -> None:
 
     temp_data = {}
 
-    labels = driver.find_elements(By.CSS_SELECTOR, "div.c-stat-compare__label")
-    values = driver.find_elements(By.CSS_SELECTOR, "div.c-stat-compare__number")
+    groups = driver.find_elements(By.CSS_SELECTOR, "div.c-stat-compare__group")
 
-    for label, value in zip(labels, values):
-        if label:
-            label_text = label.text.strip()
-            if value:
-                value_text = value.text.strip()
+    for group in groups:
 
-                if ":" in value_text:
-                    temp_data[label_text] = _convert_minutes(value_text)
-                else:
-                    temp_data[label_text] = float(re.sub(r"[^\d.]+", "", value_text))
+        label = group.find_element(By.CSS_SELECTOR, "div.c-stat-compare__label").text.strip()
+
+        try :
+            value = group.find_element(By.CSS_SELECTOR, "div.c-stat-compare__number").text.strip()
+        except Exception:
+            value = None
+
+        if label and value:
+            if ":" in value:
+                temp_data[label] = _convert_minutes(value)
+            elif "%" in value:
+                temp_data[label] = float(re.sub(r"[^\d.]+", "", value).rstrip("%")) / 100
             else:
-                temp_data[label_text] = None
+                temp_data[label] = float(re.sub(r"[^\d.]+", "", value))
+        else :
+            temp_data[label] = None
     
     for obj in liste_objective:
         dictio[obj] = temp_data.get(obj, None)  # Pour eviter les eventuelles decalages
@@ -261,7 +266,7 @@ def _extraire_info_combattant(driver: webdriver.Chrome) -> defaultdict:
         _mesures_combattant(driver, dictio)
         _recolte_image(driver, dictio)
     else: 
-        pass
+        return None
 
     return dictio
 
@@ -272,7 +277,7 @@ if __name__ == "__main__":
 
     driver = webdriver.Chrome()
 
-    url = "https://www.ufc.com/athlete/brandon-moreno"
+    url = "https://www.ufc.com/athlete/hamdy-abdelwahab"
 
     driver.get(url)
 

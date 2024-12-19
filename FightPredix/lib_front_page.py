@@ -143,7 +143,7 @@ def _page_principal_UFC(
                 if url not in hrefs and not _deja_present(Data, url):
                     logger.info(f"Visite de la page {url}")
                     dictio = _visite_page_combattant(sub_driver, url)
-                    if dictio:
+                    if dictio is not None:
                         result.append(dictio)
                     hrefs.append(url)
 

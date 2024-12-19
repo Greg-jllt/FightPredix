@@ -249,7 +249,6 @@ def _integration_metriques(
                 if pd.isna(data.loc[combattant_row, data_key]) or (
                     data.loc[combattant_row, data_key] < value
                     if isinstance(value, (int, float))
-                    and data_key in ["WIN", "LOSSES", "DRAWS"]
                     else False
                 ):
                     data.loc[combattant_row, data_key] = value
