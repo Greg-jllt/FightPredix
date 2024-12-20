@@ -267,7 +267,6 @@ def _extraire_info_combattant(driver: webdriver.Chrome) -> defaultdict:
         _recolte_image(driver, dictio)
     else: 
         return None
-
     return dictio
 
 

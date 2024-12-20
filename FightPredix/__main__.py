@@ -41,7 +41,7 @@ def main():
 
     main_driver = webdriver.Chrome(options=chrome_options)
 
-    Data = Dataframe_caracteristiques(main_driver)
+    # Data = Dataframe_caracteristiques(main_driver)
 
     main_driver = webdriver.Chrome(options=chrome_options)
 
@@ -54,5 +54,7 @@ def main():
     return Data
 
 if __name__ == "__main__":
+
+    
 
     main()

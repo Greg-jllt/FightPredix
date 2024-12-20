@@ -55,6 +55,7 @@ def _visite_page_combattant(
     time.sleep(1)
 
     dictio = _extraire_info_combattant(driver)
+    logger.info(dictio)
     return dictio
 
 
@@ -159,6 +160,9 @@ def _page_principal_UFC(
             )
         except WebDriverException as e:
             logger.error(f"Erreur WebDriver : {e}")
+            hrefs.append(url)
+            return _page_principal_sub(main_driver)
+
         except Exception as e:
             logger.error(f"Erreur inattendue : {e}")
 

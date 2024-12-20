@@ -5,7 +5,6 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 import os 
-import numpy as np
 
 # def image_to_base64(image_path):
 #     with open(image_path, "rb") as image_file:
@@ -55,7 +54,9 @@ if os.path.exists(file_path):
 
     df = pd.read_csv(file_path)
 
-    division = st.selectbox("Choose a category", list(df["DIVISION"].unique()))
+    df = df[df["Actif"] == True]
+
+    division = st.selectbox("Catégorie", list(df["DIVISION"].unique()))
 
     df = df[df["DIVISION"] == division]
 
@@ -65,7 +66,7 @@ if os.path.exists(file_path):
     options.insert(0, "None")
 
     with col1:
-        fighter_1 = st.selectbox("Choose fighter 1", options)
+        fighter_1 = st.selectbox("Combattant 1", options)
         if fighter_1 != "None":
             url = df.loc[df['NAME'] == fighter_1, 'img_cbt'].iloc[0]
             if url == "NO":
@@ -76,7 +77,7 @@ if os.path.exists(file_path):
         col2.markdown('<div class="vs-text">VS</div>', unsafe_allow_html=True)
 
     with col3:
-        fighter_2 = col3.selectbox("Choose fighter 2", options)
+        fighter_2 = col3.selectbox("Combattant 2", options)
         if fighter_2 != "None":
             url = df.loc[df['NAME'] == fighter_2, 'img_cbt'].iloc[0]
             if url == "NO":
@@ -86,6 +87,9 @@ if os.path.exists(file_path):
     if fighter_1 == "None" or fighter_2 == "None" or fighter_1 == fighter_2:
         st.write("## Please select two different fighters.")
     else: 
+        _, c1, _ = st.columns([1.5, 0.5, 1.5], vertical_alignment="center")
+        c1.button("Predict")
+
         data = df.loc[(df["NAME"] == fighter_1) | (df["NAME"] == fighter_2), ["NAME", "POIDS", "ÂGE","WIN","LOSSES", "DRAWS", "KO/TKO", "SUB", "DEC"]] #"LA TAILLE"
         data.set_index("NAME", inplace=True)
         data = data.round(1)
@@ -121,11 +125,92 @@ if os.path.exists(file_path):
                 )
             ),
             showlegend=True,
+            height=500,  
+            width=700,
+            annotations=[
+                dict(
+                    x=1.20,
+                    y=0,
+                    xref="paper",
+                    yref="paper",
+                    text="strike accuracy: Le pourcentage de coups réussis.",
+                    showarrow=False,
+                    font=dict(size=12),
+                    align="center"
+                ),
+                dict(
+                    x=1.20,
+                    y=-0.05,
+                    xref="paper",
+                    yref="paper",
+                    text="takedown accuracy: Le pourcentage de takedown réussies.",
+                    showarrow=False,
+                    font=dict(size=12),
+                    align="center"
+                ),
+                dict(
+                    x=1.20,
+                    y=-0.10,
+                    xref="paper",
+                    yref="paper",
+                    text="strike defense: Le pourcentage de coups bloqués.",
+                    showarrow=False,
+                    font=dict(size=12),
+                    align="center"
+                ),
+                dict(
+                    x=1.20,
+                    y=-0.15,
+                    xref="paper",
+                    yref="paper",
+                    text="takedown defense: Le pourcentage de takedown bloqués.",
+                    showarrow=False,
+                    font=dict(size=12),
+                    align="center"
+                ),
+                dict(
+                    x=0,
+                    y=-0.2,
+                    xref="paper",
+                    yref="paper",
+                    text="NB : Des données peuvent ne pas être disponibles.",
+                    showarrow=False,
+                    font=dict(size=12),
+                    align="center"
+                )
+            ]
         )
 
         st.plotly_chart(fig, use_container_width=True)
 
+        fig = go.Figure()
 
-        _, c1, _ = st.columns([1.5, 0.5, 1.5], vertical_alignment="center")
-        c1.button("Predict")
+        for name in [fighter_1, fighter_2]:
+            person_data = df[(df['NAME'] == name) ][["sig_str_head", "sig_str_body", "sig_str_leg"]].iloc[0].tolist()
+            fig.add_trace(go.Bar(
+                x=["frappe tête", "frappe corp", "frappe jambes"],
+                y=person_data,
+                name=name
+            ))
+
+        fig.update_layout(
+            barmode='group',
+            height=500,  
+            width=700,
+            annotations=[
+                dict(
+                    x=0.5,
+                    y=-0.2,
+                    xref="paper",
+                    yref="paper",
+                    text="NB : Des données peuvent ne pas être disponibles.",
+                    showarrow=False,
+                    font=dict(size=12),
+                    align="center"
+                )
+            ]
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
 

@@ -17,7 +17,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 import time
 
-from .outils import configure_logger
+from .outils import configure_logger, lire_combattant_manqué, ecrire_combattant_manqué 
 
 import re
 import pandas as pd
@@ -163,6 +163,18 @@ def _traitement_metriques(driver: webdriver.Chrome) -> dict:
 
     return final_dict
 
+def _convertisseur_taille(taille: str) -> float:
+    """
+    Fonction qui convertit la taille en pouces
+
+    Args:
+        taille (str): taille du combattant
+    """
+    if (match := re.match(r"(\d+)' (\d+)", taille.strip())):
+        pieds, pouces = int(match.group(1)), int(match.group(2))
+        return pieds * 12 + pouces
+    return None
+
 
 def _nettoyage_metriques(temp_dict: dict) -> dict:
     """
@@ -175,31 +187,29 @@ def _nettoyage_metriques(temp_dict: dict) -> dict:
         key.rstrip(":") if ":" in key else key: (
             (
                 float(value)
-                if re.fullmatch(r"\d+\.\d+", value)  # string en float
+                if re.fullmatch(r"\d+\.\d+", value) 
                 else (
                     float(value.rstrip("%")) / 100
-                    if "%" in value  # pourcentage en float
+                    if "%" in value 
                     else (
-                        (feet * 12 + inches)
-                        if re.fullmatch(
-                            r"\d+'\s*\d+\"", value.strip()
-                        )  # conversion taille en pouces # Bug sur fabio agu (6' 0")
-                        and (feet := int(re.findall(r"\d+", value)[0]))
-                        and (inches := int(re.findall(r"\d+", value)[1]))
+                        _convertisseur_taille(value)
+                        if re.match(r"(\d+)' (\d+)", value.strip())
                         else (
-                            float(value.rstrip(" lbs."))
+                            float(value.rstrip(" lbs.")) 
                             if " lbs." in value.strip()
                             else (
                                 int(value.rstrip('"'))
                                 if re.fullmatch(r"\d+\"", value)
-                                else None if value == "--" else value
+                                else (
+                                    None if value == "--" else value 
+                                )
                             )
                         )
                     )
                 )
             )
-            if isinstance(value, str)
-            else value
+            if isinstance(value, str)  # Appliquer le traitement si la valeur est une chaîne
+            else value  # Sinon retourner la valeur telle quelle
         )
         for key, value in temp_dict.items()
     }
@@ -269,6 +279,10 @@ def _cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome
     """
     logger.info("Recherche des combattants sur le site UFC Stats")
 
+    archive = "FightPredix/missed/combattants_manqués.json"
+
+    missed_dict = lire_combattant_manqué(archive)
+
     for cplt_name, nickname in zip(data["NAME"], data["NICKNAME"]):
         logger.info(f"combattant {cplt_name}")
         try :
@@ -289,6 +303,8 @@ def _cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome
                     driver.get(url)
             else:
                 logger.warning(f"Le combattant {cplt_name} n'a pas été trouvé")
+                missed_dict[cplt_name] = "n'a pas ete trouve"
+                ecrire_combattant_manqué(archive, missed_dict)
                 continue
 
             temp_dict = _temp_dict_ufc_stats(cplt_name, rows)
@@ -299,6 +315,8 @@ def _cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome
         except Exception as e:
             logger.warning(f"Erreur lors de la recherche du combattant {cplt_name} : {e}")
             logger.error(traceback.print_exc())
+            missed_dict[cplt_name] = str(e)
+            ecrire_combattant_manqué(archive, missed_dict)
             continue
 
     return data
@@ -306,9 +324,7 @@ def _cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome
 
 if __name__ == "__main__":
 
-    Data = pd.DataFrame(
-            {"NAME": ["Mizuki"] , "NICKNAME": [""]},
-    )
+    Data = pd.read_csv("FightPredix/Data/Data_ufc_fighters.csv")
 
     # chrome_options = Options()
 
@@ -316,4 +332,10 @@ if __name__ == "__main__":
 
     driver = webdriver.Chrome()
 
-    Data = _cherche_combattant_UFC_stats(data=Data, driver=driver)
+    Data2 = _cherche_combattant_UFC_stats(data=Data[1:4], driver=driver)
+
+    Data.update(Data2)
+
+    Data.to_csv("FightPredix/Data/Data_ufc_fighters.csv", index=False)
+
+    Console().print(Data[1:4])
