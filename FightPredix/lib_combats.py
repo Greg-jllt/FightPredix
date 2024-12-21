@@ -39,16 +39,25 @@ def _explore_events(liste_events:list, driver : webdriver.Chrome) -> list:
     """
     return [
         {
-            "combattant_1": cbt.find_elements(By.TAG_NAME, "p")[0].text if i%2==0 else cbt.find_elements(By.TAG_NAME, "p")[1].text,
-            "combattant_2": cbt.find_elements(By.TAG_NAME, "p")[1].text if i%2==0 else cbt.find_elements(By.TAG_NAME, "p")[0].text,
-            "resultat": 0 if i%2==0 else 1
+            "combattant_1": cbt[0].text if i%2==0 else cbt[1].text,
+            "combattant_2": cbt[1].text if i%2==0 else cbt[0].text,
+            "resultat": 0 if i%2==0 else 1,
+            "methode" : methode_text[2:5] if methode_text in ["U-DEC", "S-DEC"] else methode_text
         }
         for event in liste_events
-        if (logger.info(f"Processing event: {event}"), True)[1]
+        if (logger.info(f"Event: {event}"), True)[1]
         for _ in [driver.get(event)]
-        for i, cbt in enumerate(driver.find_elements(By.CSS_SELECTOR, "td.b-fight-details__table-col.l-page_align_left[style='width:100px']"))
+        for (i, cbts) , methodes in zip(enumerate(driver.find_elements(By.CSS_SELECTOR, "td.b-fight-details__table-col.l-page_align_left[style='width:100px']")), driver.find_elements(By.CSS_SELECTOR, "td.b-fight-details__table-col.l-page_align_left:not([style='width:100%'])")[2::3])
+        if(
+            (methode_text := methodes.find_elements(By.TAG_NAME, "p")[0].text) and 
+            (cbt := cbts.find_elements(By.TAG_NAME, "p"))
+        )
         if (
-            logger.info(f"Found fighter pair: {cbt.find_elements(By.TAG_NAME, 'p')[0].text} vs {cbt.find_elements(By.TAG_NAME, 'p')[1].text}"),  # Log des combattants
+            logger.info(f"Paire de combattants: {cbt[0].text} vs {cbt[1].text}"),
+            True
+        )[1]
+        if (
+            logger.info(f"Methode : {methode_text}"),
             True
         )[1]
     ]
@@ -99,3 +108,18 @@ def _difference_combats(caracteristiques : pd.DataFrame, combats : pd.DataFrame)
                 combats.loc[i, f"diff_{column}"] = stats_combattant_1[column] - stats_combattant_2[column]
 
     return combats
+
+
+if __name__ == "__main__":
+
+    options = webdriver.ChromeOptions()
+
+    options.add_argument("--headless")
+
+    driver = webdriver.Chrome(options=options)
+
+    data = _main_combat_recolte(driver)
+
+    data.to_csv("Data_ufc_combats.csv", index=False)
+
+    driver.quit()
