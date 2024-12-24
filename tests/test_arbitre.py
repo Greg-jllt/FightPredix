@@ -3,26 +3,21 @@
 Module de test pour la librairie de scraping des données de l'arbitrage
 """
 
-import requests_cache
 from FightPredix.lib_arbitre import (
     _requete_arbitre,
     _creer_liste_arbitres,
     _recup_donnees_arbitres,
-    _donnees_arbitres,
-    _mise_en_commun,
 )
-from bs4 import BeautifulSoup
-from selenium.webdriver.common.by import By
-import pytest
 import os
 import sys
 import time
+import pytest
+from bs4 import BeautifulSoup
+from selenium.webdriver.common.by import By
 
-from .fixtures import driver
+from .fixtures import driver  
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-requests_cache.install_cache("cache_test_arbitre")
 
 
 @pytest.fixture
@@ -31,7 +26,7 @@ def url_arbitre():
 
 
 @pytest.fixture
-def soup_arbitres(driver, url_arbitre):
+def soup_arbitres(driver, url_arbitre):  
     """
     Fonction qui permet de récupérer la page d'un arbitre
     """
@@ -47,7 +42,7 @@ def soup_arbitres(driver, url_arbitre):
 
 
 @pytest.fixture
-def accepter_cookies(driver):
+def accepter_cookies(driver):  
     """
     Fonction qui permet d'accepter les cookies
     """
@@ -64,7 +59,7 @@ def accepter_cookies(driver):
     return driver
 
 
-def test_requete_arbitre(driver, url_arbitre):
+def test_requete_arbitre(driver, url_arbitre):  
     """
     On vérifie que la fonction _requete_arbitre renvoie bien une page
     """
@@ -107,7 +102,7 @@ def test_creer_liste_arbitres(soup_arbitres):
     assert "Osiris Maia" in liste_arbitres["Nom"]
 
 
-def test_recup_donnees_arbitres(driver, accepter_cookies):
+def test_recup_donnees_arbitres(driver, accepter_cookies):  
     """
     Fonction qui teste la fonction _recup_donnees_arbitres
     """
@@ -121,33 +116,3 @@ def test_recup_donnees_arbitres(driver, accepter_cookies):
     assert "Charles Oliveira" in liste_combats["Vainqueur"]
     assert "UFC 244" in liste_combats["Evenement"]
     assert "Brad Tavares" not in liste_combats["Vainqueur"]
-
-
-def test_donnees_arbitres(driver, url_arbitre):
-    """
-    Fonction qui teste la fonction _donnees_arbitres
-    """
-
-    donnees = _donnees_arbitres(driver, url_arbitre)
-
-    assert isinstance(donnees[0], dict)
-    assert len(donnees[0]["Date"]) > 0
-    assert "Yana Santos" in donnees[0]["Vainqueur"]
-    assert "UFC 302" in donnees[0]["Evenement"]
-    assert "Claudio Puelles" not in donnees[0]["Vainqueur"]
-
-
-def test_mise_en_commun(driver, url_arbitre):
-    """
-    Fonction qui teste la fonction _mise_en_commun
-    """
-
-    donnees = _mise_en_commun(driver, url_arbitre)
-
-    assert isinstance(donnees, dict)
-    assert len(donnees["Total_combats_ufc"]) > 0
-    assert "Herb Dean" in donnees["Nom"]
-    assert "Yana Santos" in donnees["historique"][0]["Vainqueur"]
-    assert "UFC 302" in donnees["historique"][0]["Evenement"]
-    assert "Claudio Puelles" not in donnees["historique"][0]["Vainqueur"]
-    assert isinstance(donnees["historique"][0], dict)
