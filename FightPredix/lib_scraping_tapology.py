@@ -113,7 +113,9 @@ def _explorer_combattant(
             )
 
 
-def _scraper_combattant(driver: webdriver.Chrome, nom_ufc: str) -> defaultdict:
+def _scraper_combattant(
+    driver: webdriver.Chrome, nom_ufc: str
+) -> tuple[defaultdict, webdriver.Chrome]:
     """
     Fonction qui recolte les informations d'un combattant sur tapology
     """
@@ -248,7 +250,7 @@ def _initialisation_des_donnees_a_scraper(
         raise FileNotFoundError(f"Fichier introuvable:\n{e}")
 
     liste_combattant = [nom.strip().lower() for nom in data_ufc["NAME"].to_list()]
-    liste_combattant_traites = set()
+    liste_combattant_traites: set[str] = set()
 
     if recuperer_ancien_scraping:
         data_tapology, liste_combattant, liste_combattant_traites = (

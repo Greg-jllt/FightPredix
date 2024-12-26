@@ -30,20 +30,12 @@ def _manage_na(data_tapology: pl.DataFrame) -> pl.DataFrame:
     )
 
 
-def get_closest_streak(streak: str, streaks: list[str]) -> str | None:
-    if streak != "N/A":
-        number_streak, _ = streak.split(" ")
-        return rf.process.extractOne(number_streak, streaks)[0]
-    else:
-        return None
-
-
 def _create_streaks_variables(data_tapology: pl.DataFrame) -> pl.DataFrame:
     """
     Fonction qui créer les variables de séries de performances
     """
-    liste_number_streak = []
-    liste_type_streak = []
+    liste_number_streak: list[int | None] = []
+    liste_type_streak: list[str | None] = []
     liste_current_win_streak = []
     liste_current_lose_streak = []
 

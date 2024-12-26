@@ -8,9 +8,6 @@ import polars as pl
 import numpy as np
 
 from FightPredix.lib_clean_tapology import (
-    _get_closest_name,
-    _manage_names,
-    get_closest_streak,
     _create_streaks_variables,
     _reformat_date,
     _create_last_fight_variables,
@@ -19,61 +16,6 @@ from FightPredix.lib_clean_tapology import (
 )
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-
-def test_get_closest_name():
-    """
-    Test de la fonction _get_closest_name
-    """
-    assert (
-        _get_closest_name(
-            "Khabib Nurmagov",
-            "Khabibibi Nurmagomedov",
-            ["Khabib Nurmagomedov", "Khaha", "Jon Jones"],
-        )
-        == "Khabib Nurmagomedov"
-    )
-    assert (
-        _get_closest_name(
-            "Jon Jocelyn Jones", "Jon Jones", ["Jon Jones", "Khabib Nurmagomedov"]
-        )
-        == "Jon Jones"
-    )
-
-
-def test_manage_names():
-    """
-    Test de la fonction _manage_names
-    """
-    data_tapology = pl.DataFrame(
-        {
-            "NAME": ["Khabib Nurmagomedov", "Jon Jones", "Khabib Nurmagomedov"],
-            "Given Name:tapology": [
-                "Khabibibi Nurmagomedov",
-                "Jon Jocelyn Jones",
-                "Khabibibi Nurmagomedov",
-            ],
-        }
-    )
-
-    data_ufc = pl.DataFrame(
-        {
-            "NAME": ["Khabib Nurmagomedov", "Jon Jones", "Khabib Nurmagomedov"],
-        }
-    )
-
-    assert np.all(
-        _manage_names(data_tapology, data_ufc)["NAME"].to_numpy()
-        == np.array(["Khabib Nurmagomedov", "Jon Jones", "Khabib Nurmagomedov"])
-    )
-
-
-def test_get_closest_streak():
-    """
-    Test de la fonction get_closest_streak
-    """
-    assert get_closest_streak("5 Win", ["5 Win", "3 Loss", "2 Win"]) == "5 Win"
-    assert get_closest_streak("N/A", ["5 Win", "3 Loss", "2 Win"]) is None
 
 
 def test_create_streaks_variables():

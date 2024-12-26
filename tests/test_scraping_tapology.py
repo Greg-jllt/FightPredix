@@ -2,7 +2,6 @@
 Module de test pour le module lib_tapology.py
 """
 
-from collections import defaultdict
 import pytest
 from FightPredix.lib_scraping_tapology import (
     _connect_vpn,
@@ -17,7 +16,6 @@ import polars as pl
 from .fixtures import driver
 import os
 import sys
-from selenium.common.exceptions import WebDriverException
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -99,7 +97,7 @@ def test_scraper_combattant(df, driver_tapology):
         )
         assert combattant_trouvee
 
-        dictio = _scraper_combattant(driver)
+        dictio = _scraper_combattant(driver, nom)
         assert dict(dictio[0]) in liste_dictio
 
 
