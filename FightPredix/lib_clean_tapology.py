@@ -199,7 +199,7 @@ if __name__ == "__main__":
     logger.info("Récupération des données")
     with open("../../donnees_finales/final_tapology.json", "r") as f:
         data_tapology = pl.DataFrame(json.load(f))
-    
+
     data_tapology = data_tapology.unique()
     data_tapology = _manage_na(data_tapology)
 
@@ -469,71 +469,66 @@ if __name__ == "__main__":
             "BH Rhinos",
         ],
         "Current Win Streak:tapology": [
-            0.,
-            0.,
+            0.0,
+            0.0,
             None,
-            3.,
-            3.,
-            0.,
+            3.0,
+            3.0,
+            0.0,
             None,
-            3.,
-            0.,
-            1.,
-            1.,
-            0.,
-            5.,
-            0.,
-            0.,
+            3.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            5.0,
+            0.0,
+            0.0,
             None,
-            1.,
-            11.,
-            2.,
-            0.,
-            3.,
-            19.,
-            0.,
+            1.0,
+            11.0,
+            2.0,
+            0.0,
+            3.0,
+            19.0,
+            0.0,
         ],
         "Current Lose Streak:tapology": [
-            1.,
-            2.,
+            1.0,
+            2.0,
             None,
-            0.,
-            0.,
-            1.,
+            0.0,
+            0.0,
+            1.0,
             None,
-            0.,
-            1.,
-            0.,
-            0.,
-            2.,
-            0.,
-            1.,
-            1.,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            2.0,
+            0.0,
+            1.0,
+            1.0,
             None,
-            0.,
-            0.,
-            0.,
-            3.,
-            0.,
-            0.,
-            2.,
+            0.0,
+            0.0,
+            0.0,
+            3.0,
+            0.0,
+            0.0,
+            2.0,
         ],
     }
 
     ligne_a_remplacer = data_tapology.filter(
         pl.col("NAME").is_in(dico_correction["NAME"])
-    ) 
-
-
+    )
     lignes_remplacement = pl.DataFrame(dico_correction)
 
-    data_tapology = (
-        data_tapology.filter(~pl.col("NAME").is_in(dico_correction["NAME"]))  
-        .vstack(lignes_remplacement)  
-    )
+    data_tapology = data_tapology.filter(
+        ~pl.col("NAME").is_in(dico_correction["NAME"])
+    ).vstack(lignes_remplacement)
     data_tapology = data_tapology.with_columns(
         pl.Series("NAME", [nom.upper() for nom in data_tapology["NAME"].to_list()])
     )
-    data_tapology.to_pandas().to_csv(
-        "../../donnees_finales/final_clean_tapology.csv"
-    )
+    data_tapology.to_pandas().to_csv("../../donnees_finales/final_clean_tapology.csv")

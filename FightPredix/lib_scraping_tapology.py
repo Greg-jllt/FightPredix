@@ -371,7 +371,7 @@ change_name = dict(
         "nair nelikyan",
         "tj o'brien",
         "geza kahlman jr",
-        "angel de anda"
+        "angel de anda",
     ],
     bon_noms=[
         "alberto cerra leon",
@@ -466,7 +466,7 @@ change_name = dict(
         "nair melikyan",
         "the spider o'b",
         "Geza Kalman",
-        "angel deanda"
+        "angel deanda",
     ],
 )
 
