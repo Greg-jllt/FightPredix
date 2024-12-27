@@ -1,11 +1,10 @@
 from .lib_front_page import _page_principal_UFC
 from .lib_combats import _main_combat_recolte
 from .lib_ufc_stats import _cherche_combattant_UFC_stats
+from .lib_constructeur import _difference_combats, _age_by_DOB
 
 from selenium.webdriver.chrome.options import Options
-from rich.console import Console
 from selenium import webdriver
-from pathlib import Path
 
 import pandas as pd
 
@@ -29,9 +28,16 @@ def Dataframe_combats(driver: webdriver.Chrome) -> pd.DataFrame:
 
     Data = _main_combat_recolte(driver=driver)
 
-    Data.to_csv("FightPredixApp/Data/Data_ufc_combats.csv", index=False)
-
     return Data
+
+
+def _constructeur(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
+
+    Data = _age_by_DOB(Data)
+
+    combats = _difference_combats(Data, combats)
+
+    return combats
 
 def main():
 
@@ -51,10 +57,12 @@ def main():
 
     main_driver.quit()
 
-    return Data
+    combats = _constructeur(Data, Data)
+
+    combats.to_csv("FightPredixApp/Data/Data_ufc_combats.csv", index=False)
+
+    return 
 
 if __name__ == "__main__":
-
-    
 
     main()

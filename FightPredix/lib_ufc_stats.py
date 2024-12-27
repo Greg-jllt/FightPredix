@@ -234,7 +234,7 @@ def _integration_metriques(
         "HEIGHT": "LA TAILLE",
         "WEIGHT": "POIDS",
         "REACH": "REACH",
-        "STANCE": "Style de combat",
+        "STANCE": "STYLE DE COMBAT",
         "Str. Acc.": "PRÉCISION SAISISSANTE",
         "TD Acc.": "PRÉCISION DE TAKEDOWN",
         "SLpM": "SIG. STR. A ATTERRI",

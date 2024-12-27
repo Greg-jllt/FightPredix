@@ -78,38 +78,6 @@ def _main_combat_recolte(driver: webdriver.Chrome) -> pd.DataFrame:
     return pd.DataFrame(res)
 
 
-
-def _difference_combats(caracteristiques : pd.DataFrame, combats : pd.DataFrame) -> pd.DataFrame :
-    """
-    Fonction qui calcule la difference entre les caracteristiques des combattants
-    """
-    
-    for i, combat in combats.iterrows():
-
-        combattant_1 = combat["combattant_1"]
-        combattant_2 = combat["combattant_2"]
-
-        for nom in caracteristiques["NAME"].values:
-            if fuzz.ratio(nom.lower(), combattant_1.lower()) > 95:
-                stats_combattant_1 = caracteristiques[caracteristiques["NAME"].str.lower() == nom.lower()].iloc[0]
-                break
-        
-        for nom in caracteristiques["NAME"].values:
-            if fuzz.ratio(nom.lower(), combattant_2.lower()) > 95:
-                stats_combattant_2 = caracteristiques[caracteristiques["NAME"].str.lower() == nom.lower()].iloc[0]
-                break
-    
-
-        numeric_columns = caracteristiques.select_dtypes(include=["number"]).columns
-
-        for column in numeric_columns:
-
-            if isinstance(stats_combattant_1[column], (int, float)) and isinstance(stats_combattant_2[column], (int, float)):
-                combats.loc[i, f"diff_{column}"] = stats_combattant_1[column] - stats_combattant_2[column]
-
-    return combats
-
-
 if __name__ == "__main__":
 
     options = webdriver.ChromeOptions()
