@@ -1,5 +1,5 @@
 """
-Librairie pour recolter les informations des combattants de l'UFC
+Librairie pour recolter les informations des combattants de l'UFC à partir de ufc.com
 
 Développée par :
     - [Gregory Jaillet](https://github.com/Greg-jllt)
@@ -94,8 +94,13 @@ def _deja_present(data: pd.DataFrame, url: str) -> bool:
     return False
 
 
+<<<<<<< HEAD
 def _page_principal_UFC(
     main_driver: webdriver.Chrome, Data: pd.DataFrame = None
+=======
+def page_principal(
+    main_driver: webdriver.Chrome, Data: pd.DataFrame = None, essais: int = 0
+>>>>>>> origin/scraping_arbitrage
 ) -> pd.DataFrame:
     """
     Fonction permettant de recolter les informations des combattants de l'UFC
@@ -179,3 +184,5 @@ if __name__ == "__main__":
     test = _page_principal_UFC(main_driver)
 
     console.print(test)
+
+    test.to_json("data_scrapee/combattant_ufc.json", orient="records")
