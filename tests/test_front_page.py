@@ -30,11 +30,7 @@ def test_recolte_pages_combattants(webdriver, url):  # noqa: F811
 
     webdriver.get(url)
 
-    front_content = webdriver.page_source
-
-    front_soup = BeautifulSoup(front_content, "html.parser")
-
-    liste_liens = _recolte_pages_combattants(front_soup)
+    liste_liens = _recolte_pages_combattants(webdriver)
     assert isinstance(liste_liens, list)
     for liens in liste_liens:
         assert isinstance(liens, str)
