@@ -19,8 +19,6 @@ def Dataframe_caracteristiques_ufc_stats(data: pd.DataFrame, driver: webdriver.C
     
     Data = _cherche_combattant_UFC_stats(data=data, driver=driver)
 
-    Data.to_csv("FightPredixApp/Data/Data_ufc_fighters.csv", index=False)
-
     return Data
 
 
@@ -37,7 +35,7 @@ def _constructeur(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
 
     combats = _difference_combats(Data, combats)
 
-    return combats
+    return combats, Data
 
 def main():
 
@@ -57,11 +55,11 @@ def main():
 
     main_driver.quit()
 
-    combats = _constructeur(Data, Data)
+    combats, Data = _constructeur(Data, combats)
+
+    Data.to_csv("FightPredixApp/Data/Data_ufc_fighters.csv", index=False)
 
     combats.to_csv("FightPredixApp/Data/Data_ufc_combats.csv", index=False)
-
-    return 
 
 if __name__ == "__main__":
 

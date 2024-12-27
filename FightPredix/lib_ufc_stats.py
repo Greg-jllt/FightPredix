@@ -91,7 +91,7 @@ def _recolte_ufc_stats(driver: webdriver.Chrome) -> dict:
         )
         .strip()
         for item in liste_items
-        if item.text.strip() and item.text.strip() != "DOB:"
+        if item.text.strip()
     }
 
 
@@ -147,6 +147,9 @@ def _traitement_metriques(driver: webdriver.Chrome) -> dict:
     finishes = _collecteur_finish(driver)
     resultats = _recolte_victoires(driver)
     stats = _recolte_ufc_stats(driver)
+
+    Console().print(stats)
+
     temp_dict = {
         "KO/TKO": finishes["KO/TKO"],
         "SUB": finishes["SUB"],
@@ -158,6 +161,8 @@ def _traitement_metriques(driver: webdriver.Chrome) -> dict:
     }
 
     final_dict = _nettoyage_metriques(temp_dict)
+
+    Console().print(final_dict)
 
     logger.info(f"Metriques recoltees : {final_dict}")
 
@@ -332,10 +337,10 @@ if __name__ == "__main__":
 
     driver = webdriver.Chrome()
 
-    Data2 = _cherche_combattant_UFC_stats(data=Data[1:4], driver=driver)
+    Data2 = _cherche_combattant_UFC_stats(data=Data[0:4], driver=driver)
 
     Data.update(Data2)
 
     Data.to_csv("FightPredix/Data/Data_ufc_fighters.csv", index=False)
 
-    Console().print(Data[1:4])
+    Console().print(Data["DOB"])
