@@ -44,7 +44,7 @@ def test_deja_presents():
     On vérifie que la fonction _deja_present renvoie bien True si l'élément est déjà présent
     """
 
-    Data = pd.DataFrame({"Name": ["jean jean"]})
+    Data = pd.DataFrame({"NAME": ["jean jean"]})
 
     assert _deja_present(Data, "https://www.ufc.com/athlete/jean-jean")
     assert not _deja_present(Data, "https://www.ufc.com/athlete/alfrd-alfred")

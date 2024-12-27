@@ -7,7 +7,6 @@ Développée par :
 """
 
 from collections import defaultdict
-from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -94,13 +93,8 @@ def _deja_present(data: pd.DataFrame, url: str) -> bool:
     return False
 
 
-<<<<<<< HEAD
 def _page_principal_UFC(
     main_driver: webdriver.Chrome, Data: pd.DataFrame = None
-=======
-def page_principal(
-    main_driver: webdriver.Chrome, Data: pd.DataFrame = None, essais: int = 0
->>>>>>> origin/scraping_arbitrage
 ) -> pd.DataFrame:
     """
     Fonction permettant de recolter les informations des combattants de l'UFC

@@ -4,7 +4,6 @@ Librairie de fonctions pour la recolte des combats
 
 from selenium.webdriver.common.by import By
 from selenium import webdriver
-from rapidfuzz import fuzz
 
 import pandas as pd
 from datetime import datetime
