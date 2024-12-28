@@ -25,15 +25,22 @@ def _recolte_events(driver) -> list:
     """
     driver.get("http://www.ufcstats.com/statistics/events/completed?page=all")
     return [
-            event.find_element(By.CSS_SELECTOR, "a").get_attribute("href") 
-            for event in driver.find_elements(By.CSS_SELECTOR, ".b-statistics__table-content")[1:]
-            if int(event.find_element(By.CSS_SELECTOR, "span.b-statistics__date").text.split(",")[-1].strip()) >= 2014
-        ]
+        event.find_element(By.CSS_SELECTOR, "a").get_attribute("href")
+        for event in driver.find_elements(
+            By.CSS_SELECTOR, ".b-statistics__table-content"
+        )[1:]
+        if int(
+            event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
+            .text.split(",")[-1]
+            .strip()
+        )
+        >= 2014
+    ]
 
 
-def _explore_events(liste_events:list, driver : webdriver.Chrome) -> list:
+def _explore_events(liste_events: list, driver: webdriver.Chrome) -> list:
     """
-    Fonction qui explore les events et recolte les combats, 50% sont des 0 et 50% des 1, la structure de la page place toujours le nom du combattant gagnant en premier l'algo place le gagnant en premier une fois sur deux 
+    Fonction qui explore les events et recolte les combats, 50% sont des 0 et 50% des 1, la structure de la page place toujours le nom du combattant gagnant en premier l'algo place le gagnant en premier une fois sur deux
 
     Args:
         liste_events (list): liste des events
@@ -42,33 +49,47 @@ def _explore_events(liste_events:list, driver : webdriver.Chrome) -> list:
     """
     return [
         {
-            "combattant_1": cbt[0].text if i%2==0 else cbt[1].text,
-            "combattant_2": cbt[1].text if i%2==0 else cbt[0].text,
-            "resultat": 0 if i%2==0 else 1,
-            "methode" : methode_text[2:5] if methode_text in ["U-DEC", "S-DEC"] else methode_text
+            "combattant_1": cbt[0].text if i % 2 == 0 else cbt[1].text,
+            "combattant_2": cbt[1].text if i % 2 == 0 else cbt[0].text,
+            "resultat": 0 if i % 2 == 0 else 1,
+            "methode": (
+                methode_text[2:5]
+                if methode_text in ["U-DEC", "S-DEC"]
+                else methode_text
+            ),
         }
         for event in liste_events
-        if (logger.info(f"Event: {event}"), True)[1]
+        if (logger.info(f"Event: {event}"), True)[1]  # type: ignore
         for _ in [driver.get(event)]
-        for (i, cbts) , methodes in zip(enumerate(driver.find_elements(By.CSS_SELECTOR, "td.b-fight-details__table-col.l-page_align_left[style='width:100px']")), driver.find_elements(By.CSS_SELECTOR, "td.b-fight-details__table-col.l-page_align_left:not([style='width:100%'])")[2::3])
-        if(
-            (methode_text := methodes.find_elements(By.TAG_NAME, "p")[0].text) and 
-            (cbt := cbts.find_elements(By.TAG_NAME, "p"))
+        for (i, cbts), methodes in zip(
+            enumerate(
+                driver.find_elements(
+                    By.CSS_SELECTOR,
+                    "td.b-fight-details__table-col.l-page_align_left[style='width:100px']",
+                )
+            ),
+            driver.find_elements(
+                By.CSS_SELECTOR,
+                "td.b-fight-details__table-col.l-page_align_left:not([style='width:100%'])",
+            )[2::3],
         )
         if (
-            logger.info(f"Paire de combattants: {cbt[0].text} vs {cbt[1].text}"),
-            True
-        )[1]
+            (methode_text := methodes.find_elements(By.TAG_NAME, "p")[0].text)
+            and (cbt := cbts.find_elements(By.TAG_NAME, "p"))
+        )
         if (
-            logger.info(f"Methode : {methode_text}"),
-            True
+            logger.info(
+                f"Paire de combattants: {cbt[0].text} vs {cbt[1].text}"
+            ),  # type: ignore
+            True,
         )[1]
+        if (logger.info(f"Methode : {methode_text}"), True)[1]  # type: ignore
     ]
 
 
 def _main_combat_recolte(driver: webdriver.Chrome) -> pd.DataFrame:
     """
-    fonction principale de recolte des combats sur UFC stats 
+    fonction principale de recolte des combats sur UFC stats
 
     Args:
         driver (webdriver): objet webdriver

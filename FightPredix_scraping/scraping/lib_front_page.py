@@ -14,7 +14,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException, WebDriverException
-from rich.console import Console
 from .lib_caracteristic_collector import _extraire_info_combattant
 from typing import Any
 from datetime import datetime
@@ -34,18 +33,23 @@ def _recolte_pages_combattants(driver) -> list:
     """
     Fonction qui recolte les liens des combattants sur une page
     """
-    elements = driver.find_elements(By.XPATH, '//a[contains(@href, "/athlete/") and contains(@class, "e-button--black")]')
+    elements = driver.find_elements(
+        By.XPATH,
+        '//a[contains(@href, "/athlete/") and contains(@class, "e-button--black")]',
+    )
 
     motif = re.compile(r"/athlete/[\w]+-[\w]+")
 
-    hrefs = [element.get_attribute('href') for element in elements if motif.search(element.get_attribute('href'))]
+    hrefs = [
+        element.get_attribute("href")
+        for element in elements
+        if motif.search(element.get_attribute("href"))
+    ]
 
     return hrefs
 
 
-def _visite_page_combattant(
-    driver: webdriver.Chrome, url: str
-) -> defaultdict:
+def _visite_page_combattant(driver: webdriver.Chrome, url: str) -> defaultdict | None:
     """
     Fonction qui visite la page d'un combattant et recolte ses informations
     """
@@ -110,15 +114,13 @@ def _page_principal_UFC(
 
     result: list[Any] = list()
     hrefs = list()
-    
+
     main_driver.get("https://www.ufc.com/athletes/all?filters%5B0%5D=status%3A23")
 
     if Data is None:
         Data = pd.DataFrame(columns=["NAME"])
 
-    def _page_principal_sub(
-        main_driver: webdriver.Chrome
-    ) -> pd.DataFrame:
+    def _page_principal_sub(main_driver: webdriver.Chrome) -> pd.DataFrame:
         """
         Fonction interne permettant de recolter les informations des combattants de l'UFC
 
@@ -133,7 +135,7 @@ def _page_principal_UFC(
             temp_liste = _recolte_pages_combattants(main_driver)
 
             options = Options()
-            
+
             options.add_argument("--headless")
 
             sub_driver = webdriver.Chrome(options=options)
@@ -145,11 +147,11 @@ def _page_principal_UFC(
                     if dictio is not None:
                         result.append(dictio)
                     hrefs.append(url)
-        
+
             sub_driver.quit()
 
             _click_chargement_plus(main_driver)
-            
+
             return _page_principal_sub(main_driver)
 
         except TimeoutException:
@@ -165,7 +167,7 @@ def _page_principal_UFC(
             logger.error(f"Erreur inattendue : {e}")
 
         return pd.concat([Data, pd.DataFrame(result)], ignore_index=True)
-    
+
     return _page_principal_sub(main_driver)
 
 
