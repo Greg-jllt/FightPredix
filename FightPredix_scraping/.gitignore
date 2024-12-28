@@ -2,15 +2,5 @@
 
 *.pycache
 
-*.csv
-
-env/
-
 .coverage
 
-*.log
-
-*.pyc
-data_scrapee/
-
-.venv/

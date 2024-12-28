@@ -15,8 +15,6 @@ from rich.console import Console
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 
-import time
-
 from .outils import configure_logger
 
 import re

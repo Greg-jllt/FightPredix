@@ -1,19 +1,21 @@
 [project]
-name = "ufc_fight_predict"
+name = "FightPredix_scraping"
 version = "0.1.0"
-description = "Web Scraping and Machine Learning package to predict ufc's fight result"
+description = "Package de Web scraping visant à collecter plusieurs types de données sur les combattants de l'UFC"
 authors = ["Jaillet Grégory and Cochereau Hugo"]
 readme = "README.md"
 
 requires-python = ">=3.10"
 dependencies = [
     "bs4>=0.0.2",
+    "datetime>=5.5",
     "geopy>=2.4.1",
+    "logging>=0.4.9.6",
     "pandas>=2.2.3",
     "polars>=1.17.1",
     "rapidfuzz>=3.11.0",
     "selenium>=4.27.1",
-    "spacy>=3.8.3",
+    "typing>=3.10.0.0",
 ]
 
 [dependency-groups]
@@ -28,7 +30,4 @@ dev = [
 
 
 [tool.ruff]
-per-file-ignores = { 
-    "tests/*" = ["F401", "F811"],
-    "FightPredix/__init__.py" = ["F401", "F811"],
-}
+per-file-ignores = { "FightPredix_scraping/tests/*" = ["F401", "F811"], "FightPredix_scraping/scraping/__init__.py" = ["F401", "F811"]}

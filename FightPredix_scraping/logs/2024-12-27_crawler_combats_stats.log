@@ -1,0 +1,203 @@
+2024-12-27 16:44:31,186 - 2024-12-27_crawler_combats_stats - INFO - Event: http://www.ufcstats.com/event-details/ad23903ef3af7406
+2024-12-27 16:44:35,359 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Alexandre Pantoja vs Kai Asakura
+2024-12-27 16:44:35,360 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:44:35,411 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Shavkat Rakhmonov vs Ian Machado Garry
+2024-12-27 16:44:35,411 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:44:35,508 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Ciryl Gane vs Alexander Volkov
+2024-12-27 16:44:35,508 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 16:44:35,574 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryce Mitchell vs Kron Gracie
+2024-12-27 16:44:35,574 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:44:35,618 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dooho Choi vs Nate Landwehr
+2024-12-27 16:44:35,618 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:44:51,674 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dominick Reyes vs Anthony Smith
+2024-12-27 16:44:51,674 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:44:51,736 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Vicente Luque vs Themba Gorimbo
+2024-12-27 16:44:51,736 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:44:51,799 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Movsar Evloev vs Aljamain Sterling
+2024-12-27 16:44:51,799 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:44:51,864 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryan Battle vs Randy Brown
+2024-12-27 16:44:51,864 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 16:44:51,924 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Eryk Anders vs Chris Weidman
+2024-12-27 16:44:51,924 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:44:51,984 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Joshua Van vs Cody Durden
+2024-12-27 16:44:51,984 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:44:52,047 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Michael Chiesa vs Max Griffin
+2024-12-27 16:44:52,048 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:44:52,107 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Chase Hooper vs Clay Guida
+2024-12-27 16:44:52,108 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:44:52,170 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Kennedy Nzechukwu vs Lukasz Brzeski
+2024-12-27 16:44:52,170 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:49:37,707 - 2024-12-27_crawler_combats_stats - INFO - Event: http://www.ufcstats.com/event-details/ad23903ef3af7406
+2024-12-27 16:49:42,300 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Alexandre Pantoja vs Kai Asakura
+2024-12-27 16:49:42,300 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:49:42,356 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Shavkat Rakhmonov vs Ian Machado Garry
+2024-12-27 16:49:42,356 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:49:42,398 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Ciryl Gane vs Alexander Volkov
+2024-12-27 16:49:42,399 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 16:49:42,442 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryce Mitchell vs Kron Gracie
+2024-12-27 16:49:42,442 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:49:42,495 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dooho Choi vs Nate Landwehr
+2024-12-27 16:49:42,495 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:49:42,537 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dominick Reyes vs Anthony Smith
+2024-12-27 16:49:42,537 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:49:42,578 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Vicente Luque vs Themba Gorimbo
+2024-12-27 16:49:42,578 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:49:42,622 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Movsar Evloev vs Aljamain Sterling
+2024-12-27 16:49:42,622 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:49:42,667 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryan Battle vs Randy Brown
+2024-12-27 16:49:42,667 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 16:49:42,708 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Eryk Anders vs Chris Weidman
+2024-12-27 16:49:42,708 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:49:42,752 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Joshua Van vs Cody Durden
+2024-12-27 16:49:42,752 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:49:42,796 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Michael Chiesa vs Max Griffin
+2024-12-27 16:49:42,796 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:49:42,843 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Chase Hooper vs Clay Guida
+2024-12-27 16:49:42,843 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:49:42,890 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Kennedy Nzechukwu vs Lukasz Brzeski
+2024-12-27 16:49:42,890 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:50:18,499 - 2024-12-27_crawler_combats_stats - INFO - Event: http://www.ufcstats.com/event-details/ad23903ef3af7406
+2024-12-27 16:50:18,658 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Alexandre Pantoja vs Kai Asakura
+2024-12-27 16:50:18,658 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:50:18,716 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Shavkat Rakhmonov vs Ian Machado Garry
+2024-12-27 16:50:18,716 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:50:18,779 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Ciryl Gane vs Alexander Volkov
+2024-12-27 16:50:18,779 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 16:50:18,840 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryce Mitchell vs Kron Gracie
+2024-12-27 16:50:18,840 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:50:18,901 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dooho Choi vs Nate Landwehr
+2024-12-27 16:50:18,901 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:50:18,960 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dominick Reyes vs Anthony Smith
+2024-12-27 16:50:18,960 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:50:19,021 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Vicente Luque vs Themba Gorimbo
+2024-12-27 16:50:19,021 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:50:19,089 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Movsar Evloev vs Aljamain Sterling
+2024-12-27 16:50:19,089 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:50:19,150 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryan Battle vs Randy Brown
+2024-12-27 16:50:19,151 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 16:50:19,220 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Eryk Anders vs Chris Weidman
+2024-12-27 16:50:19,220 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:50:19,281 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Joshua Van vs Cody Durden
+2024-12-27 16:50:19,281 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:50:19,344 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Michael Chiesa vs Max Griffin
+2024-12-27 16:50:19,344 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:50:19,402 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Chase Hooper vs Clay Guida
+2024-12-27 16:50:19,402 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:50:19,462 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Kennedy Nzechukwu vs Lukasz Brzeski
+2024-12-27 16:50:19,463 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:50:29,896 - 2024-12-27_crawler_combats_stats - INFO - Event: http://www.ufcstats.com/event-details/ad23903ef3af7406
+2024-12-27 16:50:33,737 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Alexandre Pantoja vs Kai Asakura
+2024-12-27 16:50:33,737 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:50:33,782 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Shavkat Rakhmonov vs Ian Machado Garry
+2024-12-27 16:50:33,782 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:50:33,823 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Ciryl Gane vs Alexander Volkov
+2024-12-27 16:50:33,824 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 16:50:33,867 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryce Mitchell vs Kron Gracie
+2024-12-27 16:50:33,867 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:50:33,910 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dooho Choi vs Nate Landwehr
+2024-12-27 16:50:33,910 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:50:33,948 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dominick Reyes vs Anthony Smith
+2024-12-27 16:50:33,948 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:50:33,987 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Vicente Luque vs Themba Gorimbo
+2024-12-27 16:50:33,987 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:50:34,027 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Movsar Evloev vs Aljamain Sterling
+2024-12-27 16:50:34,027 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:50:34,066 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryan Battle vs Randy Brown
+2024-12-27 16:50:34,067 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 16:50:34,104 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Eryk Anders vs Chris Weidman
+2024-12-27 16:50:34,105 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:50:34,145 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Joshua Van vs Cody Durden
+2024-12-27 16:50:34,146 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:50:34,185 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Michael Chiesa vs Max Griffin
+2024-12-27 16:50:34,185 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:50:34,224 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Chase Hooper vs Clay Guida
+2024-12-27 16:50:34,225 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:50:34,268 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Kennedy Nzechukwu vs Lukasz Brzeski
+2024-12-27 16:50:34,269 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:51:32,502 - 2024-12-27_crawler_combats_stats - INFO - Event: http://www.ufcstats.com/event-details/ad23903ef3af7406
+2024-12-27 16:51:36,575 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Alexandre Pantoja vs Kai Asakura
+2024-12-27 16:51:36,575 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:51:36,623 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Shavkat Rakhmonov vs Ian Machado Garry
+2024-12-27 16:51:36,623 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:51:36,669 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Ciryl Gane vs Alexander Volkov
+2024-12-27 16:51:36,669 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 16:51:36,715 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryce Mitchell vs Kron Gracie
+2024-12-27 16:51:36,715 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:51:36,759 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dooho Choi vs Nate Landwehr
+2024-12-27 16:51:36,759 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:51:36,804 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dominick Reyes vs Anthony Smith
+2024-12-27 16:51:36,804 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:51:36,862 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Vicente Luque vs Themba Gorimbo
+2024-12-27 16:51:36,862 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:51:36,906 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Movsar Evloev vs Aljamain Sterling
+2024-12-27 16:51:36,906 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:51:36,945 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryan Battle vs Randy Brown
+2024-12-27 16:51:36,946 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 16:51:36,988 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Eryk Anders vs Chris Weidman
+2024-12-27 16:51:36,988 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:51:37,030 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Joshua Van vs Cody Durden
+2024-12-27 16:51:37,030 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:51:37,073 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Michael Chiesa vs Max Griffin
+2024-12-27 16:51:37,074 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:51:37,120 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Chase Hooper vs Clay Guida
+2024-12-27 16:51:37,120 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:51:37,170 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Kennedy Nzechukwu vs Lukasz Brzeski
+2024-12-27 16:51:37,170 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:59:33,310 - 2024-12-27_crawler_combats_stats - INFO - Event: http://www.ufcstats.com/event-details/ad23903ef3af7406
+2024-12-27 16:59:37,308 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Alexandre Pantoja vs Kai Asakura
+2024-12-27 16:59:37,308 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:59:37,353 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Shavkat Rakhmonov vs Ian Machado Garry
+2024-12-27 16:59:37,354 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:59:37,399 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Ciryl Gane vs Alexander Volkov
+2024-12-27 16:59:37,399 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 16:59:37,462 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryce Mitchell vs Kron Gracie
+2024-12-27 16:59:37,462 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:59:37,507 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dooho Choi vs Nate Landwehr
+2024-12-27 16:59:37,507 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:59:37,552 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dominick Reyes vs Anthony Smith
+2024-12-27 16:59:37,552 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:59:37,603 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Vicente Luque vs Themba Gorimbo
+2024-12-27 16:59:37,604 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:59:37,651 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Movsar Evloev vs Aljamain Sterling
+2024-12-27 16:59:37,651 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:59:37,701 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryan Battle vs Randy Brown
+2024-12-27 16:59:37,701 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 16:59:37,747 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Eryk Anders vs Chris Weidman
+2024-12-27 16:59:37,747 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 16:59:37,809 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Joshua Van vs Cody Durden
+2024-12-27 16:59:37,809 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 16:59:37,854 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Michael Chiesa vs Max Griffin
+2024-12-27 16:59:37,854 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:59:37,903 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Chase Hooper vs Clay Guida
+2024-12-27 16:59:37,903 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 16:59:37,951 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Kennedy Nzechukwu vs Lukasz Brzeski
+2024-12-27 16:59:37,952 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 17:05:49,510 - 2024-12-27_crawler_combats_stats - INFO - Event: http://www.ufcstats.com/event-details/ad23903ef3af7406
+2024-12-27 17:05:53,610 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Alexandre Pantoja vs Kai Asakura
+2024-12-27 17:05:53,610 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 17:05:53,659 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Shavkat Rakhmonov vs Ian Machado Garry
+2024-12-27 17:05:53,659 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 17:05:53,709 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Ciryl Gane vs Alexander Volkov
+2024-12-27 17:05:53,709 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 17:05:53,762 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryce Mitchell vs Kron Gracie
+2024-12-27 17:05:53,762 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 17:05:53,812 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dooho Choi vs Nate Landwehr
+2024-12-27 17:05:53,812 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 17:05:53,861 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Dominick Reyes vs Anthony Smith
+2024-12-27 17:05:53,861 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 17:05:53,924 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Vicente Luque vs Themba Gorimbo
+2024-12-27 17:05:53,924 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 17:05:53,971 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Movsar Evloev vs Aljamain Sterling
+2024-12-27 17:05:53,971 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 17:05:54,019 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Bryan Battle vs Randy Brown
+2024-12-27 17:05:54,020 - 2024-12-27_crawler_combats_stats - INFO - Methode : S-DEC
+2024-12-27 17:05:54,070 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Eryk Anders vs Chris Weidman
+2024-12-27 17:05:54,070 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
+2024-12-27 17:05:54,121 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Joshua Van vs Cody Durden
+2024-12-27 17:05:54,121 - 2024-12-27_crawler_combats_stats - INFO - Methode : U-DEC
+2024-12-27 17:05:54,176 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Michael Chiesa vs Max Griffin
+2024-12-27 17:05:54,176 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 17:05:54,229 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Chase Hooper vs Clay Guida
+2024-12-27 17:05:54,230 - 2024-12-27_crawler_combats_stats - INFO - Methode : SUB
+2024-12-27 17:06:14,098 - 2024-12-27_crawler_combats_stats - INFO - Paire de combattants: Kennedy Nzechukwu vs Lukasz Brzeski
+2024-12-27 17:06:14,098 - 2024-12-27_crawler_combats_stats - INFO - Methode : KO/TKO
