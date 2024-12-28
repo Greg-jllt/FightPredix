@@ -1,5 +1,8 @@
 """
-
+Librairie de fonctions pour la construction de la base de données
+Développée par :
+    - [Gregory Jaillet](https://github.com/Greg-jllt)
+    - [Hugo Cochereau](https://github.com/hugocoche)
 """
 
 from rapidfuzz import fuzz

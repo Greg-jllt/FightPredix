@@ -1,3 +1,8 @@
+"""
+Processus de scraping des données sur les sites UFC.com, UFC stats et Tapology.
+Construction de la base de données récapitulant les combats de l'UFC et les informations des combattants.
+"""
+
 from venv import logger
 from .lib_front_page import _page_principal_UFC
 from .lib_combats import _main_combat_recolte

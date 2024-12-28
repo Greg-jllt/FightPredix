@@ -22,29 +22,49 @@ Dans le cas contraire, suivez ces étapes :
 1. **Cloner le package** avec la commande :  
 
 ```bash
-git clone https://github.com/hugocoche/BatchMonitor.git
+git clone https://github.com/Greg-jllt/Projet_UFC.git
 ```
 
-2. Ouvrir un terminal dans le répertoire racine du package avec la commande :
+2. Ouvrir un terminal dans le répertoire scraping du package avec la commande :
 
 ```bash
-cd ./BatchMonitor
+cd ./FightPredix/FightPredix_scraping
 ```
 
-3. Créer un environnement virtuel et installer les dépendances avec la commande :
+3. Créer un environnement virtuel:
+
+> Il vous faudra tout d'abord installer le package `uv` avec la commande `python -m pip install uv`.
 
 ```bash
-python -m poetry install
+uv venv
 ```
 
 4. Activer l'environnement virtuel avec la commande :
 
 ```bash
-python -m poetry shell
+.venv\Scripts\activate
 ```
 
-5. Lorsque vous voyez `(batchmonitor-py3.11)` dans votre terminal, cela indique que vous êtes dans l'environnement virtuel.
+5. Installer les dépendances avec la commande :
+
+```bash
+uv sync
+```
+
+6. Lorsque vous voyez `(FightPredix_scraping)` dans votre terminal, cela indique que vous êtes dans l'environnement virtuel.
 Cela signifie que toutes les commandes Python que vous exécutez fonctionneront dans cet environnement et auront accès aux dépendances installées.
+
+7. Repositonnez-vous au répertoire racine
+
+```bash
+cd ..
+```
+
+8. Exécutez le scraping avec
+
+```bash
+python -m FightPredix_scraping.scraping
+```
 
 # Features
 

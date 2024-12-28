@@ -1,5 +1,9 @@
 """
 Librairie de fonctions pour la recolte des combats
+
+Développée par :
+    - [Gregory Jaillet](https://github.com/Greg-jllt)
+    - [Hugo Cochereau](https://github.com/hugocoche)
 """
 
 from selenium.webdriver.common.by import By
