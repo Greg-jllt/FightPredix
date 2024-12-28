@@ -7,7 +7,7 @@ from venv import logger
 from .lib_front_page import _page_principal_UFC
 from .lib_combats import _main_combat_recolte
 from .lib_ufc_stats import _cherche_combattant_UFC_stats
-from .lib_constructeur import _difference_combats, _age_by_DOB
+from .lib_constructeur import _difference_combats, _age_by_DOB, _transformation_debut_octogone
 from .lib_scraping_tapology import _init_logger
 
 from selenium.webdriver.chrome.options import Options
@@ -47,9 +47,11 @@ def _constructeur(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
 
     Data = _age_by_DOB(Data)
 
+    Data = _transformation_debut_octogone(Data)
+
     combats = _difference_combats(Data, combats)
 
-    return combats
+    return combats, Data
 
 
 logger = _init_logger()
@@ -59,7 +61,7 @@ def main():
 
     chrome_options = Options()
 
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
 
     main_driver = webdriver.Chrome(options=chrome_options)
 

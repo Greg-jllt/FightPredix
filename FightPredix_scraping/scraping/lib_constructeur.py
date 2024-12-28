@@ -61,3 +61,18 @@ def _age_by_DOB(Data):
             Age = (datetime.now() - datetime.strptime(dob, '%b %d, %Y')).days // 365
             Data.loc[Data["NAME"] == cbt_name, "ÂGE"] = Age
     return Data
+
+
+def _transformation_debut_octogone(data):
+    data["DÉBUT_DE_L_OCTOGONE_1"] = data["DÉBUT_DE_L_OCTOGONE_1"].astype(str)
+    data["DÉBUT_DE_L_OCTOGONE_2"] = data["DÉBUT_DE_L_OCTOGONE_2"].astype(str)
+    data["DÉBUT_DE_L_OCTOGONE_1"] = pd.to_datetime(data["DÉBUT_DE_L_OCTOGONE_1"])
+    data["DÉBUT_DE_L_OCTOGONE_2"] = pd.to_datetime(data["DÉBUT_DE_L_OCTOGONE_2"])
+    data["DÉBUT_DE_L_OCTOGONE_1"] = (pd.to_datetime("today") - data["DÉBUT_DE_L_OCTOGONE_1"]).dt.days // 12
+    data["DÉBUT_DE_L_OCTOGONE_2"] = (pd.to_datetime("today") - data["DÉBUT_DE_L_OCTOGONE_2"]).dt.days // 12
+
+    data["diff_debut_octogone"] = data["DÉBUT_DE_L_OCTOGONE_1"] - data["DÉBUT_DE_L_OCTOGONE_2"]
+
+    data.drop(columns=["DÉBUT_DE_L_OCTOGONE_1", "DÉBUT_DE_L_OCTOGONE_2"], inplace=True)
+    
+    return data
