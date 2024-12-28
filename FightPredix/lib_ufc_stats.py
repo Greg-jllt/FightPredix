@@ -12,12 +12,12 @@ from rapidfuzz import fuzz
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from rich.console import Console
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
+
 import time
 
-from .outils import configure_logger, lire_combattant_manqué, ecrire_combattant_manqué 
+from .outils import configure_logger
 
 import re
 import pandas as pd
@@ -35,7 +35,7 @@ def _temp_dict_ufc_stats(cplt_name: str, rows) -> dict:
         rows (list): liste des lignes de la page de recherche
     """
     return {
-        fuzz.ratio(cplt_name, f"{first_name} {last_name}"): (first_name, last_name)
+        fuzz.ratio(cplt_name.lower(), f"{first_name.lower()} {last_name.lower()}"): (first_name, last_name)
         for row in rows
         for tds in [
             row.find_elements(By.CSS_SELECTOR, "a.b-link.b-link_style_black[href]")
@@ -148,8 +148,6 @@ def _traitement_metriques(driver: webdriver.Chrome) -> dict:
     resultats = _recolte_victoires(driver)
     stats = _recolte_ufc_stats(driver)
 
-    Console().print(stats)
-
     temp_dict = {
         "KO/TKO": finishes["KO/TKO"],
         "SUB": finishes["SUB"],
@@ -161,8 +159,6 @@ def _traitement_metriques(driver: webdriver.Chrome) -> dict:
     }
 
     final_dict = _nettoyage_metriques(temp_dict)
-
-    Console().print(final_dict)
 
     logger.info(f"Metriques recoltees : {final_dict}")
 
@@ -284,10 +280,6 @@ def _cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome
     """
     logger.info("Recherche des combattants sur le site UFC Stats")
 
-    archive = "FightPredix/missed/combattants_manqués.json"
-
-    missed_dict = lire_combattant_manqué(archive)
-
     for cplt_name, nickname in zip(data["NAME"], data["NICKNAME"]):
         logger.info(f"combattant {cplt_name}")
         try :
@@ -308,8 +300,6 @@ def _cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome
                     driver.get(url)
             else:
                 logger.warning(f"Le combattant {cplt_name} n'a pas été trouvé")
-                missed_dict[cplt_name] = "n'a pas ete trouve"
-                ecrire_combattant_manqué(archive, missed_dict)
                 continue
 
             temp_dict = _temp_dict_ufc_stats(cplt_name, rows)
@@ -320,8 +310,6 @@ def _cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome
         except Exception as e:
             logger.warning(f"Erreur lors de la recherche du combattant {cplt_name} : {e}")
             logger.error(traceback.print_exc())
-            missed_dict[cplt_name] = str(e)
-            ecrire_combattant_manqué(archive, missed_dict)
             continue
 
     return data
@@ -329,18 +317,18 @@ def _cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome
 
 if __name__ == "__main__":
 
-    Data = pd.read_csv("FightPredix/Data/Data_ufc_fighters.csv")
+    Data = pd.read_csv("FightPredix/Data/Data_jointes.csv")
 
-    # chrome_options = Options()
+    chrome_options = Options()
 
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
 
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(options=chrome_options)
 
-    Data2 = _cherche_combattant_UFC_stats(data=Data[0:4], driver=driver)
+    Data2 = _cherche_combattant_UFC_stats(data=Data, driver=driver)
 
     Data.update(Data2)
 
-    Data.to_csv("FightPredix/Data/Data_ufc_fighters.csv", index=False)
+    Data.to_csv("FightPredix/Data/Data_jointes.csv", index=False)
 
-    Console().print(Data["DOB"])
+    Console().print(Data)
