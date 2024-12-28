@@ -4,7 +4,7 @@ Fichier de test pour la librairie de recolte des combats
 
 import os
 import sys
-from FightPredix.lib_combats import (
+from scraping.lib_combats import (
     _explore_events,
 )
 

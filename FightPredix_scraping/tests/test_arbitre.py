@@ -3,7 +3,7 @@
 Module de test pour la librairie de scraping des données de l'arbitrage
 """
 
-from FightPredix.lib_arbitre import (
+from scraping.lib_arbitre import (
     _requete_arbitre,
     _creer_liste_arbitres,
     _recup_donnees_arbitres,

@@ -7,7 +7,7 @@ import sys
 import polars as pl
 import numpy as np
 
-from FightPredix.lib_clean_tapology import (
+from scraping.lib_clean_tapology import (
     _create_streaks_variables,
     _reformat_date,
     _create_last_fight_variables,

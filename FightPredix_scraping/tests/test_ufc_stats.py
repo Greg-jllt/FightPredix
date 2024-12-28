@@ -1,6 +1,6 @@
 """Teste les fonctions de lib_ufc_stats.py"""
 
-from FightPredix.lib_ufc_stats import (
+from scraping.lib_ufc_stats import (
     _recolte_ufc_stats,
     _recolte_victoires,
     _collecteur_finish,

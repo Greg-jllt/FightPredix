@@ -4,7 +4,7 @@ import os
 import sys
 import pandas as pd
 
-from FightPredix.lib_front_page import _recolte_pages_combattants, _deja_present
+from scraping.lib_front_page import _recolte_pages_combattants, _deja_present
 from bs4 import BeautifulSoup
 
 

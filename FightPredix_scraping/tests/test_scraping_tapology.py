@@ -3,7 +3,7 @@ Module de test pour le module lib_tapology.py
 """
 
 import pytest
-from FightPredix.lib_scraping_tapology import (
+from scraping.lib_scraping_tapology import (
     _connect_vpn,
     _disconnect_vpn,
     _recherche_nom,

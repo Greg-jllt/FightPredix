@@ -1,6 +1,6 @@
 """Teste les fonctions de lib_characteristics_collection.py"""
 
-from FightPredix.lib_caracteristic_collector import (
+from scraping.lib_caracteristic_collector import (
     _infos_principal_combattant,
     _combattant_actif,
     _bio_combattant,

@@ -189,7 +189,7 @@ if __name__ == "__main__":
     logger = _init_logger()
 
     logger.info("Récupération des données")
-    with open("../../donnees_finales/final_tapology.json", "r") as f:
+    with open("data/data_tapology.json", "r") as f:
         data_tapology = pl.DataFrame(json.load(f))
 
     data_tapology = data_tapology.unique()
@@ -310,7 +310,7 @@ if __name__ == "__main__":
             "UFC",
             "FFC",
         ],
-        "Country of residence:tapology": [  # ici
+        "Country of residence:tapology": [  
             "United States",
             "United States",
             None,
@@ -335,7 +335,7 @@ if __name__ == "__main__":
             "United States",
             "Brazil",
         ],
-        "City of residence:tapology": [  # ici
+        "City of residence:tapology": [  
             "Chicago",
             "Tampa",
             None,
@@ -523,4 +523,4 @@ if __name__ == "__main__":
     data_tapology = data_tapology.with_columns(
         pl.Series("NAME", [nom.upper() for nom in data_tapology["NAME"].to_list()])
     )
-    data_tapology.to_pandas().to_csv("../../donnees_finales/final_clean_tapology.csv")
+    data_tapology.to_pandas().to_csv("data/clean_tapology.csv")

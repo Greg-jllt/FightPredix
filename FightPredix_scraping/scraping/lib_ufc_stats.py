@@ -10,10 +10,14 @@ from collections import Counter
 from selenium.webdriver.common.by import By
 from rapidfuzz import fuzz
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from rich.console import Console
+from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 
-from .outils import configure_logger, lire_combattant_manqué, ecrire_combattant_manqué
+import time
+
+from .outils import configure_logger
 
 import re
 import pandas as pd
@@ -21,7 +25,6 @@ import traceback
 
 date = datetime.now().strftime("%Y-%m-%d")
 logger = configure_logger(f"{date}_crawler_UFC_stats")
-
 
 def _temp_dict_ufc_stats(cplt_name: str, rows) -> dict:
     """
@@ -32,7 +35,7 @@ def _temp_dict_ufc_stats(cplt_name: str, rows) -> dict:
         rows (list): liste des lignes de la page de recherche
     """
     return {
-        fuzz.ratio(cplt_name, f"{first_name} {last_name}"): (first_name, last_name)
+        fuzz.ratio(cplt_name.lower(), f"{first_name.lower()} {last_name.lower()}"): (first_name, last_name)
         for row in rows
         for tds in [
             row.find_elements(By.CSS_SELECTOR, "a.b-link.b-link_style_black[href]")
@@ -57,6 +60,7 @@ def _accès_cbt_page(temp_dict: dict, driver: webdriver.Chrome) -> None:
     rows = driver.find_elements(By.CSS_SELECTOR, "tr.b-statistics__table-row")
 
     for row in rows[2:]:
+
         cells = row.find_elements(By.XPATH, "./td")
         prenom_cell = cells[0].text.strip() if len(cells) > 0 else ""
         nom_cell = cells[1].text.strip() if len(cells) > 1 else ""
@@ -65,7 +69,7 @@ def _accès_cbt_page(temp_dict: dict, driver: webdriver.Chrome) -> None:
             try:
                 link = row.find_element(By.XPATH, ".//a").get_attribute("href")
                 driver.get(link)
-            except Exception:
+            except:
                 logger.error(f"Aucun lien n'a été trouvé pour {prenom} {nom}")
             break
 
@@ -80,14 +84,14 @@ def _recolte_ufc_stats(driver: webdriver.Chrome) -> dict:
     liste_items = driver.find_elements(By.CSS_SELECTOR, "li.b-list__box-list-item")
 
     return {
-        item.find_element(
-            By.CSS_SELECTOR, "i.b-list__box-item-title"
-        ).text.strip(): item.text.replace(
+        item.find_element(By.CSS_SELECTOR, "i.b-list__box-item-title")
+        .text.strip(): item.text.replace(
             item.find_element(By.CSS_SELECTOR, "i.b-list__box-item-title").text.strip(),
             "",
-        ).strip()
+        )
+        .strip()
         for item in liste_items
-        if item.text.strip() and item.text.strip() != "DOB:"
+        if item.text.strip()
     }
 
 
@@ -143,6 +147,7 @@ def _traitement_metriques(driver: webdriver.Chrome) -> dict:
     finishes = _collecteur_finish(driver)
     resultats = _recolte_victoires(driver)
     stats = _recolte_ufc_stats(driver)
+
     temp_dict = {
         "KO/TKO": finishes["KO/TKO"],
         "SUB": finishes["SUB"],
@@ -159,7 +164,6 @@ def _traitement_metriques(driver: webdriver.Chrome) -> dict:
 
     return final_dict
 
-
 def _convertisseur_taille(taille: str) -> float:
     """
     Fonction qui convertit la taille en pouces
@@ -167,7 +171,7 @@ def _convertisseur_taille(taille: str) -> float:
     Args:
         taille (str): taille du combattant
     """
-    if match := re.match(r"(\d+)' (\d+)", taille.strip()):
+    if (match := re.match(r"(\d+)' (\d+)", taille.strip())):
         pieds, pouces = int(match.group(1)), int(match.group(2))
         return pieds * 12 + pouces
     return None
@@ -184,28 +188,28 @@ def _nettoyage_metriques(temp_dict: dict) -> dict:
         key.rstrip(":") if ":" in key else key: (
             (
                 float(value)
-                if re.fullmatch(r"\d+\.\d+", value)
+                if re.fullmatch(r"\d+\.\d+", value) 
                 else (
                     float(value.rstrip("%")) / 100
-                    if "%" in value
+                    if "%" in value 
                     else (
                         _convertisseur_taille(value)
                         if re.match(r"(\d+)' (\d+)", value.strip())
                         else (
-                            float(value.rstrip(" lbs."))
+                            float(value.rstrip(" lbs.")) 
                             if " lbs." in value.strip()
                             else (
                                 int(value.rstrip('"'))
                                 if re.fullmatch(r"\d+\"", value)
-                                else (None if value == "--" else value)
+                                else (
+                                    None if value == "--" else value 
+                                )
                             )
                         )
                     )
                 )
             )
-            if isinstance(
-                value, str
-            )  # Appliquer le traitement si la valeur est une chaîne
+            if isinstance(value, str)  # Appliquer le traitement si la valeur est une chaîne
             else value  # Sinon retourner la valeur telle quelle
         )
         for key, value in temp_dict.items()
@@ -226,6 +230,7 @@ def _integration_metriques(
 
     dictio = _traitement_metriques(driver)
 
+    
     mapping = {
         "HEIGHT": "LA TAILLE",
         "WEIGHT": "POIDS",
@@ -238,16 +243,17 @@ def _integration_metriques(
         "TD Avg.": "TAKEDOWN AVG",
         "Sub. Avg.": "ENVOI AVG",
         "Str. Def": "SIG. STR.DÉFENSE",
-        "TD Def.": "DÉFENSE DE DÉMOLITION",
+        "TD Def.": "DÉFENSE DE DÉMOLITION",        
     }
 
-    try:
+    try: 
         if cplt_name in data["NAME"].values:
+
             combattant_row = data[data["NAME"] == cplt_name].index[0]
 
             for key, value in dictio.items():
                 data_key = mapping.get(key, key)
-
+                
                 if data_key not in data.columns:
                     data[data_key] = None
 
@@ -264,9 +270,7 @@ def _integration_metriques(
     return data
 
 
-def _cherche_combattant_UFC_stats(
-    data: pd.DataFrame, driver: webdriver.Chrome
-) -> pd.DataFrame:
+def _cherche_combattant_UFC_stats(data : pd.DataFrame, driver : webdriver.Chrome) -> pd.DataFrame:
     """
     Fonction qui recolte les statistiques des combattants sur le site UFC Stats
 
@@ -276,13 +280,9 @@ def _cherche_combattant_UFC_stats(
     """
     logger.info("Recherche des combattants sur le site UFC Stats")
 
-    archive = "FightPredix/missed/combattants_manqués.json"
-
-    missed_dict = lire_combattant_manqué(archive)
-
     for cplt_name, nickname in zip(data["NAME"], data["NICKNAME"]):
         logger.info(f"combattant {cplt_name}")
-        try:
+        try :
             parts = cplt_name.split(" ")
             prenom, nom = parts[0], parts[1] if len(parts) > 1 else ""
 
@@ -300,8 +300,6 @@ def _cherche_combattant_UFC_stats(
                     driver.get(url)
             else:
                 logger.warning(f"Le combattant {cplt_name} n'a pas été trouvé")
-                missed_dict[cplt_name] = "n'a pas ete trouve"
-                ecrire_combattant_manqué(archive, missed_dict)
                 continue
 
             temp_dict = _temp_dict_ufc_stats(cplt_name, rows)
@@ -310,30 +308,27 @@ def _cherche_combattant_UFC_stats(
 
             data = _integration_metriques(data, cplt_name, driver)
         except Exception as e:
-            logger.warning(
-                f"Erreur lors de la recherche du combattant {cplt_name} : {e}"
-            )
+            logger.warning(f"Erreur lors de la recherche du combattant {cplt_name} : {e}")
             logger.error(traceback.print_exc())
-            missed_dict[cplt_name] = str(e)
-            ecrire_combattant_manqué(archive, missed_dict)
             continue
 
     return data
 
 
 if __name__ == "__main__":
-    Data = pd.read_csv("FightPredix/Data/Data_ufc_fighters.csv")
 
-    # chrome_options = Options()
+    Data = pd.read_csv("FightPredix/Data/Data_jointes.csv")
 
-    # chrome_options.add_argument("--headless")
+    chrome_options = Options()
 
-    driver = webdriver.Chrome()
+    chrome_options.add_argument("--headless")
 
-    Data2 = _cherche_combattant_UFC_stats(data=Data[1:4], driver=driver)
+    driver = webdriver.Chrome(options=chrome_options)
+
+    Data2 = _cherche_combattant_UFC_stats(data=Data, driver=driver)
 
     Data.update(Data2)
 
-    Data.to_csv("FightPredix/Data/Data_ufc_fighters.csv", index=False)
+    Data.to_csv("FightPredix/Data/Data_jointes.csv", index=False)
 
-    Console().print(Data[1:4])
+    Console().print(Data)

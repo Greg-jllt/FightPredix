@@ -245,7 +245,7 @@ def _initialisation_des_donnees_a_scraper(
     """
 
     try:
-        data_ufc = pl.read_csv("../../../donnees_finales/Data_ufc_fighters.csv")
+        data_ufc = pl.read_csv("data/Data_ufc_fighters.csv")
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Fichier introuvable:\n{e}")
 
@@ -476,7 +476,7 @@ if __name__ == "__main__":
     time.sleep(5)
 
     driver, url_tapology, chrome_options = _starting_driver()
-    recuperer_ancien_scraping = True
+    recuperer_ancien_scraping = False
 
     data_ufc, data_tapology, liste_combattant, liste_combattant_traites = (
         _initialisation_des_donnees_a_scraper(
@@ -518,7 +518,7 @@ if __name__ == "__main__":
                     else:
                         liste_combattant_scrapes.append(dictio)
                         with open(
-                            "../../../actual_combattant_tapology2.json",
+                            "data/data_tapology.json",
                             "w",
                         ) as f:
                             json.dump(liste_combattant_scrapes, f)

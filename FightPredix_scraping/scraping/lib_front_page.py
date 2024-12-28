@@ -7,6 +7,7 @@ Développée par :
 """
 
 from collections import defaultdict
+import os
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -15,7 +16,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from rich.console import Console
-from FightPredix import _extraire_info_combattant
+from .lib_caracteristic_collector import _extraire_info_combattant
 from typing import Any
 from datetime import datetime
 
@@ -109,9 +110,8 @@ def _page_principal_UFC(
     """
 
     result: list[Any] = list()
-    # Wrapper
     hrefs = list()
-
+    
     main_driver.get("https://www.ufc.com/athletes/all?filters%5B0%5D=status%3A23")
 
     if Data is None:
@@ -134,7 +134,7 @@ def _page_principal_UFC(
             temp_liste = _recolte_pages_combattants(main_driver)
 
             options = Options()
-
+            
             options.add_argument("--headless")
 
             sub_driver = webdriver.Chrome(options=options)
@@ -146,11 +146,11 @@ def _page_principal_UFC(
                     if dictio is not None:
                         result.append(dictio)
                     hrefs.append(url)
-
+        
             sub_driver.quit()
 
             _click_chargement_plus(main_driver)
-
+            
             return _page_principal_sub(main_driver)
 
         except TimeoutException:
@@ -166,17 +166,14 @@ def _page_principal_UFC(
             logger.error(f"Erreur inattendue : {e}")
 
         return pd.concat([Data, pd.DataFrame(result)], ignore_index=True)
-
+    
     return _page_principal_sub(main_driver)
 
 
 if __name__ == "__main__":
-    console = Console()
 
     main_driver = webdriver.Chrome()
 
-    test = _page_principal_UFC(main_driver)
+    data = _page_principal_UFC(main_driver)
 
-    console.print(test)
-
-    test.to_json("data_scrapee/combattant_ufc.json", orient="records")
+    data.to_json("data/combattant_ufc.json", orient="records")

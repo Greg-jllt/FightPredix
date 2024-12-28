@@ -31,4 +31,4 @@ dev = [
 per-file-ignores = { 
     "tests/*" = ["F401", "F811"],
     "FightPredix/__init__.py" = ["F401", "F811"],
-    }
+}
