@@ -7,7 +7,7 @@ from venv import logger
 from .lib_front_page import _page_principal_UFC
 from .lib_combats import _main_combat_recolte
 from .lib_ufc_stats import _cherche_combattant_UFC_stats
-from .lib_constructeur import _difference_combats, _age_by_DOB, _transformation_debut_octogone
+from .lib_constructeur import _main_construct
 from .lib_scraping_tapology import _init_logger
 
 from selenium.webdriver.chrome.options import Options
@@ -17,21 +17,18 @@ import pandas as pd
 import subprocess
 import os
 
+import pandas as pd
 
 def Dataframe_caracteristiques(driver: webdriver.Chrome) -> pd.DataFrame:
 
     Data = _page_principal_UFC(main_driver=driver)
 
-    return Data
+    return  Data
 
 
-def Dataframe_caracteristiques_ufc_stats(
-    data: pd.DataFrame, driver: webdriver.Chrome
-) -> pd.DataFrame:
-
+def Dataframe_caracteristiques_ufc_stats(data: pd.DataFrame, driver: webdriver.Chrome) -> pd.DataFrame:
+    
     Data = _cherche_combattant_UFC_stats(data=data, driver=driver)
-
-    Data.to_csv("data/Data_ufc_fighters.csv", index=False)
 
     return Data
 
@@ -45,14 +42,9 @@ def Dataframe_combats(driver: webdriver.Chrome) -> pd.DataFrame:
 
 def _constructeur(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
 
-    Data = _age_by_DOB(Data)
-
-    Data = _transformation_debut_octogone(Data)
-
-    combats = _difference_combats(Data, combats)
+    combats, Data = _main_construct(combats, Data)
 
     return combats, Data
-
 
 logger = _init_logger()
 

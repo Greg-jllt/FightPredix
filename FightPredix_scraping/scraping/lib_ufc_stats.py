@@ -125,7 +125,7 @@ def _collecteur_finish(driver: webdriver.Chrome) -> Counter:
         [
             (
                 finish.text[2:5].strip()
-                if finish.text.strip() in ["U-DEC", "S-DEC"]
+                if finish.text.strip() in ["U-DEC", "S-DEC", "M-DEC"]
                 else finish.text.strip()
             )
             for row in driver.find_elements(
@@ -138,7 +138,7 @@ def _collecteur_finish(driver: webdriver.Chrome) -> Counter:
                 By.CSS_SELECTOR,
                 "td.b-fight-details__table-col.l-page_align_left > p.b-fight-details__table-text",
             )
-            if finish.text.strip() in ["KO/TKO", "SUB", "U-DEC", "S-DEC"]
+            if finish.text.strip() in ["KO/TKO", "SUB", "U-DEC", "S-DEC", "CNC", "DQ",  "M-DEC", "Overturned"]
         ]
     )
 
@@ -324,10 +324,12 @@ def _cherche_combattant_UFC_stats(
 
     return data
 
+def _clean_nom_colonnes(name):
+    return re.sub(r'[^A-Za-z0-9À-ÖØ-öø-ÿ_]+', '_', name)
 
 if __name__ == "__main__":
 
-    Data = pd.read_csv("FightPredix/Data/Data_jointes.csv")
+    Data = pd.read_csv("FightPredixApp/Data/Data_jointes.csv")
 
     chrome_options = Options()
 
@@ -339,6 +341,6 @@ if __name__ == "__main__":
 
     Data.update(Data2)
 
-    Data.to_csv("FightPredix/Data/Data_jointes.csv", index=False)
+    Data.to_csv("FightPredixApp/Data/Data_jointes.csv", index=False)
 
     Console().print(Data)
