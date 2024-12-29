@@ -12,7 +12,7 @@ def configure_logger(name: str) -> logging.Logger:
 
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-    file_handler = logging.FileHandler(f"FightPredix_scraping\\logs\\{name}.log")
+    file_handler = logging.FileHandler(f"logs\\{name}.log")
     file_handler.setLevel(logging.INFO)  
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
