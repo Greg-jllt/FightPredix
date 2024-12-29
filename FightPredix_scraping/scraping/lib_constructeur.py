@@ -17,33 +17,33 @@ import pandas as pd
 def _difference_combats(caracteristiques : pd.DataFrame, combats : pd.DataFrame) -> pd.DataFrame :
     """
     Fonction qui calcule la difference entre les caracteristiques des combattants
-    """
-    
+    """   
+
+    categorielles = caracteristiques.select_dtypes(include=["object"]).columns.tolist()
+    numeric_columns = caracteristiques.select_dtypes(include=["number"]).columns.tolist()
+
+    categorielles.remove("name")
+
     for i, combat in combats.iterrows():
 
         combattant_1 = combat["combattant_1"]
         combattant_2 = combat["combattant_2"]
 
-        for nom in caracteristiques["NAME"].values:
+        for nom in caracteristiques["name"].values:
             if fuzz.ratio(nom.lower(), combattant_1.lower()) > 95:
-                stats_combattant_1 = caracteristiques[caracteristiques["NAME"].str.lower() == nom.lower()].iloc[0]
+                stats_combattant_1 = caracteristiques[caracteristiques["name"].str.lower() == nom.lower()].iloc[0]
                 break
         
-        for nom in caracteristiques["NAME"].values:
+        for nom in caracteristiques["name"].values:
             if fuzz.ratio(nom.lower(), combattant_2.lower()) > 95:
-                stats_combattant_2 = caracteristiques[caracteristiques["NAME"].str.lower() == nom.lower()].iloc[0]
+                stats_combattant_2 = caracteristiques[caracteristiques["name"].str.lower() == nom.lower()].iloc[0]
                 break
-    
-
-        categorielles = caracteristiques.select_dtypes(include=["object"]).columns
-        numeric_columns = caracteristiques.select_dtypes(include=["number"]).columns
 
         for column in numeric_columns:
-
             if isinstance(stats_combattant_1[column], (int, float)) and isinstance(stats_combattant_2[column], (int, float)):
                 combats.loc[i, f"diff_{column}"] = stats_combattant_1[column] - stats_combattant_2[column]
 
-        for column in categorielles.drop(["NAME"]):
+        for column in categorielles:
             combats.loc[i, f"{column}_1"] = stats_combattant_1[column]
             combats.loc[i, f"{column}_2"] = stats_combattant_2[column]
 
@@ -72,8 +72,9 @@ def _transformation_debut_octogone(data):
     Fonction qui transforme la date de debut de l'octogone en nombre de mois
     """
     data["DÉBUT DE L'OCTOGONE"] = data["DÉBUT DE L'OCTOGONE"].astype(str)
-    data["DÉBUT DE L'OCTOGONE"] = pd.to_datetime(data["DÉBUT DE L'OCTOGONE"])
-    data["DÉBUT DE L'OCTOGONE"] = (pd.to_datetime("today") - data["DÉBUT DE L'OCTOGONE"]).dt.days // 12    
+    data["DÉBUT DE L'OCTOGONE"] = pd.to_datetime(data["DÉBUT DE L'OCTOGONE"],format="%b. %d, %Y", errors='coerce')
+    data["DÉBUT DE L'OCTOGONE"] = pd.to_numeric((pd.to_datetime("today") - data["DÉBUT DE L'OCTOGONE"]).dt.days // 30).astype(float)
+
     return data
 
 def clean_column_nom(nom):
@@ -86,9 +87,9 @@ def _main_construct(combats: pd.DataFrame, caracteristiques: pd.DataFrame) -> pd
 
     caracteristiques = _transformation_debut_octogone(caracteristiques)
 
-    combats = _difference_combats(caracteristiques, combats)
+    caracteristiques.columns = [clean_column_nom(col) for col in caracteristiques.columns]
 
-    combats.columns = [clean_column_nom(col) for col in combats.columns]
+    combats = _difference_combats(caracteristiques, combats)
 
     return combats, caracteristiques
 
@@ -100,5 +101,5 @@ if __name__ == "__main__":
 
     combats, caracteristiques = _main_construct(combats, caracteristiques)
 
-    caracteristiques.to_csv("FightPredixApp/Data/Data_jointes.csv", index=False)
+    caracteristiques.to_csv("FightPredixApp/Data/Data_jointes_cplt.csv", index=False)
     combats.to_csv("FightPredixApp/Data/Data_ufc_combats_cplt.csv", index=False)
