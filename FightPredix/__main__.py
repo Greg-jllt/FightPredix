@@ -1,7 +1,7 @@
 from .lib_front_page import _page_principal_UFC
 from .lib_combats import _main_combat_recolte
 from .lib_ufc_stats import _cherche_combattant_UFC_stats
-from .lib_constructeur import _main_construct
+from .lib_constructeur import _difference_combats, _age_by_DOB, _transformation_debut_octogone
 
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
@@ -31,7 +31,11 @@ def Dataframe_combats(driver: webdriver.Chrome) -> pd.DataFrame:
 
 def _constructeur(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
 
-    combats, Data = _main_construct(combats, Data)
+    Data = _age_by_DOB(Data)
+
+    Data = _transformation_debut_octogone(Data)
+
+    combats = _difference_combats(Data, combats)
 
     return combats, Data
 

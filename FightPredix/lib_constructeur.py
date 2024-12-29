@@ -1,12 +1,11 @@
 """
-libraitie qui permet de construire les données pour l'application
+
 """
 
 from rapidfuzz import fuzz
 from datetime import datetime
-from rich.console import Console
 
-import re
+
 import pandas as pd
 
 
@@ -48,9 +47,6 @@ def _difference_combats(caracteristiques : pd.DataFrame, combats : pd.DataFrame)
 
 
 def _age_by_DOB(Data):
-    """
-    Fonction qui calcule l'age des combattants en fonction de leur date de naissance
-    """
 
     data = Data[Data["ÂGE"].isna()& Data["DOB"].notna()]
 
@@ -65,37 +61,15 @@ def _age_by_DOB(Data):
 
 
 def _transformation_debut_octogone(data):
-    """
-    Fonction qui transforme la date de debut de l'octogone en nombre de mois
-    """
-    data["DÉBUT DE L'OCTOGONE"] = data["DÉBUT DE L'OCTOGONE"].astype(str)
-    data["DÉBUT DE L'OCTOGONE"] = pd.to_datetime(data["DÉBUT DE L'OCTOGONE"])
-    data["DÉBUT DE L'OCTOGONE"] = (pd.to_datetime("today") - data["DÉBUT DE L'OCTOGONE"]).dt.days // 12    
+    data["DÉBUT_DE_L_OCTOGONE_1"] = data["DÉBUT_DE_L_OCTOGONE_1"].astype(str)
+    data["DÉBUT_DE_L_OCTOGONE_2"] = data["DÉBUT_DE_L_OCTOGONE_2"].astype(str)
+    data["DÉBUT_DE_L_OCTOGONE_1"] = pd.to_datetime(data["DÉBUT_DE_L_OCTOGONE_1"])
+    data["DÉBUT_DE_L_OCTOGONE_2"] = pd.to_datetime(data["DÉBUT_DE_L_OCTOGONE_2"])
+    data["DÉBUT_DE_L_OCTOGONE_1"] = (pd.to_datetime("today") - data["DÉBUT_DE_L_OCTOGONE_1"]).dt.days // 12
+    data["DÉBUT_DE_L_OCTOGONE_2"] = (pd.to_datetime("today") - data["DÉBUT_DE_L_OCTOGONE_2"]).dt.days // 12
+
+    data["diff_debut_octogone"] = data["DÉBUT_DE_L_OCTOGONE_1"] - data["DÉBUT_DE_L_OCTOGONE_2"]
+
+    data.drop(columns=["DÉBUT_DE_L_OCTOGONE_1", "DÉBUT_DE_L_OCTOGONE_2"], inplace=True)
+    
     return data
-
-def clean_column_nom(nom):
-    return re.sub(r'[^A-Za-z0-9À-ÖØ-öø-ÿ_]+', '_', nom).lower()
-
-
-def _main_construct(combats: pd.DataFrame, caracteristiques: pd.DataFrame) -> pd.DataFrame:
-
-    caracteristiques = _age_by_DOB(caracteristiques)
-
-    caracteristiques = _transformation_debut_octogone(caracteristiques)
-
-    combats = _difference_combats(caracteristiques, combats)
-
-    combats.columns = [clean_column_nom(col) for col in combats.columns]
-
-    return combats, caracteristiques
-
-
-if __name__ == "__main__":
-
-    caracteristiques = pd.read_csv("FightPredixApp/Data/Data_jointes.csv")
-    combats = pd.read_csv("FightPredixApp/Data/Data_ufc_combats.csv")
-
-    combats, caracteristiques = _main_construct(combats, caracteristiques)
-
-    caracteristiques.to_csv("FightPredixApp/Data/Data_jointes.csv", index=False)
-    combats.to_csv("FightPredixApp/Data/Data_ufc_combats_cplt.csv", index=False)

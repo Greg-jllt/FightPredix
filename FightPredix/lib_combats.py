@@ -42,7 +42,7 @@ def _explore_events(liste_events:list, driver : webdriver.Chrome) -> list:
             "combattant_1": cbt[0].text if i%2==0 else cbt[1].text,
             "combattant_2": cbt[1].text if i%2==0 else cbt[0].text,
             "resultat": 0 if i%2==0 else 1,
-            "methode" : methode_text[2:5] if methode_text in ["U-DEC", "S-DEC", "M-DEC"] else methode_text
+            "methode" : methode_text[2:5] if methode_text in ["U-DEC", "S-DEC"] else methode_text
         }
         for event in liste_events
         if (logger.info(f"Event: {event}"), True)[1]
@@ -88,6 +88,6 @@ if __name__ == "__main__":
 
     data = _main_combat_recolte(driver)
 
-    data.to_csv("FightPredixApp/Data/Data_ufc_combats.csv", index=False)
+    data.to_csv("Data_ufc_combats.csv", index=False)
 
     driver.quit()
