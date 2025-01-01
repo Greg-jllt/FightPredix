@@ -16,11 +16,15 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 import time
 import random
-import logging
 import subprocess
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from datetime import datetime
+from .outils import configure_logger
+
+date = datetime.now().strftime("%Y-%m-%d")
+logger = configure_logger(f"{date}_crawler_scraping_tapology")
 
 
 def _connect_vpn():
@@ -185,17 +189,6 @@ def _restart_with_new_vpn(
     return driver
 
 
-def _init_logger() -> logging.Logger:
-    """
-    Initialisation du logger
-    """
-
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-    )
-    return logging.getLogger(__name__)
-
-
 def _starting_driver() -> tuple[webdriver.Chrome, str, webdriver.ChromeOptions]:
     """
     Initialisation du driver
@@ -205,6 +198,7 @@ def _starting_driver() -> tuple[webdriver.Chrome, str, webdriver.ChromeOptions]:
     chrome_options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
     )
+    chrome_options.add_argument("--headless")
     url_tapology = "https://www.tapology.com"
     driver = webdriver.Chrome(options=chrome_options)
     driver.get(url_tapology)
@@ -276,8 +270,6 @@ def _fusionner_tapologies(combattant: defaultdict):
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Fichier introuvable:\n{e}")
 
-
-logger = _init_logger()
 
 change_name = dict(
     mauvais_nom=[

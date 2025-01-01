@@ -7,8 +7,6 @@ Développée par :
 
 from rapidfuzz import fuzz
 from datetime import datetime
-from rich.console import Console
-
 import re
 import pandas as pd
 

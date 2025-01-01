@@ -1,1 +1,7 @@
 *.ipynb
+
+*.pycache
+
+.coverage
+
+data/
