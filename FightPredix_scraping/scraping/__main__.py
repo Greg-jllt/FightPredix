@@ -3,12 +3,12 @@ Processus de scraping des données sur les sites UFC.com, UFC stats et Tapology.
 Construction de la base de données récapitulant les combats de l'UFC et les informations des combattants.
 """
 
-from venv import logger
 from .lib_front_page import _page_principal_UFC
 from .lib_combats import _main_combat_recolte
 from .lib_ufc_stats import _cherche_combattant_UFC_stats
 from .lib_constructeur import _main_construct
-
+from .outils import configure_logger
+from datetime import datetime
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 
@@ -16,40 +16,38 @@ import pandas as pd
 import subprocess
 import os
 
-import pandas as pd
+
+date = datetime.now().strftime("%Y-%m-%d")
+logger = configure_logger(f"{date}_crawler_scraping")
+
 
 def Dataframe_caracteristiques(driver: webdriver.Chrome) -> pd.DataFrame:
-
     Data = _page_principal_UFC(main_driver=driver)
 
-    return  Data
+    return Data
 
 
-def Dataframe_caracteristiques_ufc_stats(data: pd.DataFrame, driver: webdriver.Chrome) -> pd.DataFrame:
-    
+def Dataframe_caracteristiques_ufc_stats(
+    data: pd.DataFrame, driver: webdriver.Chrome
+) -> pd.DataFrame:
     Data = _cherche_combattant_UFC_stats(data=data, driver=driver)
 
     return Data
 
 
 def Dataframe_combats(driver: webdriver.Chrome) -> pd.DataFrame:
-
     Data = _main_combat_recolte(driver=driver)
 
     return Data
 
 
 def _constructeur(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
-
     combats, Data = _main_construct(combats, Data)
 
     return combats, Data
 
-# logger = _init_logger()
-
 
 def main():
-
     chrome_options = Options()
 
     chrome_options.add_argument("--headless")
@@ -105,5 +103,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()

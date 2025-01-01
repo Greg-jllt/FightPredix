@@ -1,7 +1,0 @@
-*.ipynb
-
-*.pycache
-
-.coverage
-
-logs/

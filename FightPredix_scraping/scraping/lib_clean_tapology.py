@@ -6,17 +6,15 @@ Développée par :
     - [Hugo Cochereau](https://github.com/hugocoche)
 """
 
-from venv import logger
 import polars as pl
 import json
-import os
-import sys
 import rapidfuzz as rf
 from geopy.geocoders import Nominatim
 from datetime import datetime
-from .lib_scraping_tapology import _init_logger
+from .outils import configure_logger
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+date = datetime.now().strftime("%Y-%m-%d")
+logger = configure_logger(f"{date}_crawler_clean_tapology")
 
 
 def _manage_na(data_tapology: pl.DataFrame) -> pl.DataFrame:
@@ -186,8 +184,6 @@ def _birth_country(data_tapology: pl.DataFrame) -> pl.DataFrame:
 
 
 if __name__ == "__main__":
-    logger = _init_logger()
-
     logger.info("Récupération des données")
     with open("data/data_tapology.json", "r") as f:
         data_tapology = pl.DataFrame(json.load(f))
@@ -310,7 +306,7 @@ if __name__ == "__main__":
             "UFC",
             "FFC",
         ],
-        "Country of residence:tapology": [  
+        "Country of residence:tapology": [
             "United States",
             "United States",
             None,
@@ -335,7 +331,7 @@ if __name__ == "__main__":
             "United States",
             "Brazil",
         ],
-        "City of residence:tapology": [  
+        "City of residence:tapology": [
             "Chicago",
             "Tampa",
             None,

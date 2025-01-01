@@ -13,7 +13,12 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import logging
 import polars as pl
-from .lib_scraping_tapology import _init_logger, _restart_with_new_vpn
+from .lib_scraping_tapology import _restart_with_new_vpn
+from .outils import configure_logger
+from datetime import datetime
+
+date = datetime.now().strftime("%Y-%m-%d")
+logger = configure_logger(f"{date}_crawler_arbitre")
 
 
 def _requete_arbitre(driver: webdriver.Chrome, url: str) -> BeautifulSoup:
@@ -184,13 +189,13 @@ def _create_data_arbitres(df_histo: pl.DataFrame, data: pl.DataFrame) -> pl.Data
     return df_histo
 
 
-logger = _init_logger()
 if __name__ == "__main__":
     logger.info("Lancement du scraping des arbitres sur UFC_fans")
     chrome_options = Options()
     chrome_options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
     )
+    chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(options=chrome_options)
     soup = _requete_arbitre(driver, "https://www.ufc-fr.com/arbitre.html")
     url = "https://www.ufc-fr.com/arbitre.html"
