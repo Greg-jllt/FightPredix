@@ -25,20 +25,17 @@ def _recolte_events(driver) -> list[str]:
     """
     focntion de recolte des événements sportif depuis 2014
     """
-    driver.implicitly_wait(50)
     driver.get("http://www.ufcstats.com/statistics/events/completed?page=all")
-    driver.implicitly_wait(50)
     return [
         event.find_element(By.CSS_SELECTOR, "a").get_attribute("href")
         for event in driver.find_elements(
             By.CSS_SELECTOR, ".b-statistics__table-content"
         )[1:]
-        if int(
-            event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
-            .text.split(",")[-1]
-            .strip()
-        )
-        < 1999
+        # if int(
+        #     event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
+        #     .text.split(",")[-1]
+        #     .strip()
+        # ) < 2014
     ]
 
 
@@ -233,7 +230,6 @@ def _acces_events(liste_events: list, driver: webdriver.Chrome) -> pd.DataFrame:
             )[1:]
 
             for row in rows:
-                driver.implicitly_wait(50)
                 row_data_link = row.get_attribute("data-link")
 
                 results, i = _sub_access_events(
@@ -271,10 +267,8 @@ def _sub_fonction_elements(
         lignes = sub_soup.select("tbody")
 
         for ligne in lignes[1:]:
-            Console().print(round_counter)
             dictio_round = {}
             for col, cellule in zip(dictio_total.keys(), ligne.select("td")):
-                Console().print(col)
                 dictio_round[f"{col}_round{round_counter}"] = cellule.text.strip()
 
             liste_round.append(dictio_round)
