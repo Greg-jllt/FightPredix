@@ -9,6 +9,7 @@ from rapidfuzz import fuzz
 from datetime import datetime
 from rich.console import Console
 
+import numpy as np
 import re
 import pandas as pd
 
@@ -55,7 +56,7 @@ def _age_by_DOB(Data):
     Fonction qui calcule l'age des combattants en fonction de leur date de naissance
     """
 
-    data = Data[Data["ÂGE"].isna()& Data["DOB"].notna()]
+    data = Data[Data["ÂGE"].isna() & Data["DOB"].notna()]
 
     for _, cbt in data.iterrows():
         cbt_name = cbt["NAME"].upper()
@@ -81,6 +82,141 @@ def clean_column_nom(nom):
     return re.sub(r'[^A-Za-z0-9À-ÖØ-öø-ÿ_]+', '_', nom).lower()
 
 
+def _process_valeur(valeur):
+    
+    if pd.isna(valeur) or valeur in ["nan", "None"]:  # Gérer les NaN et None explicites
+        return np.nan
+
+    valeur = str(valeur) 
+    match_ratio = re.match(r'^(\d+)\s+of\s+(\d+)$', valeur) 
+    if match_ratio:
+        return int(match_ratio.group(2))
+    
+    match_percentage = re.match(r'^(\d+)%$', valeur) 
+    if match_percentage:
+        return int(match_percentage.group(1)) / 100
+    
+    if "BOUT" in valeur:
+        return valeur.split()[0]
+    
+    match_time = re.match(r'^(\d+):(\d+)$', valeur)
+    if match_time:
+        minutes, seconds = map(int, match_time.groups())
+        return minutes * 60 + seconds
+    
+    if "---" in valeur or "--" in valeur:
+        return None
+        
+    return valeur
+
+def _process_ratio(valeur):
+
+    valeur = str(valeur) 
+    match_ratio = re.match(r'^(\d+)\s+of\s+(\d+)$', valeur) 
+    if match_ratio:
+        num, denom = map(int, match_ratio.groups())
+        return round(num / denom,2) if denom != 0 else np.nan
+
+
+def _cleaning(data):
+    """
+    Fonction qui nettoie les données
+    """
+    new_columns = {}  
+
+    Data = data.copy()
+
+    for col in Data.columns:
+        if re.match(r'(combattant_1_Fighter|combattant_2_Fighter)', col):
+            Data.drop(col, axis=1, inplace=True)
+            continue
+
+        if Data[col].dtype == 'O':  
+            
+            ratio_bool = Data[col].apply(lambda x: bool(re.match(r'^(\d+)\s+of\s+(\d+)$', str(x))))
+            
+            if ratio_bool.any():
+                new_columns[f'{col}_ratio'] = Data[col].where(ratio_bool).apply(_process_ratio)
+            
+            Data.loc[:, col] = Data[col].apply(_process_valeur)
+    
+    if new_columns:
+        Data = pd.concat([Data, pd.DataFrame(new_columns, index=Data.index)], axis=1)
+    
+    return Data
+
+
+
+def _sub_fonction_age(Data, combattant, date_combat_annee, ajd):
+    """
+    Sous fonction qui calcule l'age des combattants au moment du combat
+    """
+    for nom in Data["name"].values:
+        if fuzz.ratio(nom.lower(), combattant.lower()) > 95:
+            age = Data[Data["name"].str.lower() == nom.lower()]["âge"].values[0]
+            dob = Data[Data["name"].str.lower() == nom.lower()]["dob"].values[0]
+            if pd.notna(age):
+                Age_t = age - (ajd.year - date_combat_annee)
+                return Age_t
+            elif pd.notna(dob):
+                Age_t = date_combat_annee - datetime.strptime(dob, '%b %d, %Y').year
+                return Age_t
+
+
+
+def _age_temps_t(Data : pd.DataFrame , combats : pd.DataFrame ) -> pd.DataFrame:
+    """
+    Fonction qui calcul l'age des combattants au moment du combat et l'ajoute dans le dataframe des combats
+    """
+    Combats = combats.copy()
+    for i, combat in Combats.iterrows():
+        date_combat_annee = pd.to_datetime(datetime.strptime(combat["date"], "%B %d, %Y")).year
+        ajd = datetime.now()
+        combattant_1 = combat["combattant_1"]
+        combattant_2 = combat["combattant_2"]
+                    
+        Combats.loc[i, "combattant_1_age_t"] = _sub_fonction_age(Data, combattant_1, date_combat_annee, ajd)
+        Combats.loc[i, "combattant_2_age_t"] = _sub_fonction_age(Data, combattant_2, date_combat_annee, ajd)
+    
+    return Combats
+
+
+def _win_losses_temps_t(Data : pd.DataFrame, combats : pd.DataFrame) -> pd.DataFrame:
+    """
+    Fonction qui calcule les victoires des combattants au moment du combat
+    """
+    Combats = combats.copy()
+    temp_dict={}
+
+    def _sub_win_losses_temps_t(combattant, prefixe, resultat):
+    
+        for nom in Data["name"].values:
+            
+            if  fuzz.ratio(nom.lower(), combattant.lower()) > 95:
+
+                win, losses = Data[Data["name"].str.lower() == nom.lower()][["win", "losses"]].values[0]
+
+                Combats.loc[i, f"{prefixe}_win_t"] = win - temp_dict.get(f"{combattant}_win_t", 1)
+                Combats.loc[i, f"{prefixe}_losses_t"] = losses - temp_dict.get(f"{combattant}_losses_t", 1)
+
+                if (prefixe == "combattant_1" and resultat == 0) or (prefixe == "combattant_2" and resultat == 1):
+                    temp_dict[f"{combattant}_win_t"] = temp_dict.get(f"{combattant}_win_t", 1) + 1  
+                elif (prefixe == "combattant_1" and resultat == 1) or (prefixe == "combattant_2" and resultat == 0):
+                    temp_dict[f"{combattant}_losses_t"] = temp_dict.get(f"{combattant}_losses_t", 1) + 1
+                        
+
+    for i, combat in Combats.iterrows():
+        combattant_1 = combat["combattant_1"]
+        combattant_2 = combat["combattant_2"]
+        resultat = combat["resultat"]
+
+        _sub_win_losses_temps_t(combattant_1, "combattant_1", resultat)
+        _sub_win_losses_temps_t(combattant_2, "combattant_2", resultat)
+
+
+    return Combats
+
+
 def _main_construct(combats: pd.DataFrame, caracteristiques: pd.DataFrame) -> pd.DataFrame:
 
     caracteristiques = _age_by_DOB(caracteristiques)
@@ -91,15 +227,16 @@ def _main_construct(combats: pd.DataFrame, caracteristiques: pd.DataFrame) -> pd
 
     combats = _difference_combats(caracteristiques, combats)
 
+    
     return combats, caracteristiques
 
 
 if __name__ == "__main__":
 
-    caracteristiques = pd.read_csv("FightPredixApp/Data/Data_jointes.csv")
+    caracteristiques = pd.read_csv("FightPredixApp/Data/Data_ufc_fighters.csv")
     combats = pd.read_csv("FightPredixApp/Data/Data_ufc_combats.csv")
 
-    combats, caracteristiques = _main_construct(combats, caracteristiques)
+    caracteristiques = _main_construct(caracteristiques=caracteristiques)
 
-    caracteristiques.to_csv("FightPredixApp/Data/Data_jointes_cplt.csv", index=False)
+    caracteristiques.to_csv("FightPredixApp/Data/Data_jointes_complet_actuel.csv", index=False)
     combats.to_csv("FightPredixApp/Data/Data_ufc_combats_cplt.csv", index=False)

@@ -115,7 +115,7 @@ def _page_principal_UFC(
     result: list[Any] = list()
     hrefs = list()
 
-    main_driver.get("https://www.ufc.com/athletes/all?filters%5B0%5D=status%3A23")
+    main_driver.get("https://www.ufc.com/athletes/all") #?filters%5B0%5D=status%3A23
 
     if Data is None:
         Data = pd.DataFrame(columns=["NAME"])
@@ -177,4 +177,4 @@ if __name__ == "__main__":
 
     data = _page_principal_UFC(main_driver)
 
-    data.to_json("data/combattant_ufc.json", orient="records")
+    data.to_json("FightPredixAPP/Data/Data_ufc_fighters.csv", orient="records")

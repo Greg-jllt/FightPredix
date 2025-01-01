@@ -289,6 +289,8 @@ def _extraire_info_combattant(driver: webdriver.Chrome) -> defaultdict | None:
 
 if __name__ == "__main__":
 
+    import pandas as pd
+
     console = Console()
 
     driver = webdriver.Chrome()
@@ -299,6 +301,8 @@ if __name__ == "__main__":
 
     dictio = _extraire_info_combattant(driver)
 
-    console.print(dictio)
+    data = pd.DataFrame([dictio])
+
+    console.print(data.loc[data["NAME"]=="HAMDY ABDELWAHAB",["WIN","LOSSES","DRAWS"]].values[0])
 
     driver.quit()

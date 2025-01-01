@@ -112,6 +112,22 @@ def _recolte_victoires(driver: webdriver.Chrome) -> list | None:
         return [int(val) for val in pattern.search(resultats.text).groups()]  # type: ignore
     else:
         return None
+    
+
+def _vic_draws_losses_autres_parcours(driver: webdriver.Chrome, win_draw_loss : list) -> list | None:
+    """
+    Fonction qui recolte les victoires, les défaites et les matchs nuls des combattants de leurs autres parcours en soustrayant les victoires, les défaites et les matchs nuls du site UFC.com aux victoires, défaites et matchs nuls du site UFC Stats
+    """
+    resultats = _recolte_victoires(driver)
+
+    return {
+    "WIN_HP": int(resultats[0] - win_draw_loss[0]) if resultats else None,
+    "LOSSES_HP": int(resultats[1] - win_draw_loss[1]) if resultats else None,
+    "DRAWS_HP": int(resultats[2] - win_draw_loss[2]) if resultats else None
+    }
+    
+
+
 
 
 def _collecteur_finish(driver: webdriver.Chrome) -> Counter:
@@ -143,7 +159,7 @@ def _collecteur_finish(driver: webdriver.Chrome) -> Counter:
     )
 
 
-def _traitement_metriques(driver: webdriver.Chrome) -> dict:
+def _traitement_metriques(driver: webdriver.Chrome, win_draw_loss : list) -> dict:
     """
     Fonction qui réuni et nettoie les métriques récoltées
 
@@ -151,16 +167,17 @@ def _traitement_metriques(driver: webdriver.Chrome) -> dict:
         driver (webdriver.Chrome): driver de la page du combattant
     """
     finishes = _collecteur_finish(driver)
-    resultats = _recolte_victoires(driver)
+    resultats_HP = _vic_draws_losses_autres_parcours(driver, win_draw_loss)
     stats = _recolte_ufc_stats(driver)
 
     temp_dict = {
         "KO/TKO": finishes["KO/TKO"],
         "SUB": finishes["SUB"],
         "DEC": finishes["DEC"],
-        "WIN": resultats[0] if resultats else None,
-        "LOSSES": resultats[1] if resultats else None,
-        "DRAWS": resultats[2] if resultats else None,
+        "WIN" : int(win_draw_loss[0]),
+        "LOSSES" : int(win_draw_loss[1]),
+        "DRAWS" : int(win_draw_loss[2]),
+        **resultats_HP,
         **stats,
     }
 
@@ -224,7 +241,7 @@ def _nettoyage_metriques(temp_dict: dict) -> dict:
 
 
 def _integration_metriques(
-    data: pd.DataFrame, cplt_name: str, driver: webdriver.Chrome
+    data: pd.DataFrame, cplt_name: str, driver: webdriver.Chrome, win_draw_loss: list
 ) -> pd.DataFrame:
     """
     Fonction qui integre les metriques recoltees dans le dictionnaire
@@ -235,7 +252,7 @@ def _integration_metriques(
         driver (webdriver.Chrome): driver de la page du combattant
     """
 
-    dictio = _traitement_metriques(driver)
+    dictio = _traitement_metriques(driver, win_draw_loss)
 
     mapping = {
         "HEIGHT": "LA TAILLE",
@@ -314,7 +331,9 @@ def _cherche_combattant_UFC_stats(
 
             _accès_cbt_page(temp_dict, driver)
 
-            data = _integration_metriques(data, cplt_name, driver)
+            win_draw_loss = data.loc[data["NAME"]==cplt_name,["WIN","LOSSES","DRAWS"]].values[0]
+
+            data = _integration_metriques(data, cplt_name, driver,win_draw_loss)
         except Exception as e:
             logger.warning(
                 f"Erreur lors de la recherche du combattant {cplt_name} : {e}"
@@ -323,9 +342,6 @@ def _cherche_combattant_UFC_stats(
             continue
 
     return data
-
-def _clean_nom_colonnes(name):
-    return re.sub(r'[^A-Za-z0-9À-ÖØ-öø-ÿ_]+', '_', name)
 
 if __name__ == "__main__":
 
