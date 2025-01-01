@@ -4,7 +4,7 @@ import base64
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
-import os 
+import os
 
 st.set_page_config(
     page_title="FightPredix",
@@ -27,13 +27,13 @@ st.set_page_config(
 #         .stApp {{
 #             background-image: url('data:image/jpeg;base64,{image_base64}');
 #             background-size: 95% auto;
-#             background-position: center center;  
+#             background-position: center center;
 #             background-repeat: no-repeat;
 #             height: 100vh;
 #         }}
 #     </style>
 #     """,
-#     unsafe_allow_html=True 
+#     unsafe_allow_html=True
 # )
 
 st.markdown(
@@ -92,7 +92,7 @@ if os.path.exists(file_path):
 
     if fighter_1 == "None" or fighter_2 == "None" or fighter_1 == fighter_2:
         st.write("## Please select two different fighters.")
-    else: 
+    else:
         _, c1, _ = st.columns([1.5, 0.5, 1.5], vertical_alignment="center")
         c1.button("Predict")
 
@@ -131,7 +131,7 @@ if os.path.exists(file_path):
                 )
             ),
             showlegend=True,
-            height=500,  
+            height=500,
             width=700,
             annotations=[
                 dict(
@@ -201,7 +201,7 @@ if os.path.exists(file_path):
 
         fig.update_layout(
             barmode='group',
-            height=500,  
+            height=500,
             width=700,
             annotations=[
                 dict(
@@ -218,5 +218,3 @@ if os.path.exists(file_path):
         )
 
         st.plotly_chart(fig, use_container_width=True)
-
-

@@ -138,7 +138,8 @@ def _collecteur_finish(driver: webdriver.Chrome) -> Counter:
                 By.CSS_SELECTOR,
                 "td.b-fight-details__table-col.l-page_align_left > p.b-fight-details__table-text",
             )
-            if finish.text.strip() in ["KO/TKO", "SUB", "U-DEC", "S-DEC", "CNC", "DQ",  "M-DEC", "Overturned"]
+            if finish.text.strip()
+            in ["KO/TKO", "SUB", "U-DEC", "S-DEC", "CNC", "DQ", "M-DEC", "Overturned"]
         ]
     )
 
@@ -324,8 +325,10 @@ def _cherche_combattant_UFC_stats(
 
     return data
 
+
 def _clean_nom_colonnes(name):
-    return re.sub(r'[^A-Za-z0-9À-ÖØ-öø-ÿ_]+', '_', name)
+    return re.sub(r"[^A-Za-z0-9À-ÖØ-öø-ÿ_]+", "_", name)
+
 
 if __name__ == "__main__":
 

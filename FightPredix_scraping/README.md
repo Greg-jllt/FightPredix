@@ -16,10 +16,10 @@ python -m pip install git+https://github.com/Greg-jllt/Projet_UFC.git
 
 # Utilisation
 
-> Si vous avez déjà installé le package, vous n'avez pas besoin d'initialiser un environnement virtuel pour l'utiliser.  
-Dans le cas contraire, suivez ces étapes :  
+> Si vous avez déjà installé le package, vous n'avez pas besoin d'initialiser un environnement virtuel pour l'utiliser.
+Dans le cas contraire, suivez ces étapes :
 
-1. **Cloner le package** avec la commande :  
+1. **Cloner le package** avec la commande :
 
 ```bash
 git clone https://github.com/Greg-jllt/Projet_UFC.git

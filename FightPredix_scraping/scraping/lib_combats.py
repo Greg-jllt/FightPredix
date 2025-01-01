@@ -28,10 +28,17 @@ def _recolte_events(driver) -> list[str]:
     driver.get("http://www.ufcstats.com/statistics/events/completed?page=all")
     driver.implicitly_wait(50)
     return [
-            event.find_element(By.CSS_SELECTOR, "a").get_attribute("href") 
-            for event in driver.find_elements(By.CSS_SELECTOR, ".b-statistics__table-content")[1:]
-            if int(event.find_element(By.CSS_SELECTOR, "span.b-statistics__date").text.split(",")[-1].strip()) < 1999
-        ]
+        event.find_element(By.CSS_SELECTOR, "a").get_attribute("href")
+        for event in driver.find_elements(
+            By.CSS_SELECTOR, ".b-statistics__table-content"
+        )[1:]
+        if int(
+            event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
+            .text.split(",")[-1]
+            .strip()
+        )
+        < 1999
+    ]
 
 
 def _couleur_combattant(driver: webdriver.Chrome, winner: str) -> dict[str, str]:
@@ -185,16 +192,20 @@ def _acces_events(liste_events: list, driver: webdriver.Chrome) -> pd.DataFrame:
                         resultat = 0 if i % 2 == 0 else 1
 
                         combattant_1_frappe = {
-                            f"combattant_1_{metric}": resultats[f"combattant_1_{metric}"]
-                            if i % 2 == 0
-                            else resultats[f"combattant_2_{metric}"]
+                            f"combattant_1_{metric}": (
+                                resultats[f"combattant_1_{metric}"]
+                                if i % 2 == 0
+                                else resultats[f"combattant_2_{metric}"]
+                            )
                             for metric in frappe_types
                         }
 
                         combattant_2_frappe = {
-                            f"combattant_2_{metric}": resultats[f"combattant_2_{metric}"]
-                            if i % 2 == 0
-                            else resultats[f"combattant_1_{metric}"]
+                            f"combattant_2_{metric}": (
+                                resultats[f"combattant_2_{metric}"]
+                                if i % 2 == 0
+                                else resultats[f"combattant_1_{metric}"]
+                            )
                             for metric in frappe_types
                         }
 
@@ -208,9 +219,11 @@ def _acces_events(liste_events: list, driver: webdriver.Chrome) -> pd.DataFrame:
                             "combattant_1": combattant_1,
                             "combattant_2": combattant_2,
                             "resultat": resultat,
-                            "methode": methode_text[2:5]
-                            if methode_text in ["U-DEC", "S-DEC", "M-DEC"]
-                            else methode_text,
+                            "methode": (
+                                methode_text[2:5]
+                                if methode_text in ["U-DEC", "S-DEC", "M-DEC"]
+                                else methode_text
+                            ),
                             **combattant_1_frappe,
                             **combattant_2_frappe,
                         }
@@ -324,7 +337,6 @@ def _recolte_stat_combat(
         if index == 8:
             break
 
-    dictio_sig_str_total
     # Récupération des données dans chaque round
     list_round = []
     round_counter = 1
