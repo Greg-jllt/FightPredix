@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 import polars as pl
 import pandas as pd
 from datetime import datetime
+from rich.console import Console
 
 from .outils import configure_logger
 
@@ -28,10 +29,17 @@ def _recolte_events(driver) -> list[str]:
     driver.get("http://www.ufcstats.com/statistics/events/completed?page=all")
     driver.implicitly_wait(50)
     return [
-            event.find_element(By.CSS_SELECTOR, "a").get_attribute("href") 
-            for event in driver.find_elements(By.CSS_SELECTOR, ".b-statistics__table-content")[1:]
-            if int(event.find_element(By.CSS_SELECTOR, "span.b-statistics__date").text.split(",")[-1].strip()) < 1999
-        ]
+        event.find_element(By.CSS_SELECTOR, "a").get_attribute("href")
+        for event in driver.find_elements(
+            By.CSS_SELECTOR, ".b-statistics__table-content"
+        )[1:]
+        if int(
+            event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
+            .text.split(",")[-1]
+            .strip()
+        )
+        < 1999
+    ]
 
 
 def _couleur_combattant(driver: webdriver.Chrome, winner: str) -> dict[str, str]:
@@ -118,6 +126,81 @@ def _explore_events(
     return result
 
 
+def _sub_access_events(
+    row, results, i, driver, sub_driver, frappe_types, row_data_link
+) -> list:
+    for cbts, methodes in zip(
+        row.find_elements(
+            By.CSS_SELECTOR,
+            "td.b-fight-details__table-col.l-page_align_left[style='width:100px']",
+        ),
+        row.find_elements(
+            By.CSS_SELECTOR,
+            "td.b-fight-details__table-col.l-page_align_left:not([style='width:100%'])",
+        )[2::3],
+    ):
+        methode_text = methodes.find_elements(By.TAG_NAME, "p")[0].text
+        cbt = cbts.find_elements(By.TAG_NAME, "p")
+
+        if methode_text in ["CNC", "Overturned"]:
+            break
+
+        winner = cbt[0].text
+        resultats = _explore_events(sub_driver, row_data_link, winner, frappe_types)
+
+        combattant_1, combattant_2 = (
+            (cbt[0].text, cbt[1].text) if i % 2 == 0 else (cbt[1].text, cbt[0].text)
+        )
+
+        logger.info(f"Combattant 1 : {combattant_1} Combattant 2 : {combattant_2}")
+
+        resultat = 0 if i % 2 == 0 else 1
+
+        combattant_1_frappe = {
+            f"combattant_1_{metric}": (
+                resultats[f"combattant_1_{metric}"]
+                if i % 2 == 0
+                else resultats[f"combattant_2_{metric}"]
+            )
+            for metric in frappe_types
+        }
+
+        combattant_2_frappe = {
+            f"combattant_2_{metric}": (
+                resultats[f"combattant_2_{metric}"]
+                if i % 2 == 0
+                else resultats[f"combattant_1_{metric}"]
+            )
+            for metric in frappe_types
+        }
+
+        temp_dict = {
+            "date": driver.find_element(
+                By.XPATH, "/html/body/section/div/div/div[1]/ul/li[1]"
+            )
+            .text.split(":")[-1]
+            .strip(),
+            "lien_combat": row_data_link,
+            "combattant_1": combattant_1,
+            "combattant_2": combattant_2,
+            "resultat": resultat,
+            "methode": (
+                methode_text[2:5]
+                if methode_text in ["U-DEC", "S-DEC", "M-DEC"]
+                else methode_text
+            ),
+            **combattant_1_frappe,
+            **combattant_2_frappe,
+        }
+
+        temp_data = pd.DataFrame(temp_dict, index=[0])
+        stats = _recolte_stat_combat(row_data_link, sub_driver, combattant_1)
+
+        results.append(pd.concat([temp_data, stats], axis=1))
+        i += 1
+    return results, i
+
+
 def _acces_events(liste_events: list, driver: webdriver.Chrome) -> pd.DataFrame:
     """
     Fonction qui explore les events et recolte les combats, 50% sont des 0 et 50% des 1, la structure de la page place toujours le nom du combattant gagnant en premier l'algo place le gagnant en premier une fois sur deux
@@ -127,7 +210,7 @@ def _acces_events(liste_events: list, driver: webdriver.Chrome) -> pd.DataFrame:
         driver (webdriver): objet webdriver
     """
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
+    options.add_argument("--headless")
     sub_driver = webdriver.Chrome(options=options)
     frappe_types = [
         "frappe_tete",
@@ -140,106 +223,144 @@ def _acces_events(liste_events: list, driver: webdriver.Chrome) -> pd.DataFrame:
 
     results = []
     i = 0
-    try:
-        for event in liste_events:
-            try:
-                logger.info(f"Event : {event}")
+    for event in liste_events:
+        try:
+            logger.info(f"Event : {event}")
 
-                driver.get(event)
-                rows = driver.find_elements(
-                    By.CSS_SELECTOR, "tr.b-fight-details__table-row"
-                )[1:]
+            driver.get(event)
+            rows = driver.find_elements(
+                By.CSS_SELECTOR, "tr.b-fight-details__table-row"
+            )[1:]
 
-                for row in rows:
-                    driver.implicitly_wait(50)
-                    row_data_link = row.get_attribute("data-link")
+            for row in rows:
+                driver.implicitly_wait(50)
+                row_data_link = row.get_attribute("data-link")
 
-                    for cbts, methodes in zip(
-                        row.find_elements(
-                            By.CSS_SELECTOR,
-                            "td.b-fight-details__table-col.l-page_align_left[style='width:100px']",
-                        ),
-                        row.find_elements(
-                            By.CSS_SELECTOR,
-                            "td.b-fight-details__table-col.l-page_align_left:not([style='width:100%'])",
-                        )[2::3],
-                    ):
-                        methode_text = methodes.find_elements(By.TAG_NAME, "p")[0].text
-                        cbt = cbts.find_elements(By.TAG_NAME, "p")
+                results, i = _sub_access_events(
+                    row, results, i, driver, sub_driver, frappe_types, row_data_link
+                )
 
-                        winner = cbt[0].text
-                        resultats = _explore_events(
-                            sub_driver, row_data_link, winner, frappe_types
-                        )
-
-                        combattant_1, combattant_2 = (
-                            (cbt[0].text, cbt[1].text)
-                            if i % 2 == 0
-                            else (cbt[1].text, cbt[0].text)
-                        )
-
-                        logger.info(
-                            f"Combattant 1 : {combattant_1} Combattant 2 : {combattant_2}"
-                        )
-
-                        resultat = 0 if i % 2 == 0 else 1
-
-                        combattant_1_frappe = {
-                            f"combattant_1_{metric}": resultats[f"combattant_1_{metric}"]
-                            if i % 2 == 0
-                            else resultats[f"combattant_2_{metric}"]
-                            for metric in frappe_types
-                        }
-
-                        combattant_2_frappe = {
-                            f"combattant_2_{metric}": resultats[f"combattant_2_{metric}"]
-                            if i % 2 == 0
-                            else resultats[f"combattant_1_{metric}"]
-                            for metric in frappe_types
-                        }
-
-                        temp_dict = {
-                            "date": driver.find_element(
-                                By.XPATH, "/html/body/section/div/div/div[1]/ul/li[1]"
-                            )
-                            .text.split(":")[-1]
-                            .strip(),
-                            "lien_combat": row_data_link,
-                            "combattant_1": combattant_1,
-                            "combattant_2": combattant_2,
-                            "resultat": resultat,
-                            "methode": methode_text[2:5]
-                            if methode_text in ["U-DEC", "S-DEC", "M-DEC"]
-                            else methode_text,
-                            **combattant_1_frappe,
-                            **combattant_2_frappe,
-                        }
-
-                        temp_data = pd.DataFrame(temp_dict, index=[0])
-                        stats = _recolte_stat_combat(
-                            row_data_link, sub_driver, combattant_1
-                        )
-
-                        results.append(pd.concat([temp_data, stats], axis=1))
-                        i += 1
-            except (Exception, KeyboardInterrupt) as e:
-                logger.error(f"Erreur : {e}")
-                with open("data/Data_ufc_combats_test_fin.csv", "w") as f:
-                    f.write(pd.concat(results).to_csv(index=False))
-                pass
-    except (Exception, KeyboardInterrupt) as e:
-        logger.error(f"Erreur : {e}")
-        with open("data/Data_ufc_combats_test_fin.csv", "w") as f:
-            f.write(pd.concat(results).to_csv(index=False))
-        pass
+        except (Exception, KeyboardInterrupt) as e:
+            logger.error(f"Erreur : {e}")
+            with open("data/Data_ufc_combats_test_fin.csv", "w") as f:
+                f.write(pd.concat(results).to_csv(index=False))
+            pass
     return pd.concat(results)
+
+
+def _sub_fonction_listes(data: pl.DataFrame) -> list:
+
+    list_values1, list_values2 = zip(
+        *[
+            (value1.strip(), value2.strip())
+            for cellule in data.get_columns()
+            for value1, value2 in [cellule[0].split("\n", maxsplit=1)]
+        ]
+    )
+    list_values1, list_values2 = list(list_values1), list(list_values2)
+
+    return list_values1, list_values2
+
+
+def _sub_fonction_elements(
+    driver_elements: BeautifulSoup, dictio_total: dict, round_counter: int = 1
+) -> list:
+    liste_round = []
+    for element in driver_elements:
+        sub_soup = BeautifulSoup(element.get_attribute("outerHTML"), "html.parser")
+        lignes = sub_soup.select("tbody")
+
+        for ligne in lignes[1:]:
+            Console().print(round_counter)
+            dictio_round = {}
+            for col, cellule in zip(dictio_total.keys(), ligne.select("td")):
+                Console().print(col)
+                dictio_round[f"{col}_round{round_counter}"] = cellule.text.strip()
+
+            liste_round.append(dictio_round)
+            round_counter += 1
+
+    return liste_round
+
+
+def _recup_donnes_total(driver: webdriver.Chrome, soup: BeautifulSoup) -> dict:
+
+    table = soup.select_one("table")
+
+    dictio_total = {
+        col.text.strip() + "total": row.text.strip()
+        for col, row in zip(
+            table.find_all("th", class_="b-fight-details__table-col"),
+            table.find_all("td", class_="b-fight-details__table-col"),
+        )
+    }
+
+    elements = driver.find_elements(
+        By.XPATH, "/html/body/section/div/div/section[3]/table"
+    )
+    liste_round = _sub_fonction_elements(elements, dictio_total)
+
+    merge_dict = {**dictio_total}
+
+    for fight_round in liste_round:
+        merge_dict = {**merge_dict, **fight_round}
+
+    data = pl.DataFrame(merge_dict)
+
+    list_values1, list_values2 = _sub_fonction_listes(data)
+
+    Totals = pl.DataFrame()
+    for col, value1, value2 in zip(data.get_columns(), list_values1, list_values2):
+        Totals = Totals.with_columns(pl.Series(str(col.name), [value1, value2]))
+
+    return Totals
+
+
+def _recup_donnes_sig_str(driver: webdriver.Chrome, soup: BeautifulSoup) -> dict:
+
+    table = soup.select("table")
+    table = table[3]
+
+    dictio_sig_str_total = {}
+    for index, (col, row) in enumerate(
+        zip(
+            table.find_all("th", class_="b-fight-details__table-col"),
+            table.find_all("td", class_="b-fight-details__table-col"),
+        )
+    ):
+        dictio_sig_str_total[col.text.strip() + "sig_str_total"] = row.text.strip()
+        if index == 8:
+            break
+
+    elements = driver.find_elements(
+        By.XPATH, "/html/body/section/div/div/section[5]/table"
+    )
+    liste_round_sig = _sub_fonction_elements(elements, dictio_sig_str_total)
+
+    merge_dict_sig_str = {**dictio_sig_str_total}
+
+    for fight_round in liste_round_sig:
+        merge_dict_sig_str = {**merge_dict_sig_str, **fight_round}
+
+    data = pl.DataFrame(merge_dict_sig_str)
+
+    list_values1, list_values2 = _sub_fonction_listes(data)
+
+    Totals_sig_str = pl.DataFrame()
+    for col, value1, value2 in zip(data.get_columns(), list_values1, list_values2):
+        Totals_sig_str = Totals_sig_str.with_columns(
+            pl.Series(str(col.name), [value1, value2])
+        )
+
+    return Totals_sig_str
 
 
 def _recolte_stat_combat(
     lien_combat: str, driver: webdriver.Chrome, combattant_1: str
 ) -> pd.DataFrame:
     """
-    Fonction de recolte des statistiques des combats"""
+    Fonction de recolte des statistiques des combats
+    """
 
     driver.implicitly_wait(50)
     driver.get(lien_combat)
@@ -262,106 +383,10 @@ def _recolte_stat_combat(
 
     general_data = pl.DataFrame(dictio)
 
-    # Récupération des données totales
-    table = soup.select_one("table")
+    Totals = _recup_donnes_total(driver, soup)
 
-    dictio_total = {}
-    for col, row in zip(
-        table.find_all("th", class_="b-fight-details__table-col"),
-        table.find_all("td", class_="b-fight-details__table-col"),
-    ):
-        dictio_total[col.text.strip() + "total"] = row.text.strip()
+    Totals_sig_str = _recup_donnes_sig_str(driver, soup)
 
-    # Récupération des données dans chaque round
-    list_round = []
-    round_counter = 1
-
-    for element in driver.find_elements(
-        By.XPATH, "/html/body/section/div/div/section[3]/table"
-    ):
-        sub_soup = BeautifulSoup(element.get_attribute("outerHTML"), "html.parser")
-        lignes = sub_soup.select("tbody")
-
-        for ligne in lignes[1:]:
-            dictio_round = {}
-            for col, cellule in zip(dictio_total.keys(), ligne.select("td")):
-                dictio_round[f"{col}_round{round_counter}"] = cellule.text.strip()
-
-            list_round.append(dictio_round)
-            round_counter += 1
-
-    # Création du DataFrame
-    merge_dict = {**dictio_total}
-
-    for fight_round in list_round:
-        merge_dict = {**merge_dict, **fight_round}
-
-    data = pl.DataFrame(merge_dict)
-
-    list_values1 = []
-    list_values2 = []
-    for cellule in data.get_columns():
-        value1, value2 = cellule[0].split("\n", maxsplit=1)
-        list_values1.append(value1.strip())
-        list_values2.append(value2.strip())
-
-    Totals = pl.DataFrame()
-    for col, value1, value2 in zip(data.get_columns(), list_values1, list_values2):
-        Totals = Totals.with_columns(pl.Series(str(col.name), [value1, value2]))
-
-    # Récupération des données sig_str_total
-    table = soup.select("table")
-    table = table[3]
-
-    dictio_sig_str_total = {}
-    for index, (col, row) in enumerate(
-        zip(
-            table.find_all("th", class_="b-fight-details__table-col"),
-            table.find_all("td", class_="b-fight-details__table-col"),
-        )
-    ):
-        dictio_sig_str_total[col.text.strip() + "sig_str_total"] = row.text.strip()
-        if index == 8:
-            break
-
-    dictio_sig_str_total
-    # Récupération des données dans chaque round
-    list_round = []
-    round_counter = 1
-
-    for element in driver.find_elements(
-        By.XPATH, "/html/body/section/div/div/section[5]/table"
-    ):
-        sub_soup = BeautifulSoup(element.get_attribute("outerHTML"), "html.parser")
-        lignes = sub_soup.select("tbody")
-        for ligne in lignes[1:]:
-            dictio_round = {}
-            for col, cellule in zip(dictio_sig_str_total.keys(), ligne.select("td")):
-                dictio_round[f"{col}_round{round_counter}"] = cellule.text.strip()
-
-            list_round.append(dictio_round)
-            round_counter += 1
-
-    # Création du DataFrame
-    merge_dict_sig_str = {**dictio_sig_str_total}
-
-    for fight_round in list_round:
-        merge_dict_sig_str = {**merge_dict_sig_str, **fight_round}
-
-    data = pl.DataFrame(merge_dict_sig_str)
-
-    list_values1 = []
-    list_values2 = []
-    for cellule in data.get_columns():
-        value1, value2 = cellule[0].split("\n", maxsplit=1)
-        list_values1.append(value1.strip())
-        list_values2.append(value2.strip())
-
-    Totals_sig_str = pl.DataFrame()
-    for col, value1, value2 in zip(data.get_columns(), list_values1, list_values2):
-        Totals_sig_str = Totals_sig_str.with_columns(
-            pl.Series(str(col.name), [value1, value2])
-        )
     if combattant_1 == Totals["Fightertotal"][0]:
         ligne1_total = Totals[0].rename(
             {col: f"combattant_1_{col}" for col in Totals[0].columns}
@@ -417,7 +442,7 @@ def _main_combat_recolte(driver: webdriver.Chrome) -> pd.DataFrame:
 if __name__ == "__main__":
     options = webdriver.ChromeOptions()
 
-    # options.add_argument("--headless")
+    options.add_argument("--headless")
 
     driver = webdriver.Chrome(options=options)
 
