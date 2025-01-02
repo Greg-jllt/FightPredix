@@ -20,17 +20,3 @@ def configure_logger(name: str) -> logging.Logger:
     logging.captureWarnings(True)
     return logger
 
-
-def lire_combattant_manqué(file_path):
-    try:
-        with open(file_path, "r") as file:
-            return json.load(file)
-    except Exception:
-        return {}
-    
-def ecrire_combattant_manqué(file_path, cbts):
-    with open(file_path, "w") as file:
-        if cbts is None:
-            return
-        cbts_cle = {str(key): value for key, value in cbts.items()}
-        json.dump(cbts_cle, file)
