@@ -16,6 +16,8 @@ from rich.console import Console
 
 from .outils import configure_logger
 
+import re
+
 
 date = datetime.now().strftime("%Y-%m-%d")
 logger = configure_logger(f"{date}_crawler_combats_stats")
@@ -414,6 +416,10 @@ def _recolte_stat_combat(
     ).to_pandas()
 
     return combat
+
+
+def clean_column_nom(nom):
+    return re.sub(r'[^A-Za-z0-9À-ÖØ-öø-ÿ_]+', '_', nom).lower()
 
 
 def _main_combat_recolte(driver: webdriver.Chrome) -> pd.DataFrame:

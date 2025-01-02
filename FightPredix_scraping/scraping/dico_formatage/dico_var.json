@@ -1,0 +1,362 @@
+{
+    "combattant_frappe_tete": ["combattant_1_frappe_tete", "combattant_2_frappe_tete"],
+    "combattant_frappe_corps": ["combattant_1_frappe_corps", "combattant_2_frappe_corps"],
+    "combattant_frappe_jambe": ["combattant_1_frappe_jambe", "combattant_2_frappe_jambe"],
+    "combattant_frappe_distance": [
+        "combattant_1_frappe_distance",
+        "combattant_2_frappe_distance"
+    ],
+    "combattant_frappe_clinch": [
+        "combattant_1_frappe_clinch",
+        "combattant_2_frappe_clinch"
+    ],
+    "combattant_frappe_sol": ["combattant_1_frappe_sol", "combattant_2_frappe_sol"],
+    "combattant_KDtotal": ["combattant_1_KDtotal", "combattant_2_KDtotal"],
+    "combattant_Sig_str_total": [
+        "combattant_1_Sig. str.total_ratio",
+        "combattant_2_Sig. str.total_ratio"
+    ],
+    "combattant_Sig_str_percent_total": [
+        "combattant_1_Sig. str. %total",
+        "combattant_2_Sig. str. %total"
+    ],
+    "combattant_Total_str_total": [
+        "combattant_1_Total str.total_ratio",
+        "combattant_2_Total str.total_ratio"
+    ],
+    "combattant_Tdtotal": ["combattant_1_Tdtotal_ratio", "combattant_2_Tdtotal_ratio"],
+    "combattant_Td_percent_total": [
+        "combattant_1_Td %total",
+        "combattant_2_Td %total"
+    ],
+    "combattant_Sub_atttotal": [
+        "combattant_1_Sub. atttotal",
+        "combattant_2_Sub. atttotal"
+    ],
+    "combattant_Revtotal": ["combattant_1_Rev.total", "combattant_2_Rev.total"],
+    "combattant_Ctrltotal": ["combattant_1_Ctrltotal", "combattant_2_Ctrltotal"],
+    "combattant_KDtotal_round1": [
+        "combattant_1_KDtotal_round1",
+        "combattant_2_KDtotal_round1"
+    ],
+    "combattant_KDtotal_round2": [
+        "combattant_1_KDtotal_round2",
+        "combattant_2_KDtotal_round2"
+    ],
+    "combattant_KDtotal_round3": [
+        "combattant_1_KDtotal_round3",
+        "combattant_2_KDtotal_round3"
+    ],
+    "combattant_KDtotal_round4": [
+        "combattant_1_KDtotal_round4",
+        "combattant_2_KDtotal_round4"
+    ],
+    "combattant_KDtotal_round5": [
+        "combattant_1_KDtotal_round5",
+        "combattant_2_KDtotal_round5"
+    ],
+    "combattant_Sig_str_total_round1": [
+        "combattant_1_Sig. str.total_round1_ratio",
+        "combattant_2_Sig. str.total_round1_ratio"
+    ],
+    "combattant_Sig_str_total_round2": [
+        "combattant_1_Sig. str.total_round2_ratio",
+        "combattant_2_Sig. str.total_round2_ratio"
+    ],
+    "combattant_Sig_str_total_round3": [
+        "combattant_1_Sig. str.total_round3_ratio",
+        "combattant_2_Sig. str.total_round3_ratio"
+    ],
+    "combattant_Sig_str_total_round4": [
+        "combattant_1_Sig. str.total_round4_ratio",
+        "combattant_2_Sig. str.total_round4_ratio"
+    ],
+    "combattant_Sig_str_total_round5": [
+        "combattant_1_Sig. str.total_round5_ratio",
+        "combattant_2_Sig. str.total_round5_ratio"
+    ],
+    "combattant_Sig_str_percent_total_round1": [
+        "combattant_1_Sig. str. %total_round1",
+        "combattant_2_Sig. str. %total_round1"
+    ],
+    "combattant_Sig_str_percent_total_round2": [
+        "combattant_1_Sig. str. %total_round2",
+        "combattant_2_Sig. str. %total_round2"
+    ],
+    "combattant_Sig_str_percent_total_round3": [
+        "combattant_1_Sig. str. %total_round3",
+        "combattant_2_Sig. str. %total_round3"
+    ],
+    "combattant_Sig_str_percent_total_round4": [
+        "combattant_1_Sig. str. %total_round4",
+        "combattant_2_Sig. str. %total_round4"
+    ],
+    "combattant_Sig_str_percent_total_round5": [
+        "combattant_1_Sig. str. %total_round5",
+        "combattant_2_Sig. str. %total_round5"
+    ],
+    "combattant_Total_str_total_round1": [
+        "combattant_1_Total str.total_round1_ratio",
+        "combattant_2_Total str.total_round1_ratio"
+    ],
+    "combattant_Total_str_total_round2": [
+        "combattant_1_Total str.total_round2_ratio",
+        "combattant_2_Total str.total_round2_ratio"
+    ],
+    "combattant_Total_str_total_round3": [
+        "combattant_1_Total str.total_round3_ratio",
+        "combattant_2_Total str.total_round3_ratio"
+    ],
+    "combattant_Total_str_total_round4": [
+        "combattant_1_Total str.total_round4_ratio",
+        "combattant_2_Total str.total_round4_ratio"
+    ],
+    "combattant_Total_str_total_round5": [
+        "combattant_1_Total str.total_round5_ratio",
+        "combattant_2_Total str.total_round5_ratio"
+    ],
+    "combattant_Tdtotal_round1": [
+        "combattant_1_Tdtotal_round1_ratio",
+        "combattant_2_Tdtotal_round1_ratio"
+    ],
+    "combattant_Tdtotal_round2": [
+        "combattant_1_Tdtotal_round2_ratio",
+        "combattant_2_Tdtotal_round2_ratio"
+    ],
+    "combattant_Tdtotal_round3": [
+        "combattant_1_Tdtotal_round3_ratio",
+        "combattant_2_Tdtotal_round3_ratio"
+    ],
+    "combattant_Tdtotal_round4": [
+        "combattant_1_Tdtotal_round4_ratio",
+        "combattant_2_Tdtotal_round4_ratio"
+    ],
+    "combattant_Tdtotal_round5": [
+        "combattant_1_Tdtotal_round5_ratio",
+        "combattant_2_Tdtotal_round5_ratio"
+    ],
+    "combattant_Td_percent_total_round1": [
+        "combattant_1_Td %total_round1",
+        "combattant_2_Td %total_round1"
+    ],
+    "combattant_Td_percent_total_round2": [
+        "combattant_1_Td %total_round2",
+        "combattant_2_Td %total_round2"
+    ],
+    "combattant_Td_percent_total_round3": [
+        "combattant_1_Td %total_round3",
+        "combattant_2_Td %total_round3"
+    ],
+    "combattant_Td_percent_total_round4": [
+        "combattant_1_Td %total_round4",
+        "combattant_2_Td %total_round4"
+    ],
+    "combattant_Td_percent_total_round5": [
+        "combattant_1_Td %total_round5",
+        "combattant_2_Td %total_round5"
+    ],
+    "combattant_Sub_atttotal_round1": [
+        "combattant_1_Sub. atttotal_round1",
+        "combattant_2_Sub. atttotal_round1"
+    ],
+    "combattant_Sub_atttotal_round2": [
+        "combattant_1_Sub. atttotal_round2",
+        "combattant_2_Sub. atttotal_round2"
+    ],
+    "combattant_Sub_atttotal_round3": [
+        "combattant_1_Sub. atttotal_round3",
+        "combattant_2_Sub. atttotal_round3"
+    ],
+    "combattant_Sub_atttotal_round4": [
+        "combattant_1_Sub. atttotal_round4",
+        "combattant_2_Sub. atttotal_round4"
+    ],
+    "combattant_Sub_atttotal_round5": [
+        "combattant_1_Sub. atttotal_round5",
+        "combattant_2_Sub. atttotal_round5"
+    ],
+    "combattant_Revtotal_round1": [
+        "combattant_1_Rev.total_round1",
+        "combattant_2_Rev.total_round1"
+    ],
+    "combattant_Revtotal_round2": [
+        "combattant_1_Rev.total_round2",
+        "combattant_2_Rev.total_round2"
+    ],
+    "combattant_Revtotal_round3": [
+        "combattant_1_Rev.total_round3",
+        "combattant_2_Rev.total_round3"
+    ],
+    "combattant_Revtotal_round4": [
+        "combattant_1_Rev.total_round4",
+        "combattant_2_Rev.total_round4"
+    ],
+    "combattant_Revtotal_round5": [
+        "combattant_1_Rev.total_round5",
+        "combattant_2_Rev.total_round5"
+    ],
+    "combattant_Ctrltotal_round1": [
+        "combattant_1_Ctrltotal_round1",
+        "combattant_2_Ctrltotal_round1"
+    ],
+    "combattant_Ctrltotal_round2": [
+        "combattant_1_Ctrltotal_round2",
+        "combattant_2_Ctrltotal_round2"
+    ],
+    "combattant_Ctrltotal_round3": [
+        "combattant_1_Ctrltotal_round3",
+        "combattant_2_Ctrltotal_round3"
+    ],
+    "combattant_Ctrltotal_round4": [
+        "combattant_1_Ctrltotal_round4",
+        "combattant_2_Ctrltotal_round4"
+    ],
+    "combattant_Ctrltotal_round5": [
+        "combattant_1_Ctrltotal_round5",
+        "combattant_2_Ctrltotal_round5"
+    ],
+    "combattant_Headsig_str_total": [
+        "combattant_1_Headsig_str_total_ratio",
+        "combattant_2_Headsig_str_total_ratio"
+    ],
+    "combattant_Bodysig_str_total": [
+        "combattant_1_Bodysig_str_total_ratio",
+        "combattant_2_Bodysig_str_total_ratio"
+    ],
+    "combattant_Legsig_str_total": [
+        "combattant_1_Legsig_str_total_ratio",
+        "combattant_2_Legsig_str_total_ratio"
+    ],
+    "combattant_Distancesig_str_total": [
+        "combattant_1_Distancesig_str_total_ratio",
+        "combattant_2_Distancesig_str_total_ratio"
+    ],
+    "combattant_Clinchsig_str_total": [
+        "combattant_1_Clinchsig_str_total_ratio",
+        "combattant_2_Clinchsig_str_total_ratio"
+    ],
+    "combattant_Groundsig_str_total": [
+        "combattant_1_Groundsig_str_total_ratio",
+        "combattant_2_Groundsig_str_total_ratio"
+    ],
+    "combattant_Headsig_str_total_round1": [
+        "combattant_1_Headsig_str_total_round1_ratio",
+        "combattant_2_Headsig_str_total_round1_ratio"
+    ],
+    "combattant_Bodysig_str_total_round1": [
+        "combattant_1_Bodysig_str_total_round1_ratio",
+        "combattant_2_Bodysig_str_total_round1_ratio"
+    ],
+    "combattant_Legsig_str_total_round1": [
+        "combattant_1_Legsig_str_total_round1_ratio",
+        "combattant_2_Legsig_str_total_round1_ratio"
+    ],
+    "combattant_Distancesig_str_total_round1": [
+        "combattant_1_Distancesig_str_total_round1_ratio",
+        "combattant_2_Distancesig_str_total_round1_ratio"
+    ],
+    "combattant_Clinchsig_str_total_round1": [
+        "combattant_1_Clinchsig_str_total_round1_ratio",
+        "combattant_2_Clinchsig_str_total_round1_ratio"
+    ],
+    "combattant_Groundsig_str_total_round1": [
+        "combattant_1_Groundsig_str_total_round1_ratio",
+        "combattant_2_Groundsig_str_total_round1_ratio"
+    ],
+    "combattant_Headsig_str_total_round2": [
+        "combattant_1_Headsig_str_total_round2_ratio",
+        "combattant_2_Headsig_str_total_round2_ratio"
+    ],
+    "combattant_Bodysig_str_total_round2": [
+        "combattant_1_Bodysig_str_total_round2_ratio",
+        "combattant_2_Bodysig_str_total_round2_ratio"
+    ],
+    "combattant_Legsig_str_total_round2": [
+        "combattant_1_Legsig_str_total_round2_ratio",
+        "combattant_2_Legsig_str_total_round2_ratio"
+    ],
+    "combattant_Distancesig_str_total_round2": [
+        "combattant_1_Distancesig_str_total_round2_ratio",
+        "combattant_2_Distancesig_str_total_round2_ratio"
+    ],
+    "combattant_Clinchsig_str_total_round2": [
+        "combattant_1_Clinchsig_str_total_round2_ratio",
+        "combattant_2_Clinchsig_str_total_round2_ratio"
+    ],
+    "combattant_Groundsig_str_total_round2": [
+        "combattant_1_Groundsig_str_total_round2_ratio",
+        "combattant_2_Groundsig_str_total_round2_ratio"
+    ],
+    "combattant_Headsig_str_total_round3": [
+        "combattant_1_Headsig_str_total_round3_ratio",
+        "combattant_2_Headsig_str_total_round3_ratio"
+    ],
+    "combattant_Bodysig_str_total_round3": [
+        "combattant_1_Bodysig_str_total_round3_ratio",
+        "combattant_2_Bodysig_str_total_round3_ratio"
+    ],
+    "combattant_Legsig_str_total_round3": [
+        "combattant_1_Legsig_str_total_round3_ratio",
+        "combattant_2_Legsig_str_total_round3_ratio"
+    ],
+    "combattant_Distancesig_str_total_round3": [
+        "combattant_1_Distancesig_str_total_round3_ratio",
+        "combattant_2_Distancesig_str_total_round3_ratio"
+    ],
+    "combattant_Clinchsig_str_total_round3": [
+        "combattant_1_Clinchsig_str_total_round3_ratio",
+        "combattant_2_Clinchsig_str_total_round3_ratio"
+    ],
+    "combattant_Groundsig_str_total_round3": [
+        "combattant_1_Groundsig_str_total_round3_ratio",
+        "combattant_2_Groundsig_str_total_round3_ratio"
+    ],
+    "combattant_Headsig_str_total_round4": [
+        "combattant_1_Headsig_str_total_round4_ratio",
+        "combattant_2_Headsig_str_total_round4_ratio"
+    ],
+    "combattant_Bodysig_str_total_round4": [
+        "combattant_1_Bodysig_str_total_round4_ratio",
+        "combattant_2_Bodysig_str_total_round4_ratio"
+    ],
+    "combattant_Legsig_str_total_round4": [
+        "combattant_1_Legsig_str_total_round4_ratio",
+        "combattant_2_Legsig_str_total_round4_ratio"
+    ],
+    "combattant_Distancesig_str_total_round4": [
+        "combattant_1_Distancesig_str_total_round4_ratio",
+        "combattant_2_Distancesig_str_total_round4_ratio"
+    ],
+    "combattant_Clinchsig_str_total_round4": [
+        "combattant_1_Clinchsig_str_total_round4_ratio",
+        "combattant_2_Clinchsig_str_total_round4_ratio"
+    ],
+    "combattant_Groundsig_str_total_round4": [
+        "combattant_1_Groundsig_str_total_round4_ratio",
+        "combattant_2_Groundsig_str_total_round4_ratio"
+    ],
+    "combattant_Headsig_str_total_round5": [
+        "combattant_1_Headsig_str_total_round5_ratio",
+        "combattant_2_Headsig_str_total_round5_ratio"
+    ],
+    "combattant_Bodysig_str_total_round5": [
+        "combattant_1_Bodysig_str_total_round5_ratio",
+        "combattant_2_Bodysig_str_total_round5_ratio"
+    ],
+    "combattant_Legsig_str_total_round5": [
+        "combattant_1_Legsig_str_total_round5_ratio",
+        "combattant_2_Legsig_str_total_round5_ratio"
+    ],
+    "combattant_Distancesig_str_total_round5": [
+        "combattant_1_Distancesig_str_total_round5_ratio",
+        "combattant_2_Distancesig_str_total_round5_ratio"
+    ],
+    "combattant_Clinchsig_str_total_round5": [
+        "combattant_1_Clinchsig_str_total_round5_ratio",
+        "combattant_2_Clinchsig_str_total_round5_ratio"
+    ],
+    "combattant_Groundsig_str_total_round5": [
+        "combattant_1_Groundsig_str_total_round5_ratio",
+        "combattant_2_Groundsig_str_total_round5_ratio"
+    ]
+}
