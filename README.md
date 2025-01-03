@@ -1,7 +1,7 @@
 # Package de scraping de l'application FightPredix
 
 <p align="center">
-  <img src="../FightPredixApp/img/logo_readme.png" alt="Logo de mon projet" width="200" height="200">
+  <img src="FightPredixApp/img/logo_readme.png" alt="Logo de mon projet" width="200" height="200">
 </p>
 
 ## Requirement
