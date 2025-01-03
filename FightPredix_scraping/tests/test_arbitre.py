@@ -15,7 +15,7 @@ import pytest
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 
-from .fixtures import driver  
+from .fixtures import driver
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -26,7 +26,7 @@ def url_arbitre():
 
 
 @pytest.fixture
-def soup_arbitres(driver, url_arbitre):  
+def soup_arbitres(driver, url_arbitre):
     """
     Fonction qui permet de récupérer la page d'un arbitre
     """
@@ -42,7 +42,7 @@ def soup_arbitres(driver, url_arbitre):
 
 
 @pytest.fixture
-def accepter_cookies(driver):  
+def accepter_cookies(driver):
     """
     Fonction qui permet d'accepter les cookies
     """
@@ -59,7 +59,7 @@ def accepter_cookies(driver):
     return driver
 
 
-def test_requete_arbitre(driver, url_arbitre):  
+def test_requete_arbitre(driver, url_arbitre):
     """
     On vérifie que la fonction _requete_arbitre renvoie bien une page
     """
@@ -102,7 +102,7 @@ def test_creer_liste_arbitres(soup_arbitres):
     assert "Osiris Maia" in liste_arbitres["Nom"]
 
 
-def test_recup_donnees_arbitres(driver, accepter_cookies):  
+def test_recup_donnees_arbitres(driver, accepter_cookies):
     """
     Fonction qui teste la fonction _recup_donnees_arbitres
     """

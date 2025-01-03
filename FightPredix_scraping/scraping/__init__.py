@@ -8,4 +8,4 @@ from .lib_combats import _main_combat_recolte
 
 from .lib_constructeur import _main_construct
 
-from .outils import configure_logger, lire_combattant_manqué, ecrire_combattant_manqué
+from .outils import configure_logger

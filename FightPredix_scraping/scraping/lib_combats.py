@@ -12,11 +12,9 @@ from bs4 import BeautifulSoup
 import polars as pl
 import pandas as pd
 from datetime import datetime
-from rich.console import Console
-
 from .outils import configure_logger
-
 import re
+from typing import Any
 
 
 date = datetime.now().strftime("%Y-%m-%d")
@@ -127,7 +125,11 @@ def _explore_events(
 
 def _sub_access_events(
     row, results, i, driver, sub_driver, frappe_types, row_data_link
-) -> list:
+) -> tuple[list[pd.DataFrame], int]:
+    """
+    Fonction qui explore les events et recolte les combats, 50% sont des 0 et 50% des 1, la structure de la page place toujours le nom du combattant gagnant en premier l'algo place le gagnant en premier une fois sur deux
+    """
+
     for cbts, methodes in zip(
         row.find_elements(
             By.CSS_SELECTOR,
@@ -220,7 +222,7 @@ def _acces_events(liste_events: list, driver: webdriver.Chrome) -> pd.DataFrame:
         "frappe_sol",
     ]
 
-    results = []
+    results: list[pd.DataFrame] = []
     i = 0
     for event in liste_events:
         try:
@@ -246,7 +248,10 @@ def _acces_events(liste_events: list, driver: webdriver.Chrome) -> pd.DataFrame:
     return pd.concat(results)
 
 
-def _sub_fonction_listes(data: pl.DataFrame) -> list:
+def _sub_fonction_listes(data: pl.DataFrame) -> tuple[list[Any], list[Any]]:
+    """
+    Fonction pour récupérer les listes de valeurs
+    """
 
     list_values1, list_values2 = zip(
         *[
@@ -255,14 +260,20 @@ def _sub_fonction_listes(data: pl.DataFrame) -> list:
             for value1, value2 in [cellule[0].split("\n", maxsplit=1)]
         ]
     )
-    list_values1, list_values2 = list(list_values1), list(list_values2)
+    list_values1_to_return, list_values2_to_return = list(list_values1), list(
+        list_values2
+    )
 
-    return list_values1, list_values2
+    return list_values1_to_return, list_values2_to_return
 
 
 def _sub_fonction_elements(
     driver_elements: BeautifulSoup, dictio_total: dict, round_counter: int = 1
 ) -> list:
+    """
+    Fonction pour récupérer les éléments des combats
+    """
+
     liste_round = []
     for element in driver_elements:
         sub_soup = BeautifulSoup(element.get_attribute("outerHTML"), "html.parser")
@@ -280,7 +291,9 @@ def _sub_fonction_elements(
 
 
 def _recup_donnes_total(driver: webdriver.Chrome, soup: BeautifulSoup) -> dict:
-
+    """
+    Fonction de recolte des statistiques totales des combats
+    """
     table = soup.select_one("table")
 
     dictio_total = {
@@ -313,6 +326,9 @@ def _recup_donnes_total(driver: webdriver.Chrome, soup: BeautifulSoup) -> dict:
 
 
 def _recup_donnes_sig_str(driver: webdriver.Chrome, soup: BeautifulSoup) -> dict:
+    """
+    Fonction de recolte des statistiques des combats
+    """
 
     table = soup.select("table")
     table = table[3]
@@ -419,7 +435,10 @@ def _recolte_stat_combat(
 
 
 def clean_column_nom(nom):
-    return re.sub(r'[^A-Za-z0-9À-ÖØ-öø-ÿ_]+', '_', nom).lower()
+    """
+    Fonction pour nettoyer les noms des colonnes
+    """
+    return re.sub(r"[^A-Za-z0-9À-ÖØ-öø-ÿ_]+", "_", nom).lower()
 
 
 def _main_combat_recolte(driver: webdriver.Chrome) -> pd.DataFrame:
@@ -448,6 +467,6 @@ if __name__ == "__main__":
 
     data = _main_combat_recolte(driver)
 
-    # data.to_csv("FightPredixApp/Data/Data_ufc_combats.csv", index=False)
+    data.to_csv("data/Data_ufc_stats_combats.csv", index=False)
 
     driver.quit()

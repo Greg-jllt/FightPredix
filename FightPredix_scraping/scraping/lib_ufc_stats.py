@@ -112,22 +112,21 @@ def _recolte_victoires(driver: webdriver.Chrome) -> list | None:
         return [int(val) for val in pattern.search(resultats.text).groups()]  # type: ignore
     else:
         return None
-    
 
-def _vic_draws_losses_autres_parcours(driver: webdriver.Chrome, win_draw_loss : list) -> list | None:
+
+def _vic_draws_losses_autres_parcours(
+    driver: webdriver.Chrome, win_draw_loss: list
+) -> dict | None:
     """
     Fonction qui recolte les victoires, les défaites et les matchs nuls des combattants de leurs autres parcours en soustrayant les victoires, les défaites et les matchs nuls du site UFC.com aux victoires, défaites et matchs nuls du site UFC Stats
     """
     resultats = _recolte_victoires(driver)
 
     return {
-    "WIN_HP": int(resultats[0] - win_draw_loss[0]) if resultats else None,
-    "LOSSES_HP": int(resultats[1] - win_draw_loss[1]) if resultats else None,
-    "DRAWS_HP": int(resultats[2] - win_draw_loss[2]) if resultats else None
+        "WIN_HP": int(resultats[0] - win_draw_loss[0]) if resultats else None,
+        "LOSSES_HP": int(resultats[1] - win_draw_loss[1]) if resultats else None,
+        "DRAWS_HP": int(resultats[2] - win_draw_loss[2]) if resultats else None,
     }
-    
-
-
 
 
 def _collecteur_finish(driver: webdriver.Chrome) -> Counter:
@@ -154,12 +153,13 @@ def _collecteur_finish(driver: webdriver.Chrome) -> Counter:
                 By.CSS_SELECTOR,
                 "td.b-fight-details__table-col.l-page_align_left > p.b-fight-details__table-text",
             )
-            if finish.text.strip() in ["KO/TKO", "SUB", "U-DEC", "S-DEC", "CNC", "DQ",  "M-DEC", "Overturned"]
+            if finish.text.strip()
+            in ["KO/TKO", "SUB", "U-DEC", "S-DEC", "CNC", "DQ", "M-DEC", "Overturned"]
         ]
     )
 
 
-def _traitement_metriques(driver: webdriver.Chrome, win_draw_loss : list) -> dict:
+def _traitement_metriques(driver: webdriver.Chrome, win_draw_loss: list) -> dict:
     """
     Fonction qui réuni et nettoie les métriques récoltées
 
@@ -174,11 +174,11 @@ def _traitement_metriques(driver: webdriver.Chrome, win_draw_loss : list) -> dic
         "KO/TKO": finishes["KO/TKO"],
         "SUB": finishes["SUB"],
         "DEC": finishes["DEC"],
-        "WIN" : int(win_draw_loss[0]),
-        "LOSSES" : int(win_draw_loss[1]),
-        "DRAWS" : int(win_draw_loss[2]),
-        **resultats_HP,
-        **stats,
+        "WIN": int(win_draw_loss[0]),
+        "LOSSES": int(win_draw_loss[1]),
+        "DRAWS": int(win_draw_loss[2]),
+        **resultats_HP,  # type: ignore
+        **stats,  # type: ignore
     }
 
     final_dict = _nettoyage_metriques(temp_dict)
@@ -331,9 +331,11 @@ def _cherche_combattant_UFC_stats(
 
             _accès_cbt_page(temp_dict, driver)
 
-            win_draw_loss = data.loc[data["NAME"]==cplt_name,["WIN","LOSSES","DRAWS"]].values[0]
+            win_draw_loss = data.loc[
+                data["NAME"] == cplt_name, ["WIN", "LOSSES", "DRAWS"]
+            ].values[0]
 
-            data = _integration_metriques(data, cplt_name, driver,win_draw_loss)
+            data = _integration_metriques(data, cplt_name, driver, win_draw_loss)
         except Exception as e:
             logger.warning(
                 f"Erreur lors de la recherche du combattant {cplt_name} : {e}"
@@ -343,9 +345,10 @@ def _cherche_combattant_UFC_stats(
 
     return data
 
+
 if __name__ == "__main__":
 
-    Data = pd.read_csv("FightPredixApp/Data/Data_jointes.csv")
+    Data = pd.read_csv("data/Data_jointes.csv")
 
     chrome_options = Options()
 
@@ -357,6 +360,6 @@ if __name__ == "__main__":
 
     Data.update(Data2)
 
-    Data.to_csv("FightPredixApp/Data/Data_jointes.csv", index=False)
+    Data.to_csv("data/Data_jointes.csv", index=False)
 
     Console().print(Data)

@@ -62,7 +62,7 @@ def main():
     logger.info("Lancement du scraping sur UFC stats")
     Data = Dataframe_caracteristiques_ufc_stats(Data, main_driver)
 
-    Data.to_csv("FightPredixAPP/Data/Data_ufc_fighters.csv", index=False)
+    Data.to_csv("data/Data_ufc_fighters.csv", index=False)
 
     # logger.info("Lancement du scraping sur tapology et création des données jointes")
     # subprocess.run(

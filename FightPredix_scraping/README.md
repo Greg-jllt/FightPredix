@@ -4,22 +4,22 @@
   <img src="../FightPredixApp/img/logo.png" alt="Logo de mon projet" width="200" height="200">
 </p>
 
-# Requirement
+## Requirement
 
 - python3.10
 
-# Installation
+## Installation
 
 ```bash
 python -m pip install git+https://github.com/Greg-jllt/Projet_UFC.git
 ```
 
-# Utilisation
+## Utilisation
 
-> Si vous avez déjà installé le package, vous n'avez pas besoin d'initialiser un environnement virtuel pour l'utiliser.  
-Dans le cas contraire, suivez ces étapes :  
+> Si vous avez déjà installé le package, vous n'avez pas besoin d'initialiser un environnement virtuel pour l'utiliser.
+Dans le cas contraire, suivez ces étapes :
 
-1. **Cloner le package** avec la commande :  
+1. **Cloner le package** avec la commande :
 
 ```bash
 git clone https://github.com/Greg-jllt/Projet_UFC.git
@@ -66,7 +66,11 @@ cd ..
 python -m FightPredix_scraping.scraping
 ```
 
-# Features
+1. Do this.
+2. Do that.
+3. Done.
+
+## Features
 
 - Module entièrement documenté pour les interfaces publiques et privées.
 - Formatage du code avec `Black` pour respecter les normes de PEP 8.
@@ -75,7 +79,7 @@ python -m FightPredix_scraping.scraping
 - Développement d'une interface graphique avec `Streamlit`.
 - Tests unitaires et d'intégration avec `Pytest`, et couverture de tests avec `Pytest-cov`.
 
-# Contributors
+## Contributors
 
 - [Gregory Jaillet](https://github.com/Greg-jllt)
 - [Hugo Cochereau](https://github.com/hugocoche)
