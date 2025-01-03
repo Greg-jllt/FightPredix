@@ -332,7 +332,7 @@ def _clean_nom_colonnes(name):
 
 if __name__ == "__main__":
 
-    Data = pd.read_csv("FightPredixApp/Data/Data_jointes.csv")
+    Data = pd.read_csv("data/Data_jointes.csv")
 
     chrome_options = Options()
 
@@ -344,6 +344,6 @@ if __name__ == "__main__":
 
     Data.update(Data2)
 
-    Data.to_csv("FightPredixApp/Data/Data_jointes.csv", index=False)
+    Data.to_csv("data/Data_jointes.csv", index=False)
 
     Console().print(Data)

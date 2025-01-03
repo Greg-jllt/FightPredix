@@ -32,12 +32,12 @@ def _recolte_events(driver) -> list[str]:
         for event in driver.find_elements(
             By.CSS_SELECTOR, ".b-statistics__table-content"
         )[1:]
-        if int(
-            event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
-            .text.split(",")[-1]
-            .strip()
-        )
-        < 1999
+        # if int(
+        #     event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
+        #     .text.split(",")[-1]
+        #     .strip()
+        # )
+        # < 1999
     ]
 
 
@@ -237,12 +237,12 @@ def _acces_events(liste_events: list, driver: webdriver.Chrome) -> pd.DataFrame:
                         i += 1
             except (Exception, KeyboardInterrupt) as e:
                 logger.error(f"Erreur : {e}")
-                with open("data/Data_ufc_combats_test_fin.csv", "w") as f:
+                with open("data/Data_ufc_combats.csv", "w") as f:
                     f.write(pd.concat(results).to_csv(index=False))
                 pass
     except (Exception, KeyboardInterrupt) as e:
         logger.error(f"Erreur : {e}")
-        with open("data/Data_ufc_combats_test_fin.csv", "w") as f:
+        with open("data/Data_ufc_combats.csv", "w") as f:
             f.write(pd.concat(results).to_csv(index=False))
         pass
     return pd.concat(results)
@@ -427,12 +427,12 @@ def _main_combat_recolte(driver: webdriver.Chrome) -> pd.DataFrame:
 if __name__ == "__main__":
     options = webdriver.ChromeOptions()
 
-    # options.add_argument("--headless")
+    options.add_argument("--headless")
 
     driver = webdriver.Chrome(options=options)
 
     data = _main_combat_recolte(driver)
 
-    data.to_csv("data/Data_ufc_combats_test_fin.csv", index=False)
+    data.to_csv("data/Data_ufc_combats.csv", index=False)
 
     driver.quit()

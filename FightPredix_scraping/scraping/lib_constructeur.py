@@ -106,10 +106,10 @@ def _main_construct(
 
 if __name__ == "__main__":
 
-    caracteristiques = pd.read_csv("FightPredixApp/Data/Data_jointes.csv")
-    combats = pd.read_csv("FightPredixApp/Data/Data_ufc_combats.csv")
+    caracteristiques = pd.read_csv("data/Data_jointes.csv")
+    combats = pd.read_csv("data/Data_ufc_combats.csv")
 
     combats, caracteristiques = _main_construct(combats, caracteristiques)
 
-    caracteristiques.to_csv("FightPredixApp/Data/Data_jointes.csv", index=False)
-    combats.to_csv("FightPredixApp/Data/Data_ufc_combats_cplt.csv", index=False)
+    caracteristiques.to_csv("data/Data_jointes.csv", index=False)
+    combats.to_csv("data/Data_ufc_combats_cplt.csv", index=False)

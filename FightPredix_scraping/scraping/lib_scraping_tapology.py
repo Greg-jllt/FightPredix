@@ -262,10 +262,10 @@ def _fusionner_tapologies(combattant: defaultdict):
     """
 
     try:
-        with open("../../../actual_combattant_tapology2.json") as f:
+        with open("data/actual_combattant_tapology.json") as f:
             data = json.load(f)
         data.append(combattant)
-        with open("../../../actual_combattant_tapology2.json", "w") as f:
+        with open("data/actual_combattant_tapology.json", "w") as f:
             json.dump(data, f)
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Fichier introuvable:\n{e}")
@@ -520,7 +520,7 @@ if __name__ == "__main__":
         except Exception as e:
             logger.warning(f"Erreur lors du scraping: {e}")
             if not recuperer_ancien_scraping:
-                with open("../../../actual_combattant_tapology2.json", "w") as f:
+                with open("data/actual_combattant_tapology.json", "w") as f:
                     json.dump(liste_combattant_scrapes, f)
 
     driver.quit()
