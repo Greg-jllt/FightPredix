@@ -19,10 +19,12 @@ def _difference_combats(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -
     """
 
     cols_to_drop = []
+    lignes_a_ajouter = []
     colonnes_a_concat = {}
 
     num_colonnes_combats = combats.select_dtypes(include=[np.number]).columns
-    cat_colonnes_caracteristiques = caracteristiques.select_dtypes(include=["object"]).columns
+    cat_colonnes_caracteristiques = caracteristiques.select_dtypes(include=["object"]).columns.tolist()
+    cat_colonnes_caracteristiques.remove("name")  # Suppression de la colonne 'name'
 
     pattern = re.compile(r"combattant_(\d+)_(.+)")
 
@@ -40,28 +42,37 @@ def _difference_combats(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -
         combattant_1 = combat["combattant_1"]
         combattant_2 = combat["combattant_2"]
 
-        stats_combattant_1 = None
-        stats_combattant_2 = None
+        stats_combattant_1, stats_combattant_2 = None, None
 
         for nom in caracteristiques["name"].values:
             if fuzz.ratio(nom.lower(), combattant_1.lower()) > 95:
                 stats_combattant_1 = caracteristiques[caracteristiques["name"] == nom].iloc[0]
                 break
+
         for nom in caracteristiques["name"].values:
             if fuzz.ratio(nom.lower(), combattant_2.lower()) > 95:
                 stats_combattant_2 = caracteristiques[caracteristiques["name"] == nom].iloc[0]
                 break
 
         if stats_combattant_1 is not None and stats_combattant_2 is not None:
+            nouvelle_ligne = {"index": i}
+
             for col in cat_colonnes_caracteristiques:
-                if col != "name":
-                    colonnes_a_concat[f"{col}_1"] = stats_combattant_1[col]
-                    colonnes_a_concat[f"{col}_2"] = stats_combattant_2[col]
+                nouvelle_ligne[f"{col}_1"] = stats_combattant_1[col]
+                nouvelle_ligne[f"{col}_2"] = stats_combattant_2[col]
 
-    combats = pd.concat([combats, pd.DataFrame(colonnes_a_concat, index=[i])], axis=1)
-    combats.drop(cols_to_drop, axis=1, inplace=True)
+            lignes_a_ajouter.append(nouvelle_ligne)
 
-    return combats
+    df_categoriel = pd.DataFrame(lignes_a_ajouter).set_index("index") if lignes_a_ajouter else pd.DataFrame()
+
+    df_numerique = pd.DataFrame(colonnes_a_concat, index=combats.index)
+
+    resultat = pd.concat([combats.reset_index(drop=True), df_numerique, df_categoriel], axis=1)
+
+    if cols_to_drop:
+        resultat.drop(cols_to_drop, axis=1, inplace=True)
+
+    return resultat
 
 
 def _age_by_DOB(Data):
