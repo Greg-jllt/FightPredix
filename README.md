@@ -1,7 +1,7 @@
 # Package de scraping de l'application FightPredix
 
 <p align="center">
-  <img src="../FightPredixApp/img/logo.png" alt="Logo de mon projet" width="200" height="200">
+  <img src="../FightPredixApp/img/logo_readme.png" alt="Logo de mon projet" width="200" height="200">
 </p>
 
 ## Requirement
@@ -11,7 +11,7 @@
 ## Installation
 
 ```bash
-python -m pip install git+https://github.com/Greg-jllt/Projet_UFC.git
+python -m pip install git+https://github.com/Greg-jllt/FightPredix.git
 ```
 
 ## Utilisation
@@ -22,7 +22,7 @@ Dans le cas contraire, suivez ces étapes :
 1. **Cloner le package** avec la commande :
 
 ```bash
-git clone https://github.com/Greg-jllt/Projet_UFC.git
+git clone https://github.com/Greg-jllt/FightPredix.git
 ```
 
 2. Ouvrir un terminal dans le répertoire scraping du package avec la commande :
