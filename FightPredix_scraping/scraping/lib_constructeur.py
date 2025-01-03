@@ -24,7 +24,7 @@ def _difference_combats(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -
 
     num_colonnes_combats = combats.select_dtypes(include=[np.number]).columns
     cat_colonnes_caracteristiques = caracteristiques.select_dtypes(include=["object"]).columns.tolist()
-    cat_colonnes_caracteristiques.remove("name")  # Suppression de la colonne 'name'
+    cat_colonnes_caracteristiques.remove("name") 
 
     pattern = re.compile(r"combattant_(\d+)_(.+)")
 
@@ -45,12 +45,12 @@ def _difference_combats(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -
         stats_combattant_1, stats_combattant_2 = None, None
 
         for nom in caracteristiques["name"].values:
-            if fuzz.ratio(nom.lower(), combattant_1.lower()) > 95:
+            if fuzz.ratio(nom.lower(), combattant_1.lower()) > 90:
                 stats_combattant_1 = caracteristiques[caracteristiques["name"] == nom].iloc[0]
                 break
 
         for nom in caracteristiques["name"].values:
-            if fuzz.ratio(nom.lower(), combattant_2.lower()) > 95:
+            if fuzz.ratio(nom.lower(), combattant_2.lower()) > 90:
                 stats_combattant_2 = caracteristiques[caracteristiques["name"] == nom].iloc[0]
                 break
 
@@ -185,7 +185,7 @@ def _sub_fonction_age(Data, combattant, date_combat_annee, ajd):
     Sous fonction qui calcule l'age des combattants au moment du combat
     """
     for nom in Data["name"].values:
-        if fuzz.ratio(nom.lower(), combattant.lower()) > 95:
+        if fuzz.ratio(nom.lower(), combattant.lower()) > 90:
             age = Data[Data["name"].str.lower() == nom.lower()]["âge"].values[0]
             dob = Data[Data["name"].str.lower() == nom.lower()]["dob"].values[0]
             if pd.notna(age):
@@ -230,7 +230,7 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
 
         for nom in Data["name"].values:
 
-            if fuzz.ratio(nom.lower(), combattant.lower()) > 95:
+            if fuzz.ratio(nom.lower(), combattant.lower()) > 90:
 
                 win, losses = Data[Data["name"].str.lower() == nom.lower()][
                     ["win", "losses"]
