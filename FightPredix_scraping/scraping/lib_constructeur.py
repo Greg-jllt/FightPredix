@@ -12,67 +12,26 @@ import re
 import pandas as pd
 
 
-# def _difference_combats(caracteristiques : pd.DataFrame, combats : pd.DataFrame) -> pd.DataFrame :
-#     """
-#     Fonction qui calcule la difference entre les caracteristiques des combattants
-#     """
-
-#     categorielles = caracteristiques.select_dtypes(include=["object"]).columns.tolist()
-#     numeric_columns = caracteristiques.select_dtypes(include=["number"]).columns.tolist()
-
-#     categorielles.remove("name")
-
-#     for i, combat in combats.iterrows():
-
-#         combattant_1 = combat["combattant_1"]
-#         combattant_2 = combat["combattant_2"]
-
-#         for nom in caracteristiques["name"].values:
-#             if fuzz.ratio(nom.lower(), combattant_1.lower()) > 95:
-#                 stats_combattant_1 = caracteristiques[caracteristiques["name"].str.lower() == nom.lower()].iloc[0]
-#                 break
-
-#         for nom in caracteristiques["name"].values:
-#             if fuzz.ratio(nom.lower(), combattant_2.lower()) > 95:
-#                 stats_combattant_2 = caracteristiques[caracteristiques["name"].str.lower() == nom.lower()].iloc[0]
-#                 break
-
-#         for column in numeric_columns:
-#             if isinstance(stats_combattant_1[column], (int, float)) and isinstance(stats_combattant_2[column], (int, float)):
-#                 combats.loc[i, f"diff_{column}"] = stats_combattant_1[column] - stats_combattant_2[column]
-
-#         for column in categorielles:
-#             combats.loc[i, f"{column}_1"] = stats_combattant_1[column]
-#             combats.loc[i, f"{column}_2"] = stats_combattant_2[column]
-
-#     return combats
-
-
-def _difference_combats(
-    caracteristiques: pd.DataFrame, Combats: pd.DataFrame
-) -> pd.DataFrame:
+def _difference_combats(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
     """
-    Fonction de calcul de la différence entre les caractéristiques des combattants
+    Fonction de calcul de la différence entre les caractéristiques des combattants 
     au sein de chaque combat.
     """
-    combats = Combats.copy()
 
     cols_to_drop = []
+    colonnes_a_concat = {}
 
-    num_colonnes_combats = Combats.select_dtypes(include=[np.number]).columns
-    cat_colonnes_caracteristiques = caracteristiques.select_dtypes(
-        include=["object"]
-    ).columns
+    num_colonnes_combats = combats.select_dtypes(include=[np.number]).columns
+    cat_colonnes_caracteristiques = caracteristiques.select_dtypes(include=["object"]).columns
 
     pattern = re.compile(r"combattant_(\d+)_(.+)")
 
     for col in num_colonnes_combats:
         match = pattern.match(col)
         if match:
-            stat_type = match.group(2)
-            combats[f"diff_{stat_type}"] = (
-                combats[f"combattant_1_{stat_type}"]
-                - combats[f"combattant_2_{stat_type}"]
+            stat_type = match.group(2) 
+            colonnes_a_concat[f"diff_{stat_type}"] = (
+                combats[f"combattant_1_{stat_type}"] - combats[f"combattant_2_{stat_type}"]
             )
             cols_to_drop.append(f"combattant_1_{stat_type}")
             cols_to_drop.append(f"combattant_2_{stat_type}")
@@ -86,23 +45,20 @@ def _difference_combats(
 
         for nom in caracteristiques["name"].values:
             if fuzz.ratio(nom.lower(), combattant_1.lower()) > 95:
-                stats_combattant_1 = caracteristiques[
-                    caracteristiques["name"] == nom
-                ].iloc[0]
+                stats_combattant_1 = caracteristiques[caracteristiques["name"] == nom].iloc[0]
                 break
         for nom in caracteristiques["name"].values:
             if fuzz.ratio(nom.lower(), combattant_2.lower()) > 95:
-                stats_combattant_2 = caracteristiques[
-                    caracteristiques["name"] == nom
-                ].iloc[0]
+                stats_combattant_2 = caracteristiques[caracteristiques["name"] == nom].iloc[0]
                 break
 
         if stats_combattant_1 is not None and stats_combattant_2 is not None:
             for col in cat_colonnes_caracteristiques:
                 if col != "name":
-                    combats.loc[i, f"{col}_1"] = stats_combattant_1[col]
-                    combats.loc[i, f"{col}_2"] = stats_combattant_2[col]
+                    colonnes_a_concat[f"{col}_1"] = stats_combattant_1[col]
+                    colonnes_a_concat[f"{col}_2"] = stats_combattant_2[col]
 
+    combats = pd.concat([combats, pd.DataFrame(colonnes_a_concat, index=[i])], axis=1)
     combats.drop(cols_to_drop, axis=1, inplace=True)
 
     return combats

@@ -83,7 +83,6 @@ def main():
     # )
 
     # logger.info("Construction des données finales")
-    combats = None
     combats = _constructeur(Data, combats)
 
     # combats.to_csv("FightPredixAPP/Data/Data_final_combats.csv", index=False)

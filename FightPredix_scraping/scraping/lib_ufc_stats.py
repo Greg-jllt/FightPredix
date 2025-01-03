@@ -361,5 +361,3 @@ if __name__ == "__main__":
     Data.update(Data2)
 
     Data.to_csv("data/Data_jointes.csv", index=False)
-
-    Console().print(Data)
