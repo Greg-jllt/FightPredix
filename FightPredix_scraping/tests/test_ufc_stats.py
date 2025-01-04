@@ -16,6 +16,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 
 def test_recolte_ufc_stats(driver):
+    """
+    Teste la fonction _recolte_ufc_stats
+    """
     driver.get("http://www.ufcstats.com/fighter-details/07f72a2a7591b409")
 
     driver.implicitly_wait(50)
@@ -37,6 +40,10 @@ def test_recolte_ufc_stats(driver):
 
 
 def test_recolte_victoires(driver):
+    """
+    Teste la fonction _recolte_victoires
+    """
+    driver.get("http://www.ufcstats.com/fighter-details/07f72a2a7591b409")
     driver.implicitly_wait(50)
     resultats = _recolte_victoires(driver)
 
@@ -46,15 +53,24 @@ def test_recolte_victoires(driver):
 
 
 def test_collecteur_finish(driver):
+    """
+    Teste la fonction _collecteur_finish
+    """
+    driver.get("http://www.ufcstats.com/fighter-details/07f72a2a7591b409")
     driver.implicitly_wait(50)
     finishes = _collecteur_finish(driver)
 
+    breakpoint()
     assert finishes["KO/TKO"] == 6
     assert finishes["SUB"] == 6
     assert finishes["DEC"] == 10
 
 
 def test_traitement_metriques(driver):
+    """
+    Teste la fonction _traitement_metriques
+    """
+    driver.get("http://www.ufcstats.com/fighter-details/07f72a2a7591b409")
     dict_res = {
         "KO/TKO": 6,
         "SUB": 6,

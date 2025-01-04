@@ -91,9 +91,8 @@ def _explore_events(
     """
 
     driver.get(row_data_link)
-
     temp_dict = _couleur_combattant(driver, winner)
-
+    
     driver.find_element(By.CSS_SELECTOR, "div.b-fight-details__charts-col")
 
     elements_cbt_1 = driver.find_elements(

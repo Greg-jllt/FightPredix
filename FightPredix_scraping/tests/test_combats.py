@@ -10,13 +10,9 @@ from scraping.lib_combats import (
     _couleur_combattant,
     _explore_events,
     _get_combattant_data,
-    _main_combat_recolte,
-    _recolte_stat_combat,
-    _recup_donnes_sig_str,
     _recup_donnes_total,
     _sub_fonction_elements,
     _sub_fonction_listes,
-    clean_column_nom,
 )
 import polars as pl
 from bs4 import BeautifulSoup

@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 @pytest.fixture
 def df():
-    with open("./tests/data_test/data_tapology_test.json", "r") as f:
+    with open("./FightPredix_scraping/tests/data_test/data_tapology_test.json", 'r') as f:
         df = json.load(f)
     return pl.DataFrame(df)
 
@@ -87,10 +87,10 @@ def test_scraper_combattant(df, driver_tapology):
     Test de la fonction _scraper_combattant
     """
 
-    with open("./tests/data_test/data_tapology_test.json") as f:
+    with open("./FightPredix_scraping/tests/data_test/data_tapology_test.json", 'r') as f:
         liste_dictio = json.load(f)
 
-    for nom in (df["NAME"][5], df["NAME"][0], df["NAME"][7]):
+    for nom in (df["NAME"][4], df["NAME"][0], df["NAME"][7]):
         driver = _recherche_nom(nom, driver_tapology)
         driver, combattant_trouvee = _explorer_combattant(
             driver, "https://www.tapology.com"
