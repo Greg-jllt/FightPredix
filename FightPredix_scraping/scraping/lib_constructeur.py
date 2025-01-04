@@ -232,29 +232,30 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
 
             if fuzz.ratio(nom.lower(), combattant.lower()) >= 90:
 
-                win, losses = Data[Data["name"].str.lower() == nom.lower()][
-                    ["win", "losses"]
-                ].values[0]
-
-                Combats.loc[i, f"{prefixe}_win_t"] = win - temp_dict.get(
-                    f"{combattant}_win_t", 1
-                )
-                Combats.loc[i, f"{prefixe}_losses_t"] = losses - temp_dict.get(
-                    f"{combattant}_losses_t", 1
-                )
-
                 if (prefixe == "combattant_1" and resultat == 0) or (
                     prefixe == "combattant_2" and resultat == 1
                 ):
                     temp_dict[f"{combattant}_win_t"] = (
-                        temp_dict.get(f"{combattant}_win_t", 1) + 1
+                        temp_dict.get(f"{combattant}_win_t", 0) + 1
                     )
                 elif (prefixe == "combattant_1" and resultat == 1) or (
                     prefixe == "combattant_2" and resultat == 0
                 ):
                     temp_dict[f"{combattant}_losses_t"] = (
-                        temp_dict.get(f"{combattant}_losses_t", 1) + 1
+                        temp_dict.get(f"{combattant}_losses_t", 0) + 1
                     )
+
+
+                win, losses = Data[Data["name"].str.lower() == nom.lower()][
+                    ["win", "losses"]
+                ].values[0]
+
+                Combats.loc[i, f"{prefixe}_win_t"] = win - temp_dict.get(
+                    f"{combattant}_win_t", 0
+                )
+                Combats.loc[i, f"{prefixe}_losses_t"] = losses - temp_dict.get(
+                    f"{combattant}_losses_t", 0
+                )
 
     for i, combat in Combats.iterrows():
         combattant_1 = combat["combattant_1"]

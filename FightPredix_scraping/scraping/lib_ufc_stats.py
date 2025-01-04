@@ -280,11 +280,7 @@ def _integration_metriques(
                 if data_key not in data.columns:
                     data[data_key] = None
 
-                if pd.isna(data.loc[combattant_row, data_key]) or (
-                    data.loc[combattant_row, data_key] < value
-                    if isinstance(value, (int, float))
-                    else False
-                ):
+                if pd.isna(data.loc[combattant_row, data_key]) or isinstance(value, (int, float)) :
                     data.loc[combattant_row, data_key] = value
         else :
             new_row = pd.Series({mapping.get(key, key): value for key, value in dictio.items()})

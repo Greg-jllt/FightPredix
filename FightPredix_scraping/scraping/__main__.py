@@ -43,7 +43,8 @@ def Dataframe_combats(driver: webdriver.Chrome) -> pd.DataFrame:
     return Data
 
 
-def _constructeur(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
+def _constructeur(combats: pd.DataFrame, Data: pd.DataFrame) -> pd.DataFrame:
+    Data = _ratrappage_manquants(Data)
     combats, Data = _main_construct(combats, Data)
 
     return combats, Data
@@ -64,13 +65,13 @@ def main():
     logger.info("Lancement du scraping sur UFC stats")
     Data = Dataframe_caracteristiques_ufc_stats(Data, main_driver)
 
-    Data.to_csv("data/Data_ufc_fighters.csv", index=False)
+    Data.to_csv("Data/Data_ufc_fighters.csv", index=False)
 
     logger.info("Lancement du scraping sur tapology et création des données jointes")
-    Data_join = _main_tapology()
-    Data_join.to_pandas().to_csv("data/Data_jointes_ufc_tapology.csv", index=False)
+    Data = _main_tapology()
+    Data.to_pandas().to_csv("FightPredixAPP/Data/Data_ufc_complet.csv", index=False)
 
-    Data = pd.read_csv("FightPredixAPP/Data/Data_jointes_ufc_tapology.csv")
+    Data = pd.read_csv("Data/Data_ufc_complet.csv")
 
     logger.info("Lancement du scraping sur les combats")
     combats = Dataframe_combats(main_driver)
@@ -79,20 +80,21 @@ def main():
 
     logger.info("Scraping des données sur les arbitres sur UFC_fans")
     data_arbitres = _main_arbitre()
-    data_arbitres.to_pandas().to_csv("data/Data_arbitres.csv", index=False)
+    data_arbitres.to_pandas().to_csv("Data/Data_arbitres.csv", index=False)
 
 
     logger.info("Construction des données finales")
-    combats = _constructeur(Data, combats)
+    combats, Data = _constructeur(combats, Data)
 
-    combats.to_csv("FightPredixAPP/Data/Data_final_combats.csv", index=False)
+    Data.to_csv("Data/Data_final_fighters.csv", index=False)
+    combats.to_csv("Data/Data_final_combats.csv", index=False)
 
     logger.info("Suppression des fichiers temporaires")
     for file_path in [
-        "FightPredixAPP/Data/Data_ufc_fighters.csv",
-        "FightPredixAPP/Data/Data_jointes_ufc_tapology.csv",
-        "FightPredixAPP/Data/data_tapology.csv",
-        "FightPredixAPP/Data/clean_tapology.csv",
+        "Data/Data_ufc_fighters.csv",
+        "Data/Data_jointes_ufc_tapology.csv",
+        "Data/data_tapology.csv",
+        "Data/clean_tapology.csv",
     ]:
         if os.path.exists(file_path):
             os.remove(file_path)
