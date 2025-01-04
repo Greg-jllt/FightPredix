@@ -10,6 +10,4 @@ from .lib_constructeur import _main_construct
 
 from .lib_join_ufc_tapology import _main_tapology
 
-from .lib_arbitre import _main_arbitre
-
 from .outils import configure_logger

@@ -510,7 +510,7 @@ if __name__ == "__main__":
                     else:
                         liste_combattant_scrapes.append(dictio)
                         with open(
-                            "data/data_tapology.json",
+                            "Data/data_tapology.json",
                             "w",
                         ) as f:
                             json.dump(liste_combattant_scrapes, f)
@@ -520,7 +520,7 @@ if __name__ == "__main__":
         except Exception as e:
             logger.warning(f"Erreur lors du scraping: {e}")
             if not recuperer_ancien_scraping:
-                with open("data/actual_combattant_tapology.json", "w") as f:
+                with open("Data/actual_combattant_tapology.json", "w") as f:
                     json.dump(liste_combattant_scrapes, f)
 
     driver.quit()

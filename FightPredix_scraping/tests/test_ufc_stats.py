@@ -6,9 +6,8 @@ from scraping.lib_ufc_stats import (
     _collecteur_finish,
     _traitement_metriques,
 )
-
+import numpy as np
 from .fixtures import driver_ufc_stats as driver
-
 import os
 import numpy as np
 import sys
@@ -17,6 +16,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 
 def test_recolte_ufc_stats(driver):
+    """
+    Teste la fonction _recolte_ufc_stats
+    """
     driver.get("http://www.ufcstats.com/fighter-details/07f72a2a7591b409")
 
     driver.implicitly_wait(50)
@@ -38,6 +40,10 @@ def test_recolte_ufc_stats(driver):
 
 
 def test_recolte_victoires(driver):
+    """
+    Teste la fonction _recolte_victoires
+    """
+    driver.get("http://www.ufcstats.com/fighter-details/07f72a2a7591b409")
     driver.implicitly_wait(50)
     resultats = _recolte_victoires(driver)
 
@@ -47,6 +53,10 @@ def test_recolte_victoires(driver):
 
 
 def test_collecteur_finish(driver):
+    """
+    Teste la fonction _collecteur_finish
+    """
+    driver.get("http://www.ufcstats.com/fighter-details/07f72a2a7591b409")
     driver.implicitly_wait(50)
     finishes = _collecteur_finish(driver)
 

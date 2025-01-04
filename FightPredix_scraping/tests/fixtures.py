@@ -20,6 +20,7 @@ def driver():
     Fixture initialisant le webdriver Chrome
     """
     options = Options()
+    # options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
 
     def finalizer():
@@ -56,21 +57,41 @@ def driver_ufc_stats():
     """
     Fonction qui accède à une page web
     """
-    from selenium import webdriver
 
-    driver = webdriver.Chrome()
+    options = Options()
+    # options.add_argument("--headless")
+    driver = webdriver.Chrome(options=options)
     driver.get("http://www.ufcstats.com/fighter-details/07f72a2a7591b409")
+
+    def finalizer():
+        """
+        teardown : ferme le navigateur à la fin du test afin de ne laisser aucune instance de navigateur ouverte
+        """
+
+        driver.close()
+        driver.quit()
+
     return driver
 
 
+@pytest.fixture
 def driver_ufc_stats_combats():
     """
     Fonction qui accède à une page web de combats
     """
-    from selenium import webdriver
+    options = Options()
+    # options.add_argument("--headless")
+    driver = webdriver.Chrome(options=options)
 
-    driver = webdriver.Chrome()
-    return driver, ["http://www.ufcstats.com/event-details/ad23903ef3af7406"]
+    def finalizer():
+        """
+        teardown : ferme le navigateur à la fin du test afin de ne laisser aucune instance de navigateur ouverte
+        """
+
+        driver.close()
+        driver.quit()
+
+    return driver
 
 
 @pytest.fixture

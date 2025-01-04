@@ -81,10 +81,8 @@ def _age_by_DOB(Data):
     """
 
     data = Data[Data["ÂGE"].isna() & Data["DOB"].notna()]
-
     for _, cbt in data.iterrows():
         cbt_name = cbt["NAME"].upper()
-
         dob = data[data["NAME"] == cbt_name]["DOB"].values[0]
         if pd.notna(dob):
             Age = (datetime.now() - datetime.strptime(dob, "%b %d, %Y")).days // 365
@@ -112,7 +110,6 @@ def _clean_column_nom(nom):
 
 
 def _process_valeur(valeur):
-
     if pd.isna(valeur) or valeur in ["nan", "None"]:  # Gérer les NaN et None explicites
         return np.nan
 
@@ -140,7 +137,6 @@ def _process_valeur(valeur):
 
 
 def _process_ratio(valeur):
-
     valeur = str(valeur)
     match_ratio = re.match(r"^(\d+)\s+of\s+(\d+)$", valeur)
     if match_ratio:
@@ -162,7 +158,6 @@ def _cleaning(data):
             continue
 
         if Data[col].dtype == "O":
-
             ratio_bool = Data[col].apply(
                 lambda x: bool(re.match(r"^(\d+)\s+of\s+(\d+)$", str(x)))
             )
@@ -227,10 +222,12 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
     temp_dict: dict = dict()
 
     def _sub_win_losses_temps_t(combattant, prefixe, resultat):
-
         for nom in Data["name"].values:
+            if fuzz.ratio(nom.lower(), combattant.lower()) > 90:
+                win, losses = Data[Data["name"].str.lower() == nom.lower()][
+                    ["win", "losses"]
+                ].values[0]
 
-            if fuzz.ratio(nom.lower(), combattant.lower()) >= 90:
 
                 if (prefixe == "combattant_1" and resultat == 0) or (
                     prefixe == "combattant_2" and resultat == 1
@@ -244,12 +241,7 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
                     temp_dict[f"{combattant}_losses_t"] = (
                         temp_dict.get(f"{combattant}_losses_t", 0) + 1
                     )
-
-
-                win, losses = Data[Data["name"].str.lower() == nom.lower()][
-                    ["win", "losses"]
-                ].values[0]
-
+                    
                 Combats.loc[i, f"{prefixe}_win_t"] = win - temp_dict.get(
                     f"{combattant}_win_t", 0
                 )
@@ -271,7 +263,6 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
 def _main_construct(
     combats: pd.DataFrame, caracteristiques: pd.DataFrame
 ) -> pd.DataFrame:
-
     caracteristiques = _age_by_DOB(caracteristiques)
 
     caracteristiques = _transformation_debut_octogone(caracteristiques)
@@ -286,7 +277,6 @@ def _main_construct(
 
 
 if __name__ == "__main__":
-
     caracteristiques = pd.read_csv("data/Data_ufc_fighters.csv")
     combats = pd.read_csv("data/Data_ufc_stats_combats.csv")
 

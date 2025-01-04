@@ -11,7 +11,6 @@ from selenium.webdriver.common.by import By
 from rapidfuzz import fuzz
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from rich.console import Console
 from datetime import datetime
 
 from .outils import configure_logger
@@ -376,7 +375,7 @@ def _cherche_combattant_UFC_stats(data: pd.DataFrame, driver: webdriver.Chrome) 
     Fonction qui récolte les statistiques des combattants sur le site UFC Stats.
     """
     logger.info("Recherche des combattants sur le site UFC Stats")
-    noms_combattants = data["name"]
+    noms_combattants = data["NAME"]
     return _traiter_combattants(data, driver, noms_combattants)
 
 
@@ -391,7 +390,7 @@ def _ratrappage_manquants(combats: pd.DataFrame, data: pd.DataFrame, driver: web
     unique_col2 = combats['combattant_2'].unique()
     noms_unique = pd.unique(pd.concat([pd.Series(unique_col1), pd.Series(unique_col2)]))
 
-    data_name = data["name"].values
+    data_name = data["NAME"].values
     noms_manquants = [nom for nom in noms_unique if nom.lower() not in map(str.lower, data_name)]
 
     return _traiter_combattants(data, driver, noms_manquants)
@@ -405,18 +404,16 @@ if __name__ == "__main__":
 
     driver = webdriver.Chrome(options=chrome_options)
 
-    Data = pd.read_csv("FightPredixApp/Data/Data_jointes_cplt.csv")
+    Data = pd.read_csv("Data/Data_jointes_cplt.csv")
 
     Data2 = _cherche_combattant_UFC_stats(data=Data, driver=driver)
 
-    Console().print(Data2[0:2])
 
-    fichier = "FightPredixApp/Data/Data_ufc_combat_complet_actuel.csv"
+    fichier = "Data/Data_ufc_combat_complet_actuel.csv"
     if os.path.exists(fichier):
         Data_manquant = pd.read_csv(fichier)
         
         Data3 = _ratrappage_manquants(combats=Data_manquant, data=Data, driver=driver)
 
-        Console().print(Data3.head(2))
 
 

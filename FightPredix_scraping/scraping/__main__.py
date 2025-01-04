@@ -13,9 +13,8 @@ from .outils import configure_logger
 from datetime import datetime
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
-
+import polars as pl
 import pandas as pd
-import subprocess
 import os
 
 
@@ -49,6 +48,11 @@ def _constructeur(combats: pd.DataFrame, Data: pd.DataFrame) -> pd.DataFrame:
 
     return combats, Data
 
+def _join_arbitre(Data: pd.DataFrame, data_arbitres: pd.DataFrame) -> pd.DataFrame:
+    data_arbitres.rename(columns={'Nom':'Arbitre'}, inplace=True)
+    Data.rename(columns={'Referee':'Arbitre'}, inplace=True)
+
+    return pl.DataFrame(Data).join(pl.DataFrame(data_arbitres), on='Arbitre', how='left').drop(["Rang", "liens"])
 
 def main():
     chrome_options = Options()
@@ -69,7 +73,7 @@ def main():
 
     logger.info("Lancement du scraping sur tapology et création des données jointes")
     Data = _main_tapology()
-    Data.to_pandas().to_csv("FightPredixAPP/Data/Data_ufc_complet.csv", index=False)
+    Data.to_pandas().to_csv("Data/Data_ufc_complet.csv", index=False)
 
     Data = pd.read_csv("Data/Data_ufc_complet.csv")
 
@@ -82,17 +86,18 @@ def main():
     data_arbitres = _main_arbitre()
     data_arbitres.to_pandas().to_csv("Data/Data_arbitres.csv", index=False)
 
-
     logger.info("Construction des données finales")
     combats, Data = _constructeur(combats, Data)
 
+    Data = _join_arbitre(Data, data_arbitres)
+    
     Data.to_csv("Data/Data_final_fighters.csv", index=False)
     combats.to_csv("Data/Data_final_combats.csv", index=False)
 
     logger.info("Suppression des fichiers temporaires")
     for file_path in [
         "Data/Data_ufc_fighters.csv",
-        "Data/Data_jointes_ufc_tapology.csv",
+        "Data/Data_jointes_ufc_tapology",
         "Data/data_tapology.csv",
         "Data/clean_tapology.csv",
     ]:

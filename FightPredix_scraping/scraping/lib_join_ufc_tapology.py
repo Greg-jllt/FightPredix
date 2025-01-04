@@ -21,8 +21,8 @@ def _main_tapology():
         ["python", "-m", "FightPredix_scraping.scraping.lib_clean_tapology"], shell=True
     )
 
-    data_ufc = pl.read_csv("data/Data_ufc_fighters.csv")
-    data_tapology = pl.read_csv("data/clean_tapology.csv")
+    data_ufc = pl.read_csv("Data/Data_ufc_fighters.csv")
+    data_tapology = pl.read_csv("Data/clean_tapology.csv")
 
     data_join = data_ufc.join(data_tapology, on="NAME", how="left").unique()
 

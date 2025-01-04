@@ -184,10 +184,10 @@ def _birth_country(data_tapology: pl.DataFrame) -> pl.DataFrame:
 
 if __name__ == "__main__":
     logger.info("Récupération des données")
-    with open("data/data_tapology.json", "r") as f:
+    with open("Data/data_tapology.json", "r") as f:
         data_tapology = pl.DataFrame(json.load(f))
 
-    with open("dico_formatage/dico_correction.json", "r") as f:
+    with open("FightPredix_scraping/scraping/dico_formatage/dico_correction.json", "r") as f:
         dico_correction = json.load(f)
 
     data_tapology = data_tapology.unique()
@@ -244,4 +244,4 @@ if __name__ == "__main__":
     data_tapology = data_tapology.with_columns(
         pl.Series("NAME", [nom.upper() for nom in data_tapology["NAME"].to_list()])
     )
-    data_tapology.to_pandas().to_csv("data/clean_tapology.csv")
+    data_tapology.to_pandas().to_csv("Data/clean_tapology.csv")
