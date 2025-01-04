@@ -5,7 +5,7 @@ Construction de la base de données récapitulant les combats de l'UFC et les in
 
 from .lib_front_page import _page_principal_UFC
 from .lib_combats import _main_combat_recolte
-from .lib_ufc_stats import _cherche_combattant_UFC_stats
+from .lib_ufc_stats import _cherche_combattant_UFC_stats, _ratrappage_manquants
 from .lib_constructeur import _main_construct
 from .lib_join_ufc_tapology import _main_tapology
 from .lib_arbitre import _main_arbitre
@@ -80,6 +80,7 @@ def main():
     logger.info("Scraping des données sur les arbitres sur UFC_fans")
     data_arbitres = _main_arbitre()
     data_arbitres.to_pandas().to_csv("data/Data_arbitres.csv", index=False)
+
 
     logger.info("Construction des données finales")
     combats = _constructeur(Data, combats)

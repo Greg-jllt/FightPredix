@@ -17,6 +17,7 @@ from datetime import datetime
 from .outils import configure_logger
 
 import re
+import os
 import pandas as pd
 import traceback
 
@@ -285,6 +286,12 @@ def _integration_metriques(
                     else False
                 ):
                     data.loc[combattant_row, data_key] = value
+        else :
+            new_row = pd.Series({mapping.get(key, key): value for key, value in dictio.items()})
+
+            new_row["NAME"] = cplt_name
+
+            data = data.append(new_row, ignore_index=True)
 
     except Exception as e:
         logger.warning(f"Erreur lors de la recherche du combattant {cplt_name} : {e}")
@@ -293,7 +300,17 @@ def _integration_metriques(
     return data
 
 
-def _recherche_url(driver : webdriver, cplt_name : str, nickname : str = None) :
+def _compte_victoires_defaites_cbt(driver: webdriver.Chrome) -> Counter:
+
+    counter = Counter(
+        res.text.strip().upper()
+        for res in driver.find_elements(By.CSS_SELECTOR, "i.b-flag__text")
+    )
+
+    return Counter({key: counter.get(key, 0) for key in ["WIN", "LOSS", "DRAW"]})
+
+
+def _recherche_url(driver: webdriver, cplt_name: str) -> tuple[webdriver.Chrome, list]:
     """
     Fonction de recherche de l'URL du combattant sur le site UFC Stats
     """
@@ -304,7 +321,7 @@ def _recherche_url(driver : webdriver, cplt_name : str, nickname : str = None) :
     url = f"http://www.ufcstats.com/statistics/fighters/search?query={nom.lower()}"
     driver.get(url)
 
-    for clé in [prenom, nickname]:
+    for clé in [prenom]:
         rows = driver.find_elements(
             By.CSS_SELECTOR, "tbody > tr.b-statistics__table-row"
         )
@@ -317,26 +334,25 @@ def _recherche_url(driver : webdriver, cplt_name : str, nickname : str = None) :
         logger.warning(f"Le combattant {cplt_name} n'a pas été trouvé")
         return None, None
 
-    return driver, rows
+    return rows
 
 
-def _cherche_combattant_UFC_stats(
-    data: pd.DataFrame, driver: webdriver.Chrome
-) -> pd.DataFrame:
+
+def _traiter_combattants(data, driver, noms_combattants):
     """
-    Fonction qui recolte les statistiques des combattants sur le site UFC Stats
+    Fonction générique pour traiter une liste de combattants.
 
     Args:
-        data (pd.DataFrame): dataframe contenant les informations des combattants
-        driver (webdriver.Chrome): driver de la page du combattant
+        data (pd.DataFrame): DataFrame contenant les informations des combattants.
+        driver (webdriver.Chrome): Driver pour la navigation.
+        noms_combattants (iterable): Liste ou ensemble des noms des combattants.
+
+    Returns:
+        pd.DataFrame: DataFrame mis à jour avec les statistiques des combattants.
     """
-    logger.info("Recherche des combattants sur le site UFC Stats")
-
-    for cplt_name, nickname in zip(data["NAME"], data["NICKNAME"]):
-        logger.info(f"combattant {cplt_name}")
+    for cplt_name in noms_combattants:
         try:
-
-            driver, rows = _recherche_url(driver, cplt_name, nickname)
+            rows = _recherche_url(driver, cplt_name)
 
             if rows is None:
                 continue
@@ -345,9 +361,7 @@ def _cherche_combattant_UFC_stats(
 
             _accès_cbt_page(temp_dict, driver)
 
-            win_draw_loss = data.loc[
-                data["NAME"] == cplt_name, ["WIN", "LOSSES", "DRAWS"]
-            ].values[0]
+            win_draw_loss = list(_compte_victoires_defaites_cbt(driver).values())
 
             data = _integration_metriques(data, cplt_name, driver, win_draw_loss)
         except Exception as e:
@@ -360,9 +374,34 @@ def _cherche_combattant_UFC_stats(
     return data
 
 
-if __name__ == "__main__":
 
-    Data = pd.read_csv("FightPredixApp/Data/Data_jointes_cplt.csv")
+def _cherche_combattant_UFC_stats(data: pd.DataFrame, driver: webdriver.Chrome) -> pd.DataFrame:
+    """
+    Fonction qui récolte les statistiques des combattants sur le site UFC Stats.
+    """
+    logger.info("Recherche des combattants sur le site UFC Stats")
+    noms_combattants = data["name"]
+    return _traiter_combattants(data, driver, noms_combattants)
+
+
+
+def _ratrappage_manquants(combats: pd.DataFrame, data: pd.DataFrame, driver: webdriver.Chrome) -> pd.DataFrame:
+    """
+    Fonction qui rattrape les combattants manquants du site UFC.com sur le site UFC Stats.
+    """
+    logger.info("Rattrapage des combattants sur le site UFC Stats")
+
+    unique_col1 = combats['combattant_1'].unique()
+    unique_col2 = combats['combattant_2'].unique()
+    noms_unique = pd.unique(pd.concat([pd.Series(unique_col1), pd.Series(unique_col2)]))
+
+    data_name = data["name"].values
+    noms_manquants = [nom for nom in noms_unique if nom.lower() not in map(str.lower, data_name)]
+
+    return _traiter_combattants(data, driver, noms_manquants)
+
+
+if __name__ == "__main__":
 
     chrome_options = Options()
 
@@ -370,8 +409,18 @@ if __name__ == "__main__":
 
     driver = webdriver.Chrome(options=chrome_options)
 
+    Data = pd.read_csv("FightPredixApp/Data/Data_jointes_cplt.csv")
+
     Data2 = _cherche_combattant_UFC_stats(data=Data, driver=driver)
 
-    Data.update(Data2)
+    Console().print(Data2[0:2])
 
-    Data.to_csv("FightPredixApp/Data/Data_jointes.csv", index=False)
+    fichier = "FightPredixApp/Data/Data_ufc_combat_complet_actuel.csv"
+    if os.path.exists(fichier):
+        Data_manquant = pd.read_csv(fichier)
+        
+        Data3 = _ratrappage_manquants(combats=Data_manquant, data=Data, driver=driver)
+
+        Console().print(Data3.head(2))
+
+

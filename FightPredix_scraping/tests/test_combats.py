@@ -100,5 +100,5 @@ def test_main_combat_recolte():
             "methode": "KO/TKO",
         },
     ]
-    driver, liste_events = driver_ufc_stats_combats()
-    assert _explore_events(liste_events=liste_events, driver=driver) == res
+    driver, _ = driver_ufc_stats_combats()
+    assert _explore_events(liste_events=["http://www.ufcstats.com/event-details/ad23903ef3af7406"], driver=driver) == res
