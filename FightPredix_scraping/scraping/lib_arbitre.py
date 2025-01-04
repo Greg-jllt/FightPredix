@@ -10,8 +10,7 @@ Développée par :
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-import logging
-import pandas as pd
+import polars as pl
 from .outils import configure_logger
 from datetime import datetime
 
@@ -62,10 +61,11 @@ def _creer_liste_arbitres(soup: BeautifulSoup) -> dict[str, list[str]]:
     return liste_arbitres
 
 
+def _main_arbitre() -> pl.DataFrame:
+    """
+    Fonction principale qui permet de récupérer les données des arbitres
+    """
 
-
-if __name__ == "__main__":
-    
     logger.info("Lancement du scraping des arbitres sur UFC_fans")
     chrome_options = Options()
     chrome_options.add_argument(
@@ -77,9 +77,9 @@ if __name__ == "__main__":
     url = "https://www.ufc-fr.com/arbitre.html"
     soup = _requete_arbitre(driver, url)
     liste_arbitres = _creer_liste_arbitres(soup)
-    breakpoint()
-    pd.DataFrame(liste_arbitres).to_csv("data/data_arbitres.csv", index=False)
-    logging.info("Scraping terminé")
-    driver.quit()
+    return pl.DataFrame(liste_arbitres)
 
-    
+
+if __name__ == "__main__":
+
+    _main_arbitre()

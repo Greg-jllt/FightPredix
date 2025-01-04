@@ -42,17 +42,24 @@ def Dataframe_combats(driver: webdriver.Chrome) -> pd.DataFrame:
     return Data
 
 
-def _constructeur(combats: pd.DataFrame, Data: pd.DataFrame) -> pd.DataFrame:
-    Data = _ratrappage_manquants(Data)
+def _constructeur(
+    combats: pd.DataFrame, Data: pd.DataFrame, main_driver: webdriver.Chrome
+) -> pd.DataFrame:
+    Data = _ratrappage_manquants(combats, Data, main_driver)
     combats, Data = _main_construct(combats, Data)
 
     return combats, Data
 
-def _join_arbitre(Data: pd.DataFrame, data_arbitres: pd.DataFrame) -> pd.DataFrame:
-    data_arbitres.rename(columns={'Nom':'Arbitre'}, inplace=True)
-    Data.rename(columns={'Referee':'Arbitre'}, inplace=True)
 
-    return pl.DataFrame(Data).join(pl.DataFrame(data_arbitres), on='Arbitre', how='left').drop(["Rang", "liens"])
+def _join_arbitre(combats: pd.DataFrame, data_arbitres: pd.DataFrame) -> pl.DataFrame:
+    data_arbitres.rename(columns={"Nom": "Arbitre"}, inplace=True)
+    combats.rename(columns={"Referee": "Arbitre"}, inplace=True)
+    return (
+        pl.DataFrame(combats)
+        .join(pl.DataFrame(data_arbitres), on="Arbitre", how="left")
+        .drop(["Rang", "liens"])
+    )
+
 
 def main():
     chrome_options = Options()
@@ -80,17 +87,15 @@ def main():
     logger.info("Lancement du scraping sur les combats")
     combats = Dataframe_combats(main_driver)
 
-    main_driver.quit()
-
     logger.info("Scraping des données sur les arbitres sur UFC_fans")
-    data_arbitres = _main_arbitre()
-    data_arbitres.to_pandas().to_csv("Data/Data_arbitres.csv", index=False)
+    data_arbitres = _main_arbitre().to_pandas()
 
     logger.info("Construction des données finales")
     combats, Data = _constructeur(combats, Data)
 
-    Data = _join_arbitre(Data, data_arbitres)
-    
+    main_driver.quit()
+    combats = _join_arbitre(combats, data_arbitres).to_pandas()
+
     Data.to_csv("Data/Data_final_fighters.csv", index=False)
     combats.to_csv("Data/Data_final_combats.csv", index=False)
 

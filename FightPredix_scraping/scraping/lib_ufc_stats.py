@@ -279,10 +279,14 @@ def _integration_metriques(
                 if data_key not in data.columns:
                     data[data_key] = None
 
-                if pd.isna(data.loc[combattant_row, data_key]) or isinstance(value, (int, float)) :
+                if pd.isna(data.loc[combattant_row, data_key]) or isinstance(
+                    value, (int, float)
+                ):
                     data.loc[combattant_row, data_key] = value
-        else :
-            new_row = pd.Series({mapping.get(key, key): value for key, value in dictio.items()})
+        else:
+            new_row = pd.Series(
+                {mapping.get(key, key): value for key, value in dictio.items()}
+            )
 
             new_row["NAME"] = cplt_name
 
@@ -305,7 +309,9 @@ def _compte_victoires_defaites_cbt(driver: webdriver.Chrome) -> Counter:
     return Counter({key: counter.get(key, 0) for key in ["WIN", "LOSS", "DRAW"]})
 
 
-def _recherche_url(driver: webdriver, cplt_name: str) -> tuple[webdriver.Chrome, list]:
+def _recherche_url(
+    driver: webdriver, cplt_name: str
+) -> tuple[webdriver.Chrome | None, list | None]:
     """
     Fonction de recherche de l'URL du combattant sur le site UFC Stats
     """
@@ -330,7 +336,6 @@ def _recherche_url(driver: webdriver, cplt_name: str) -> tuple[webdriver.Chrome,
         return None, None
 
     return rows
-
 
 
 def _traiter_combattants(data, driver, noms_combattants):
@@ -369,8 +374,9 @@ def _traiter_combattants(data, driver, noms_combattants):
     return data
 
 
-
-def _cherche_combattant_UFC_stats(data: pd.DataFrame, driver: webdriver.Chrome) -> pd.DataFrame:
+def _cherche_combattant_UFC_stats(
+    data: pd.DataFrame, driver: webdriver.Chrome
+) -> pd.DataFrame:
     """
     Fonction qui récolte les statistiques des combattants sur le site UFC Stats.
     """
@@ -379,19 +385,22 @@ def _cherche_combattant_UFC_stats(data: pd.DataFrame, driver: webdriver.Chrome) 
     return _traiter_combattants(data, driver, noms_combattants)
 
 
-
-def _ratrappage_manquants(combats: pd.DataFrame, data: pd.DataFrame, driver: webdriver.Chrome) -> pd.DataFrame:
+def _ratrappage_manquants(
+    combats: pd.DataFrame, data: pd.DataFrame, driver: webdriver.Chrome
+) -> pd.DataFrame:
     """
     Fonction qui rattrape les combattants manquants du site UFC.com sur le site UFC Stats.
     """
     logger.info("Rattrapage des combattants sur le site UFC Stats")
 
-    unique_col1 = combats['combattant_1'].unique()
-    unique_col2 = combats['combattant_2'].unique()
+    unique_col1 = combats["combattant_1"].unique()
+    unique_col2 = combats["combattant_2"].unique()
     noms_unique = pd.unique(pd.concat([pd.Series(unique_col1), pd.Series(unique_col2)]))
 
     data_name = data["NAME"].values
-    noms_manquants = [nom for nom in noms_unique if nom.lower() not in map(str.lower, data_name)]
+    noms_manquants = [
+        nom for nom in noms_unique if nom.lower() not in map(str.lower, data_name)
+    ]
 
     return _traiter_combattants(data, driver, noms_manquants)
 
@@ -408,12 +417,8 @@ if __name__ == "__main__":
 
     Data2 = _cherche_combattant_UFC_stats(data=Data, driver=driver)
 
-
     fichier = "Data/Data_ufc_combat_complet_actuel.csv"
     if os.path.exists(fichier):
         Data_manquant = pd.read_csv(fichier)
-        
+
         Data3 = _ratrappage_manquants(combats=Data_manquant, data=Data, driver=driver)
-
-
-
