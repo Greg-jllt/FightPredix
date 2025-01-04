@@ -4,6 +4,4 @@
 
 .coverage
 
-data/
-
 *.log
