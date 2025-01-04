@@ -16,6 +16,8 @@ from selenium import webdriver
 import polars as pl
 import pandas as pd
 import os
+from .lib_stats import _assignement_stat_combattant
+import json
 
 
 date = datetime.now().strftime("%Y-%m-%d")
@@ -95,6 +97,12 @@ def main():
 
     main_driver.quit()
     combats = _join_arbitre(combats, data_arbitres).to_pandas()
+    with open(
+        "FightPredix_scraping/scraping/dico_formattage/dico_var.json", "r"
+    ) as file:
+        dico_var = json.load(file)
+
+    combats, _ = _assignement_stat_combattant(combats, dico_var)
 
     Data.to_csv("Data/Data_final_fighters.csv", index=False)
     combats.to_csv("Data/Data_final_combats.csv", index=False)
