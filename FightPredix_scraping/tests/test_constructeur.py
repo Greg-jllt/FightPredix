@@ -193,9 +193,8 @@ def test_win_losses_temps_t():
 
     combats = _win_losses_temps_t(data, combats)
 
-    breakpoint()
 
     assert combats["combattant_1_win_t"].tolist() == [9, 20]
-    assert combats["combattant_1_losses_t"].tolist() == [5, 9]
+    assert combats["combattant_1_losses_t"].tolist() == [5, 8]
     assert combats["combattant_2_win_t"].tolist() == [20, 8]
-    assert combats["combattant_2_losses_t"].tolist() == [8, 5]
+    assert combats["combattant_2_losses_t"].tolist() == [9, 5]

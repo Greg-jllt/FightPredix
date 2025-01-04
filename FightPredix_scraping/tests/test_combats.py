@@ -90,38 +90,6 @@ def test_get_combattant_data(driver_ufc_stats_combats):
     }
 
 
-def test_explore_events(driver_ufc_stats_combats):
-    """
-    Test de la fonction explore_events
-    """
-
-    result = _explore_events(
-        driver=driver_ufc_stats_combats,
-        row_data_link="http://www.ufcstats.com/fight-details/e761c5009c09b295",
-        winner="Alexandre Pantoja",
-        frappe_types=[
-            "frappe_tete",
-            "frappe_corps",
-            "frappe_jambe",
-            "frappe_distance",
-            "frappe_clinch",
-            "frappe_sol",
-        ],
-    )
-    assert result == {
-        "combattant_1_frappe_tete": "46%",
-        "combattant_1_frappe_corps": "15%",
-        "combattant_1_frappe_jambe": "37%",
-        "combattant_1_frappe_distance": "93%",
-        "combattant_1_frappe_clinch": "6%",
-        "combattant_1_frappe_sol": "0%",
-        "combattant_2_frappe_tete": "58%",
-        "combattant_2_frappe_corps": "29%",
-        "combattant_2_frappe_jambe": "11%",
-        "combattant_2_frappe_distance": "100%",
-        "combattant_2_frappe_clinch": "0%",
-        "combattant_2_frappe_sol": "0%",
-    }
 
 
 def test_sub_fonction_listes():

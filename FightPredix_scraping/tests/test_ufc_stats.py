@@ -6,9 +6,8 @@ from scraping.lib_ufc_stats import (
     _collecteur_finish,
     _traitement_metriques,
 )
-
+import numpy as np
 from .fixtures import driver_ufc_stats as driver
-
 import os
 import sys
 
@@ -60,24 +59,24 @@ def test_collecteur_finish(driver):
     driver.implicitly_wait(50)
     finishes = _collecteur_finish(driver)
 
-    breakpoint()
     assert finishes["KO/TKO"] == 6
     assert finishes["SUB"] == 6
     assert finishes["DEC"] == 10
 
 
 def test_traitement_metriques(driver):
-    """
-    Teste la fonction _traitement_metriques
-    """
-    driver.get("http://www.ufcstats.com/fighter-details/07f72a2a7591b409")
+
+    win_draw_loss = np.array([22,1,0])
     dict_res = {
         "KO/TKO": 6,
         "SUB": 6,
         "DEC": 10,
-        "WIN": 28,
+        "WIN": 22,
         "LOSSES": 1,
         "DRAWS": 0,
+        "WIN_HP": 6, 
+        "LOSSES_HP": 0, 
+        "DRAWS_HP": 0,
         "HEIGHT": 76,
         "WEIGHT": 248.0,
         "REACH": 84,
@@ -93,4 +92,4 @@ def test_traitement_metriques(driver):
         "Sub. Avg.": 0.5,
     }
     driver.implicitly_wait(50)
-    assert _traitement_metriques(driver) == dict_res
+    assert _traitement_metriques(driver, win_draw_loss) == dict_res

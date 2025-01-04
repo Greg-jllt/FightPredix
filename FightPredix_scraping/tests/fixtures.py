@@ -20,7 +20,7 @@ def driver():
     Fixture initialisant le webdriver Chrome
     """
     options = Options()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
 
     def finalizer():
@@ -59,7 +59,7 @@ def driver_ufc_stats():
     """
 
     options = Options()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
     driver.get("http://www.ufcstats.com/fighter-details/07f72a2a7591b409")
 
@@ -80,7 +80,7 @@ def driver_ufc_stats_combats():
     Fonction qui accède à une page web de combats
     """
     options = Options()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
 
     def finalizer():
