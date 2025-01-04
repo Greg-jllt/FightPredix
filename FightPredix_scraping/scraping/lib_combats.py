@@ -7,6 +7,7 @@ Développée par :
 """
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import polars as pl
@@ -59,7 +60,11 @@ def _couleur_combattant(driver: webdriver.Chrome, winner: str) -> dict[str, str]
 
 
 def _get_combattant_data(
-    frappe_types, elements_cbt_1, elements_cbt_2, color, temp_dict
+    frappe_types: list[str],
+    elements_cbt_1: WebElement,
+    elements_cbt_2: WebElement,
+    color: str,
+    temp_dict: dict[str, str],
 ) -> dict[str, str]:
     """
     Fonction pour récupérer les données d'un combattant en fonction de sa couleur.
@@ -124,7 +129,13 @@ def _explore_events(
 
 
 def _sub_access_events(
-    row, results, i, driver, sub_driver, frappe_types, row_data_link
+    row: WebElement,
+    results: list[pd.DataFrame],
+    i: int,
+    driver: webdriver.Chrome,
+    sub_driver: webdriver.Chrome,
+    frappe_types: list[str],
+    row_data_link: str,
 ) -> tuple[list[pd.DataFrame], int]:
     """
     Fonction qui explore les events et recolte les combats, 50% sont des 0 et 50% des 1, la structure de la page place toujours le nom du combattant gagnant en premier l'algo place le gagnant en premier une fois sur deux
@@ -260,15 +271,16 @@ def _sub_fonction_listes(data: pl.DataFrame) -> tuple[list[Any], list[Any]]:
             for value1, value2 in [cellule[0].split("\n", maxsplit=1)]
         ]
     )
-    list_values1_to_return, list_values2_to_return = list(list_values1), list(
-        list_values2
+    list_values1_to_return, list_values2_to_return = (
+        list(list_values1),
+        list(list_values2),
     )
 
     return list_values1_to_return, list_values2_to_return
 
 
 def _sub_fonction_elements(
-    driver_elements: BeautifulSoup, dictio_total: dict, round_counter: int = 1
+    driver_elements: WebElement, dictio_total: dict, round_counter: int = 1
 ) -> list:
     """
     Fonction pour récupérer les éléments des combats
@@ -290,7 +302,7 @@ def _sub_fonction_elements(
     return liste_round
 
 
-def _recup_donnes_total(driver: webdriver.Chrome, soup: BeautifulSoup) -> dict:
+def _recup_donnes_total(driver: webdriver.Chrome, soup: BeautifulSoup) -> pl.DataFrame:
     """
     Fonction de recolte des statistiques totales des combats
     """

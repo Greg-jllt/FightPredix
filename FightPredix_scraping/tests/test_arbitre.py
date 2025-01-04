@@ -7,10 +7,12 @@ from scraping.lib_arbitre import (
     _requete_arbitre,
     _creer_liste_arbitres,
     _recup_donnees_arbitres,
+    _create_data_combats_arbitre,
+    _create_data_arbitres,
 )
 import os
 import sys
-import time
+import polars as pl
 import pytest
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
@@ -32,31 +34,7 @@ def soup_arbitres(driver, url_arbitre):
     """
 
     driver.get(url_arbitre)
-    time.sleep(2)
-    try:
-        consent_button = driver.find_element(By.ID, "cmpbntnotxt")
-        consent_button.click()
-    except Exception:
-        print("Bouton de consentement non trouvé ou déjà cliqué.")
     return BeautifulSoup(driver.page_source, "html.parser")
-
-
-@pytest.fixture
-def accepter_cookies(driver):
-    """
-    Fonction qui permet d'accepter les cookies
-    """
-
-    driver.get("https://www.ufc-fr.com/arbitre-30.html")
-    time.sleep(2)
-
-    try:
-        consent_button = driver.find_element(By.ID, "cmpbntnotxt")
-        consent_button.click()
-    except Exception:
-        print("Bouton de consentement non trouvé ou déjà cliqué.")
-
-    return driver
 
 
 def test_requete_arbitre(driver, url_arbitre):
@@ -102,11 +80,10 @@ def test_creer_liste_arbitres(soup_arbitres):
     assert "Osiris Maia" in liste_arbitres["Nom"]
 
 
-def test_recup_donnees_arbitres(driver, accepter_cookies):
+def test_recup_donnees_arbitres(driver):
     """
     Fonction qui teste la fonction _recup_donnees_arbitres
     """
-    accepter_cookies
     liste_combats = _recup_donnees_arbitres(
         driver, "https://www.ufc-fr.com/arbitre-30.html"
     )
@@ -116,3 +93,5 @@ def test_recup_donnees_arbitres(driver, accepter_cookies):
     assert "Charles Oliveira" in liste_combats["Vainqueur"]
     assert "UFC 244" in liste_combats["Evenement"]
     assert "Brad Tavares" not in liste_combats["Vainqueur"]
+    assert "Michel Pereira" in liste_combats["Combattant1"]
+    assert "Yancy Medeiros" in liste_combats["Combattant2"]

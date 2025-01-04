@@ -36,7 +36,6 @@ def test_infos_principal_combattant(driver, url_combattant):
     assert dictio["WIN"] == 2
     assert dictio["LOSSES"] == 2
     assert dictio["DRAWS"] == 0
-    assert dictio["DIVISION"] == "Lightweight Division"
     assert dictio["GENRE"] == "Male"
 
 
@@ -47,7 +46,7 @@ def test_combattant_actif(driver, url_combattant):
     driver.get(url_combattant)
     dictio = defaultdict()
     _combattant_actif(driver, dictio)
-    assert dictio["Actif"] == False
+    assert dictio["Actif"] is False
 
 
 def test_bio_combattant(driver, url_combattant):

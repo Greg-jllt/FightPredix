@@ -11,8 +11,10 @@ from typing import Any
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import WebDriverException
 import logging
 import polars as pl
+from streamlit import success
 from .lib_scraping_tapology import _restart_with_new_vpn
 from .outils import configure_logger
 from datetime import datetime
@@ -123,18 +125,19 @@ def _donnees_arbitres(driver: webdriver.Chrome, url: str) -> list[dict[str, list
     liste_donnees_sur_arbitres: list[dict[str, list[str]]] = list()
     driver.implicitly_wait(10)
     liste_arbitres = _creer_liste_arbitres(soup)
-    iteration = 0
-    for url in liste_arbitres["liens"]:
-        iteration += 1
-        if iteration == 100:
+    while True:
+        try:
+            for url in liste_arbitres["liens"]:
+                driver.implicitly_wait(50)
+                logging.info(f"Récupération des données de l'arbitre: {url}")
+                liste_donnees_sur_arbitres.append(_recup_donnees_arbitres(driver, url))
+                logging.info(f"Données de l'arbitre récupérées: {url}")
+                driver.implicitly_wait(10)
+            return liste_donnees_sur_arbitres
+        except WebDriverException as e:
+            logger.error(f"Erreur lors du scraping des arbitres: {e}")
             driver = _restart_with_new_vpn(driver, url=url, options=Options())
-            iteration = 0
-        driver.implicitly_wait(50)
-        logging.info(f"Récupération des données de l'arbitre: {url}")
-        liste_donnees_sur_arbitres.append(_recup_donnees_arbitres(driver, url))
-        logging.info(f"Données de l'arbitre récupérées: {url}")
-        driver.implicitly_wait(10)
-    return liste_donnees_sur_arbitres
+            logger.info("Relance du scraping avec un nouveau VPN")
 
 
 def _mise_en_commun(driver: webdriver.Chrome, url) -> dict[str, Any]:
@@ -175,11 +178,17 @@ def _create_data_arbitres(df_histo: pl.DataFrame, data: pl.DataFrame) -> pl.Data
     data = data.to_pandas()
     liste_photo = []
     liste_total_match = []
-    for nom in df_histo["arbitre"]:
-        liste_photo.append(data[data["Nom"] == nom]["photo"].values[0])
-        liste_total_match.append(
-            data[data["Nom"] == nom]["Total_combats_ufc"].values[0]
-        )
+    try:
+        for nom in df_histo["arbitre"]:
+            logger.info(f"Récupération de la photo de l'arbitre {nom}")
+            liste_photo.append(data[data["Nom"] == nom]["photo"].values[0])
+            liste_total_match.append(
+                data[data["Nom"] == nom]["Total_combats_ufc"].values[0]
+            )
+    except IndexError:
+        logger.info(f"L'arbitre {nom} n'a pas de photo")
+        liste_photo.append(None)
+        liste_total_match.append(None)
 
     df_histo = df_histo.with_columns(
         pl.Series("photo_arbitre", liste_photo),
@@ -190,21 +199,28 @@ def _create_data_arbitres(df_histo: pl.DataFrame, data: pl.DataFrame) -> pl.Data
 
 
 if __name__ == "__main__":
-    logger.info("Lancement du scraping des arbitres sur UFC_fans")
-    chrome_options = Options()
-    chrome_options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-    )
-    chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(options=chrome_options)
-    soup = _requete_arbitre(driver, "https://www.ufc-fr.com/arbitre.html")
-    url = "https://www.ufc-fr.com/arbitre.html"
+    success = False
+    while not success:
+        try:
+            logger.info("Lancement du scraping des arbitres sur UFC_fans")
+            chrome_options = Options()
+            chrome_options.add_argument(
+                "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+            )
+            chrome_options.add_argument("--headless")
+            driver = webdriver.Chrome(options=chrome_options)
+            soup = _requete_arbitre(driver, "https://www.ufc-fr.com/arbitre.html")
+            url = "https://www.ufc-fr.com/arbitre.html"
 
-    logger.info("Création du DataFrame des arbitres")
-    data = pl.DataFrame(_mise_en_commun(driver, url))
-    data_hist = _create_data_combats_arbitre(data)
-    data_arbitres = _create_data_arbitres(data_hist, data)
-    data_arbitres.to_pandas().to_csv("data/Data_arbitres.csv", index=False)
-
-    logging.info("Scraping terminé")
-    driver.quit()
+            logger.info("Création du DataFrame des arbitres")
+            data = pl.DataFrame(_mise_en_commun(driver, url))
+            data_hist = _create_data_combats_arbitre(data)
+            data_arbitres = _create_data_arbitres(data_hist, data)
+            data_arbitres.to_pandas().to_csv("data/Data_arbitres.csv", index=False)
+            logging.info("Scraping terminé")
+            driver.quit()
+            success = True
+        except WebDriverException as e:
+            logger.error(f"Erreur lors du scraping des arbitres: {e}")
+            driver = _restart_with_new_vpn(driver, url=url, options=chrome_options)
+            logger.info("Relance du scraping avec un nouveau VPN")
