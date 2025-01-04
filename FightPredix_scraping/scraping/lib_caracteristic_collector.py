@@ -42,7 +42,7 @@ def _infos_principal_combattant(driver, dictio: defaultdict) -> bool:
             else:
                 dictio.update(
                     {
-                        "DIVISION": text,
+                        "DIVISION": text.split(" Division")[0].strip(),
                         "GENRE": "Female" if "Women's" in text else "Male",
                     }
                 )

@@ -10,6 +10,7 @@ from scraping.lib_ufc_stats import (
 from .fixtures import driver_ufc_stats as driver
 
 import os
+import numpy as np
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -55,13 +56,18 @@ def test_collecteur_finish(driver):
 
 
 def test_traitement_metriques(driver):
+
+    win_draw_loss = np.array([22,1,0])
     dict_res = {
         "KO/TKO": 6,
         "SUB": 6,
         "DEC": 10,
-        "WIN": 28,
+        "WIN": 22,
         "LOSSES": 1,
         "DRAWS": 0,
+        "WIN_HP": 6, 
+        "LOSSES_HP": 0, 
+        "DRAWS_HP": 0,
         "HEIGHT": 76,
         "WEIGHT": 248.0,
         "REACH": 84,
@@ -77,4 +83,4 @@ def test_traitement_metriques(driver):
         "Sub. Avg.": 0.5,
     }
     driver.implicitly_wait(50)
-    assert _traitement_metriques(driver) == dict_res
+    assert _traitement_metriques(driver, win_draw_loss) == dict_res

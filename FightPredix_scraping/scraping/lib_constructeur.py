@@ -45,12 +45,12 @@ def _difference_combats(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -
         stats_combattant_1, stats_combattant_2 = None, None
 
         for nom in caracteristiques["name"].values:
-            if fuzz.ratio(nom.lower(), combattant_1.lower()) > 90:
+            if fuzz.ratio(nom.lower(), combattant_1.lower()) >= 90:
                 stats_combattant_1 = caracteristiques[caracteristiques["name"] == nom].iloc[0]
                 break
 
         for nom in caracteristiques["name"].values:
-            if fuzz.ratio(nom.lower(), combattant_2.lower()) > 90:
+            if fuzz.ratio(nom.lower(), combattant_2.lower()) >= 90:
                 stats_combattant_2 = caracteristiques[caracteristiques["name"] == nom].iloc[0]
                 break
 
@@ -107,7 +107,7 @@ def _transformation_debut_octogone(data):
     return data
 
 
-def clean_column_nom(nom):
+def _clean_column_nom(nom):
     return re.sub(r"[^A-Za-z0-9À-ÖØ-öø-ÿ_]+", "_", nom).lower()
 
 
@@ -185,7 +185,7 @@ def _sub_fonction_age(Data, combattant, date_combat_annee, ajd):
     Sous fonction qui calcule l'age des combattants au moment du combat
     """
     for nom in Data["name"].values:
-        if fuzz.ratio(nom.lower(), combattant.lower()) > 90:
+        if fuzz.ratio(nom.lower(), combattant.lower()) >= 90:
             age = Data[Data["name"].str.lower() == nom.lower()]["âge"].values[0]
             dob = Data[Data["name"].str.lower() == nom.lower()]["dob"].values[0]
             if pd.notna(age):
@@ -230,31 +230,32 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
 
         for nom in Data["name"].values:
 
-            if fuzz.ratio(nom.lower(), combattant.lower()) > 90:
+            if fuzz.ratio(nom.lower(), combattant.lower()) >= 90:
+
+                if (prefixe == "combattant_1" and resultat == 0) or (
+                    prefixe == "combattant_2" and resultat == 1
+                ):
+                    temp_dict[f"{combattant}_win_t"] = (
+                        temp_dict.get(f"{combattant}_win_t", 0) + 1
+                    )
+                elif (prefixe == "combattant_1" and resultat == 1) or (
+                    prefixe == "combattant_2" and resultat == 0
+                ):
+                    temp_dict[f"{combattant}_losses_t"] = (
+                        temp_dict.get(f"{combattant}_losses_t", 0) + 1
+                    )
+
 
                 win, losses = Data[Data["name"].str.lower() == nom.lower()][
                     ["win", "losses"]
                 ].values[0]
 
                 Combats.loc[i, f"{prefixe}_win_t"] = win - temp_dict.get(
-                    f"{combattant}_win_t", 1
+                    f"{combattant}_win_t", 0
                 )
                 Combats.loc[i, f"{prefixe}_losses_t"] = losses - temp_dict.get(
-                    f"{combattant}_losses_t", 1
+                    f"{combattant}_losses_t", 0
                 )
-
-                if (prefixe == "combattant_1" and resultat == 0) or (
-                    prefixe == "combattant_2" and resultat == 1
-                ):
-                    temp_dict[f"{combattant}_win_t"] = (
-                        temp_dict.get(f"{combattant}_win_t", 1) + 1
-                    )
-                elif (prefixe == "combattant_1" and resultat == 1) or (
-                    prefixe == "combattant_2" and resultat == 0
-                ):
-                    temp_dict[f"{combattant}_losses_t"] = (
-                        temp_dict.get(f"{combattant}_losses_t", 1) + 1
-                    )
 
     for i, combat in Combats.iterrows():
         combattant_1 = combat["combattant_1"]
@@ -276,7 +277,7 @@ def _main_construct(
     caracteristiques = _transformation_debut_octogone(caracteristiques)
 
     caracteristiques.columns = [
-        clean_column_nom(col) for col in caracteristiques.columns
+        _clean_column_nom(col) for col in caracteristiques.columns
     ]
 
     combats = _difference_combats(caracteristiques, combats)
