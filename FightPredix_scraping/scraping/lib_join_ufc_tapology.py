@@ -11,7 +11,7 @@ import subprocess
 import logging
 
 
-if __name__ == "__main__":
+def _main_tapology():
     logging.info("Nettoyage des données de tapology")
     subprocess.run(
         ["python", "-m", "FightPredix_scraping.scraping.lib_scraping_tapology"],
@@ -25,5 +25,12 @@ if __name__ == "__main__":
     data_tapology = pl.read_csv("data/clean_tapology.csv")
 
     data_join = data_ufc.join(data_tapology, on="NAME", how="left").unique()
+
+    return data_join
+
+
+if __name__ == "__main__":
+
+    data_join = _main_tapology()
 
     data_join.to_pandas().to_csv("data/Data_jointes_ufc_tapology.csv", index=False)

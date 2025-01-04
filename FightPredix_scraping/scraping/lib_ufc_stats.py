@@ -107,7 +107,6 @@ def _recolte_victoires(driver: webdriver.Chrome) -> list | None:
     resultats = driver.find_element(By.CSS_SELECTOR, "span.b-content__title-record")
     pattern = re.compile(r"(\d+)-(\d+)-(\d+)")
     match = pattern.search(resultats.text)
-    match = pattern.search(resultats.text)
     if match:
         return [int(val) for val in pattern.search(resultats.text).groups()]  # type: ignore
     else:
@@ -286,11 +285,39 @@ def _integration_metriques(
                     else False
                 ):
                     data.loc[combattant_row, data_key] = value
+
     except Exception as e:
         logger.warning(f"Erreur lors de la recherche du combattant {cplt_name} : {e}")
         logger.error(traceback.format_exc())
 
     return data
+
+
+def _recherche_url(driver : webdriver, cplt_name : str, nickname : str = None) :
+    """
+    Fonction de recherche de l'URL du combattant sur le site UFC Stats
+    """
+
+    parts = cplt_name.split(" ")
+    prenom, nom = parts[0], parts[1] if len(parts) > 1 else ""
+
+    url = f"http://www.ufcstats.com/statistics/fighters/search?query={nom.lower()}"
+    driver.get(url)
+
+    for clé in [prenom, nickname]:
+        rows = driver.find_elements(
+            By.CSS_SELECTOR, "tbody > tr.b-statistics__table-row"
+        )
+        if len(rows) >= 2:
+            break
+        if clé is not None:
+            url = f"http://www.ufcstats.com/statistics/fighters/search?query={clé.lower()}"
+            driver.get(url)
+    else:
+        logger.warning(f"Le combattant {cplt_name} n'a pas été trouvé")
+        return None, None
+
+    return driver, rows
 
 
 def _cherche_combattant_UFC_stats(
@@ -308,23 +335,10 @@ def _cherche_combattant_UFC_stats(
     for cplt_name, nickname in zip(data["NAME"], data["NICKNAME"]):
         logger.info(f"combattant {cplt_name}")
         try:
-            parts = cplt_name.split(" ")
-            prenom, nom = parts[0], parts[1] if len(parts) > 1 else ""
 
-            url = f"http://www.ufcstats.com/statistics/fighters/search?query={nom.lower()}"
-            driver.get(url)
+            driver, rows = _recherche_url(driver, cplt_name, nickname)
 
-            for clé in [prenom, nickname]:
-                rows = driver.find_elements(
-                    By.CSS_SELECTOR, "tbody > tr.b-statistics__table-row"
-                )
-                if len(rows) >= 2:
-                    break
-                if clé is not None:
-                    url = f"http://www.ufcstats.com/statistics/fighters/search?query={clé.lower()}"
-                    driver.get(url)
-            else:
-                logger.warning(f"Le combattant {cplt_name} n'a pas été trouvé")
+            if rows is None:
                 continue
 
             temp_dict = _temp_dict_ufc_stats(cplt_name, rows)
@@ -348,7 +362,7 @@ def _cherche_combattant_UFC_stats(
 
 if __name__ == "__main__":
 
-    Data = pd.read_csv("data/Data_jointes.csv")
+    Data = pd.read_csv("FightPredixApp/Data/Data_jointes_cplt.csv")
 
     chrome_options = Options()
 
@@ -360,4 +374,4 @@ if __name__ == "__main__":
 
     Data.update(Data2)
 
-    Data.to_csv("data/Data_jointes.csv", index=False)
+    Data.to_csv("FightPredixApp/Data/Data_jointes.csv", index=False)

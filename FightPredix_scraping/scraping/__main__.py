@@ -7,6 +7,8 @@ from .lib_front_page import _page_principal_UFC
 from .lib_combats import _main_combat_recolte
 from .lib_ufc_stats import _cherche_combattant_UFC_stats
 from .lib_constructeur import _main_construct
+from .lib_join_ufc_tapology import _main_tapology
+from .lib_arbitre import _main_arbitre
 from .outils import configure_logger
 from datetime import datetime
 from selenium.webdriver.chrome.options import Options
@@ -64,41 +66,38 @@ def main():
 
     Data.to_csv("data/Data_ufc_fighters.csv", index=False)
 
-    # logger.info("Lancement du scraping sur tapology et création des données jointes")
-    # subprocess.run(
-    #     ["python", "-m", "FightPredix_scraping.scraping.lib_join_ufc_tapology"],
-    #     shell=True,
-    # )
+    logger.info("Lancement du scraping sur tapology et création des données jointes")
+    Data_join = _main_tapology()
+    Data_join.to_pandas().to_csv("data/Data_jointes_ufc_tapology.csv", index=False)
 
-    # Data = pd.read_csv("FightPredixAPP/Data/Data_jointes_ufc_tapology.csv")
+    Data = pd.read_csv("FightPredixAPP/Data/Data_jointes_ufc_tapology.csv")
 
-    # logger.info("Lancement du scraping sur les combats")
-    # combats = Dataframe_combats(main_driver)
+    logger.info("Lancement du scraping sur les combats")
+    combats = Dataframe_combats(main_driver)
 
     main_driver.quit()
 
-    # logger.info("Scraping des données sur les arbitres sur UFC_fans")
-    # subprocess.run(
-    #     ["python", "-m", "FightPredix_scraping.scraping.lib_arbitre"], shell=True
-    # )
+    logger.info("Scraping des données sur les arbitres sur UFC_fans")
+    data_arbitres = _main_arbitre()
+    data_arbitres.to_pandas().to_csv("data/Data_arbitres.csv", index=False)
 
-    # logger.info("Construction des données finales")
+    logger.info("Construction des données finales")
     combats = _constructeur(Data, combats)
 
-    # combats.to_csv("FightPredixAPP/Data/Data_final_combats.csv", index=False)
+    combats.to_csv("FightPredixAPP/Data/Data_final_combats.csv", index=False)
 
-    # logger.info("Suppression des fichiers temporaires")
-    # for file_path in [
-    #     "FightPredixAPP/Data/Data_ufc_fighters.csv",
-    #     "FightPredixAPP/Data/Data_jointes_ufc_tapology.csv",
-    #     "FightPredixAPP/Data/data_tapology.csv",
-    #     "FightPredixAPP/Data/clean_tapology.csv",
-    # ]:
-    #     if os.path.exists(file_path):
-    #         os.remove(file_path)
-    #         print(f"Le fichier {file_path} a été supprimé avec succès.")
-    #     else:
-    #         print(f"Le fichier {file_path} n'existe pas.")
+    logger.info("Suppression des fichiers temporaires")
+    for file_path in [
+        "FightPredixAPP/Data/Data_ufc_fighters.csv",
+        "FightPredixAPP/Data/Data_jointes_ufc_tapology.csv",
+        "FightPredixAPP/Data/data_tapology.csv",
+        "FightPredixAPP/Data/clean_tapology.csv",
+    ]:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            print(f"Le fichier {file_path} a été supprimé avec succès.")
+        else:
+            print(f"Le fichier {file_path} n'existe pas.")
 
 
 if __name__ == "__main__":

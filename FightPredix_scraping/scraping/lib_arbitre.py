@@ -188,23 +188,29 @@ def _create_data_arbitres(df_histo: pl.DataFrame, data: pl.DataFrame) -> pl.Data
 
     return df_histo
 
+def _main_arbitre():
 
-if __name__ == "__main__":
-    logger.info("Lancement du scraping des arbitres sur UFC_fans")
     chrome_options = Options()
     chrome_options.add_argument(
+        "--headless"
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
     )
     chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(options=chrome_options)
-    soup = _requete_arbitre(driver, "https://www.ufc-fr.com/arbitre.html")
     url = "https://www.ufc-fr.com/arbitre.html"
 
     logger.info("Création du DataFrame des arbitres")
     data = pl.DataFrame(_mise_en_commun(driver, url))
     data_hist = _create_data_combats_arbitre(data)
     data_arbitres = _create_data_arbitres(data_hist, data)
-    data_arbitres.to_pandas().to_csv("data/Data_arbitres.csv", index=False)
 
-    logging.info("Scraping terminé")
     driver.quit()
+
+    return data_arbitres
+
+
+
+if __name__ == "__main__":
+    logger.info("Lancement du scraping des arbitres sur UFC_fans")
+    data_arbitres = _main_arbitre()
+    data_arbitres.to_pandas().to_csv("data/Data_arbitres.csv", index=False)
