@@ -1,9 +1,6 @@
 import streamlit as st
 import pandas as pd
-import base64
-import pandas as pd
 import plotly.graph_objects as go
-import streamlit as st
 import os
 
 st.set_page_config(
@@ -52,7 +49,7 @@ st.markdown(
 
 left_co, cent_co,last_co = st.columns([1, 3, 1])
 with cent_co:
-    st.image(os.path.join("img", "logo.png"), width=350)
+    st.image("FightPredixApp/img/logo.png", width=350)
 
 file_path = os.path.join("data/Data_ufc_fighters.csv")
 
