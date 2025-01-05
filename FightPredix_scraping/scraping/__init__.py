@@ -6,6 +6,8 @@ from .lib_ufc_stats import _cherche_combattant_UFC_stats, _ratrappage_manquants
 
 from .lib_combats import _main_combat_recolte
 
+from .lib_arbitre import _main_arbitre
+
 from .lib_constructeur import _main_construct
 
 from .lib_join_ufc_tapology import _main_tapology
