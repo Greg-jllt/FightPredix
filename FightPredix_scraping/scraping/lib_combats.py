@@ -36,7 +36,7 @@ def _recolte_events(driver) -> list[str]:
         #     event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
         #     .text.split(",")[-1]
         #     .strip()
-        # ) < 2014
+        # ) > 2023
     ]
 
 

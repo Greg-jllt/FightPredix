@@ -75,8 +75,6 @@ def main():
 
     main_driver = webdriver.Chrome(options=chrome_options)
 
-    Data = pd.read_csv("Data/Data_ufc_fighters.csv")
-
     logger.info("Lancement du scraping sur UFC stats")
     Data = Dataframe_caracteristiques_ufc_stats(Data, main_driver)
 
