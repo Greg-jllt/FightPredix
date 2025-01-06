@@ -113,7 +113,7 @@ def _clean_column_nom(nom):
 
 
 def _process_valeur(valeur):
-    if pd.isna(valeur) or valeur in ["nan", "None"]:  # Gérer les NaN et None explicites
+    if pd.isna(valeur) or valeur in ["nan", "None"]: 
         return np.nan
 
     valeur = str(valeur)
@@ -123,7 +123,7 @@ def _process_valeur(valeur):
 
     match_percentage = re.match(r"^(\d+)%$", valeur)
     if match_percentage:
-        return int(match_percentage.group(1)) / 100
+        return float(int(match_percentage.group(1)) / 100)
 
     if "BOUT" in valeur:
         return valeur.split()[0]
@@ -131,12 +131,15 @@ def _process_valeur(valeur):
     match_time = re.match(r"^(\d+):(\d+)$", valeur)
     if match_time:
         minutes, seconds = map(int, match_time.groups())
-        return minutes * 60 + seconds
+        return float(minutes * 60 + seconds)
 
     if "---" in valeur or "--" in valeur:
         return None
 
-    return valeur
+    try:
+        return float(valeur)
+    except ValueError:
+        return valeur
 
 
 def _process_ratio(valeur):
@@ -171,6 +174,10 @@ def _cleaning(data):
                 )
 
             Data.loc[:, col] = Data[col].apply(_process_valeur)
+            try : 
+                Data[col] = pd.to_numeric(Data[col], errors='raise')
+            except ValueError:
+                pass
 
     if new_columns:
         Data = pd.concat([Data, pd.DataFrame(new_columns, index=Data.index)], axis=1)
@@ -275,11 +282,11 @@ def _main_construct(
 
     combats = _cleaning(combats)
 
-    combats = _difference_combats(caracteristiques, combats)
-
     combats = _age_temps_t(caracteristiques, combats)
 
     combats = _win_losses_temps_t(caracteristiques, combats)
+    
+    combats = _difference_combats(caracteristiques, combats)
 
     return combats, caracteristiques
 
