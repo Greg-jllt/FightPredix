@@ -12,11 +12,13 @@ from rapidfuzz import fuzz
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
+from rich.console import Console
 
 from .outils import configure_logger
 
 import re
 import os
+import json
 import pandas as pd
 import traceback
 
@@ -24,26 +26,44 @@ date = datetime.now().strftime("%Y-%m-%d")
 logger = configure_logger(f"{date}_crawler_UFC_stats")
 
 
-def _temp_dict_ufc_stats(cplt_name: str, rows) -> dict:
+def _temp_dict_ufc_stats(cplt_name: str, nickname: str, rows) -> dict:
     """
-    Fonction qui recolte les noms des combattants et leur ratio de similarité avec le nom complet car les noms des combattants sont souvent tronqués entre les sites
+    Fonction qui récolte les noms des combattants et leur ratio de similarité avec le nom complet,
 
-    Args:
-        cplt_name (str): nom complet du combattant
-        rows (list): liste des lignes de la page de recherche
     """
     return {
-        fuzz.ratio(cplt_name.lower(), f"{first_name.lower()} {last_name.lower()}"): (
-            first_name,
-            last_name,
+        fuzz.ratio(
+            f"{cplt_name.lower()} {nickname.lower()}",
+            f"{prenom.lower()} {nom.lower()} {surnom.lower()}"
+        ) if _surnom_egaux(nickname, surnom) else fuzz.ratio(
+            f"{prenom.lower()} {nom.lower()}",
+            f"{cplt_name.lower()}") 
+        : (
+            prenom,
+            nom,
+            surnom if isinstance(surnom, str) and surnom else ""
         )
         for row in rows
         for tds in [
             row.find_elements(By.CSS_SELECTOR, "a.b-link.b-link_style_black[href]")
         ]
         if len(tds) >= 2
-        for first_name, last_name in [(tds[0].text.strip(), tds[1].text.strip())]
+        for prenom, nom, surnom in [(
+            tds[0].text.strip(), 
+            tds[1].text.strip(), 
+            tds[2].text.strip() if tds[2].text.strip() else None 
+        )]
     }
+
+def _surnom_egaux(nickname, surnom):
+    """
+    Vérifie si le surnom trouvé correspond au surnom donné, en tenant compte de la possibilité
+    que le surnom soit modifié ou manquant pour un même combattant.
+    """
+    if nickname and isinstance(nickname, str) and surnom and isinstance(surnom, str):
+        return nickname.lower() == surnom.lower()
+    return False 
+
 
 
 def _accès_cbt_page(temp_dict: dict, driver: webdriver.Chrome) -> None:
@@ -284,13 +304,11 @@ def _integration_metriques(
                 ):
                     data.loc[combattant_row, data_key] = value
         else:
-            new_row = pd.Series(
-                {mapping.get(key, key): value for key, value in dictio.items()}
-            )
+            new_row = pd.DataFrame([{mapping.get(key, key): value for key, value in dictio.items()}])
 
-            new_row["NAME"] = cplt_name
+            new_row["NAME"] = cplt_name.upper()
 
-            data = data.append(new_row, ignore_index=True)
+            data = pd.concat([data, new_row], ignore_index=True)
 
     except Exception as e:
         logger.warning(f"Erreur lors de la recherche du combattant {cplt_name} : {e}")
@@ -310,7 +328,7 @@ def _compte_victoires_defaites_cbt(driver: webdriver.Chrome) -> Counter:
 
 
 def _recherche_url(
-    driver: webdriver, cplt_name: str
+    driver: webdriver, cplt_name: str, nickname: str
 ) -> tuple[webdriver.Chrome | None, list | None]:
     """
     Fonction de recherche de l'URL du combattant sur le site UFC Stats
@@ -319,26 +337,26 @@ def _recherche_url(
     parts = cplt_name.split(" ")
     prenom, nom = parts[0], parts[1] if len(parts) > 1 else ""
 
-    url = f"http://www.ufcstats.com/statistics/fighters/search?query={nom.lower()}"
-    driver.get(url)
-
-    for clé in [prenom]:
-        rows = driver.find_elements(
-            By.CSS_SELECTOR, "tbody > tr.b-statistics__table-row"
-        )
-        if len(rows) >= 2:
-            break
+    for clé in [nom, prenom]:
         if clé is not None:
             url = f"http://www.ufcstats.com/statistics/fighters/search?query={clé.lower()}"
             driver.get(url)
+            rows = driver.find_elements(
+                By.CSS_SELECTOR, "tbody > tr.b-statistics__table-row"
+            )
+            if len(rows) >= 2:
+                temp_dict = _temp_dict_ufc_stats(cplt_name, nickname, rows)
+                if any(value >= 85 for value in temp_dict.keys()) or len(temp_dict) == 1:
+                    break
+
     else:
         logger.warning(f"Le combattant {cplt_name} n'a pas été trouvé")
         return None, None
 
-    return rows
+    return temp_dict
 
 
-def _traiter_combattants(data, driver, noms_combattants):
+def _traiter_combattants(data, driver, noms_combattants, nicknames):
     """
     Fonction générique pour traiter une liste de combattants.
 
@@ -350,15 +368,17 @@ def _traiter_combattants(data, driver, noms_combattants):
     Returns:
         pd.DataFrame: DataFrame mis à jour avec les statistiques des combattants.
     """
-    for cplt_name in noms_combattants:
+    manqué = [] 
+    for cplt_name, nickname in zip(noms_combattants, nicknames):
+        logger.info(f"Recherche du combattant {cplt_name}, {nickname}")
         try:
-            rows = _recherche_url(driver, cplt_name)
+            temp_dict = _recherche_url(driver, cplt_name, nickname)
 
-            if rows is None:
+            if temp_dict is None:
+                manqué.append({"nom_complet": cplt_name, "surnom": nickname})
                 continue
 
-            temp_dict = _temp_dict_ufc_stats(cplt_name, rows)
-
+            logger.info(temp_dict)
             _accès_cbt_page(temp_dict, driver)
 
             win_draw_loss = list(_compte_victoires_defaites_cbt(driver).values())
@@ -371,6 +391,10 @@ def _traiter_combattants(data, driver, noms_combattants):
             logger.error(traceback.format_exc())
             continue
 
+    if manqué:
+        with open("Data/combattants_erreurs.json", "w") as f:
+            json.dump(manqué, f, ensure_ascii=False, indent=4)
+    
     return data
 
 
@@ -382,7 +406,8 @@ def _cherche_combattant_UFC_stats(
     """
     logger.info("Recherche des combattants sur le site UFC Stats")
     noms_combattants = data["NAME"]
-    return _traiter_combattants(data, driver, noms_combattants)
+    nicknames = data["NICKNAME"]
+    return _traiter_combattants(data, driver, noms_combattants, nicknames)
 
 
 def _ratrappage_manquants(
@@ -398,11 +423,14 @@ def _ratrappage_manquants(
     noms_unique = pd.unique(pd.concat([pd.Series(unique_col1), pd.Series(unique_col2)]))
 
     data_name = data["NAME"].values
+    nicknames = data["NICKNAME"]
     noms_manquants = [
         nom for nom in noms_unique if nom.lower() not in map(str.lower, data_name)
     ]
 
-    return _traiter_combattants(data, driver, noms_manquants)
+    logger.info(f"Combattants manquants : {noms_manquants}")
+
+    return _traiter_combattants(data, driver, noms_manquants, nicknames)
 
 
 if __name__ == "__main__":
@@ -413,12 +441,14 @@ if __name__ == "__main__":
 
     driver = webdriver.Chrome(options=chrome_options)
 
-    Data = pd.read_csv("Data/Data_jointes_cplt.csv")
+    Data = pd.read_csv("Data/Data_ufc_fighters.csv")
 
     Data2 = _cherche_combattant_UFC_stats(data=Data, driver=driver)
 
-    fichier = "Data/Data_ufc_combat_complet_actuel.csv"
-    if os.path.exists(fichier):
-        Data_manquant = pd.read_csv(fichier)
+    Data2.to_csv("Data/Data_ufc_fighters_V2.csv", index=False)
 
-        Data3 = _ratrappage_manquants(combats=Data_manquant, data=Data, driver=driver)
+    # fichier = "Data/Data_ufc_combat_complet_actuel.csv"
+    # if os.path.exists(fichier):
+    #     Data_manquant = pd.read_csv(fichier)
+
+    #     Data3 = _ratrappage_manquants(combats=Data_manquant, data=Data, driver=driver)

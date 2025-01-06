@@ -75,6 +75,8 @@ def main():
 
     main_driver = webdriver.Chrome(options=chrome_options)
 
+    Data = pd.read_csv("Data/Data_ufc_fighters.csv")
+
     logger.info("Lancement du scraping sur UFC stats")
     Data = Dataframe_caracteristiques_ufc_stats(Data, main_driver)
 
@@ -89,20 +91,34 @@ def main():
     logger.info("Lancement du scraping sur les combats")
     combats = Dataframe_combats(main_driver)
 
+    combats.to_csv("Data/Data_ufc_combats_simple.csv", index=False)
+
+    main_driver.quit()
+
+    combats = pd.read_csv("Data/Data_ufc_combats_simple.csv")
+
+    main_driver = webdriver.Chrome(options=chrome_options)
+
     logger.info("Scraping des données sur les arbitres sur UFC_fans")
     data_arbitres = _main_arbitre().to_pandas()
 
     logger.info("Construction des données finales")
-    combats, Data = _constructeur(combats, Data)
+    combats, Data = _constructeur(combats, Data, main_driver)
+
+    combats.to_csv("Data/Data_ufc_combat_complet_actuel_clean.csv", index=False)
 
     main_driver.quit()
+
     combats = _join_arbitre(combats, data_arbitres).to_pandas()
+
     with open(
-        "FightPredix_scraping/scraping/dico_formattage/dico_var.json", "r"
+        "FightPredix_scraping/scraping/dico_formatage/dico_var.json", "r"
     ) as file:
         dico_var = json.load(file)
 
     combats, _ = _assignement_stat_combattant(combats, dico_var)
+
+    combats.to_csv("Data/Data_combats_stats.csv", index=False)
 
     Data.to_csv("Data/Data_final_fighters.csv", index=False)
     combats.to_csv("Data/Data_final_combats.csv", index=False)
@@ -112,6 +128,8 @@ def main():
         "Data/Data_ufc_fighters.csv",
         "Data/Data_jointes_ufc_tapology",
         "Data/data_tapology.csv",
+        "Data/Data_ufc_combat_complet_actuel_clean.csv",
+        "Data/Data_ufc_combats_simple.csv",
         "Data/clean_tapology.csv",
     ]:
         if os.path.exists(file_path):

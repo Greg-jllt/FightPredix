@@ -7,6 +7,7 @@ Développée par :
 
 from rapidfuzz import fuzz
 from datetime import datetime
+
 import numpy as np
 import re
 import pandas as pd
@@ -22,7 +23,7 @@ def _difference_combats(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -
     lignes_a_ajouter = []
     colonnes_a_concat = {}
 
-    num_colonnes_combats = combats.select_dtypes(include=[np.number]).columns
+    num_colonnes_combats = combats.select_dtypes(include=["number"]).columns
     cat_colonnes_caracteristiques = caracteristiques.select_dtypes(include=["object"]).columns.tolist()
     cat_colonnes_caracteristiques.remove("name") 
 
@@ -69,8 +70,9 @@ def _difference_combats(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -
 
     resultat = pd.concat([combats.reset_index(drop=True), df_numerique, df_categoriel], axis=1)
 
-    if cols_to_drop:
-        resultat.drop(cols_to_drop, axis=1, inplace=True)
+    # if cols_to_drop:
+    #     Console().print(f"Colonnes à supprimer : {len(cols_to_drop)}")
+    #     resultat.drop(cols_to_drop, axis=1, inplace=True)
 
     return resultat
 
@@ -81,6 +83,7 @@ def _age_by_DOB(Data):
     """
 
     data = Data[Data["ÂGE"].isna() & Data["DOB"].notna()]
+
     for _, cbt in data.iterrows():
         cbt_name = cbt["NAME"].upper()
         dob = data[data["NAME"] == cbt_name]["DOB"].values[0]
@@ -259,7 +262,6 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
 
     return Combats
 
-
 def _main_construct(
     combats: pd.DataFrame, caracteristiques: pd.DataFrame
 ) -> pd.DataFrame:
@@ -271,7 +273,13 @@ def _main_construct(
         _clean_column_nom(col) for col in caracteristiques.columns
     ]
 
+    combats = _cleaning(combats)
+
     combats = _difference_combats(caracteristiques, combats)
+
+    combats = _age_temps_t(caracteristiques, combats)
+
+    combats = _win_losses_temps_t(caracteristiques, combats)
 
     return combats, caracteristiques
 
