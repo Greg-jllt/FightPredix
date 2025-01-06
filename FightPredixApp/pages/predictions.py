@@ -1,79 +1,19 @@
+import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-import streamlit as st
 import os
 
-st.set_page_config(
-    page_title="FightPredix",
-    page_icon="🥊",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
-# def image_to_base64(image_path):
-#     with open(image_path, "rb") as image_file:
-#         encoded_string = base64.b64encode(image_file.read()).decode()
-#     return encoded_string
+def page_predictions():
 
-# image_path = os.path.join("img", "stade_mma.jpg")
+    left_co, cent_co,last_co = st.columns([1, 3, 1])
 
-# image_base64 = image_to_base64(image_path)
+    file_path = "pages/Data_ufc_fighters.csv"
 
-# st.markdown(
-#     f"""
-#     <style>
-#         .stApp {{
-#             background-image: url('data:image/jpeg;base64,{image_base64}');
-#             background-size: 95% auto;
-#             background-position: center center;
-#             background-repeat: no-repeat;
-#             height: 100vh;
-#         }}
-#     </style>
-#     """,
-#     unsafe_allow_html=True
-# )
+    if os.path.exists(file_path):
 
-st.markdown(
-"""
-<style>
-    .vs-text {
-        font-size: 50px;
-        font-weight: bold;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-if "fighters" not in st.session_state:
-    st.session_state["fighters"] = False
-
-if "fighter_1" not in st.session_state:
-    st.session_state["fighter_1"] = "None"
-
-if "fighter_2" not in st.session_state:
-    st.session_state["fighter_2"] = "None"
-
-
-_, cent_co,_ = st.columns([1.5,1, 1])
-
-with cent_co:
-    st.image(os.path.join("img", "logo.png"), width=350)
-
-file_path = os.path.join("data/Data_ufc_fighters.csv")
-
-a1,a2 = st.columns([0.5, 1])
-
-if os.path.exists(file_path):
-
-    df = pd.read_csv(file_path)
-
-    df = df[df["Actif"] is True]
-
-    with a1:
+        df = pd.read_csv(file_path)
+        df = df[df["Actif"] == True]
 
         division = st.selectbox("Catégorie", list(df["DIVISION"].unique()))
 
@@ -85,8 +25,7 @@ if os.path.exists(file_path):
         options.insert(0, "None")
 
         with col1:
-            st.session_state["fighter_1"] = st.selectbox("Combattant 1", options)
-            fighter_1 = st.session_state["fighter_1"]
+            fighter_1 = st.selectbox("Combattant 1", options)
             if fighter_1 != "None":
                 url = df.loc[df['NAME'] == fighter_1, 'img_cbt'].iloc[0]
                 if url == "NO":
@@ -94,11 +33,10 @@ if os.path.exists(file_path):
                 col1.image(url, width=300)
 
         with col2:
-            col2.markdown('<div class="vs-text">VS</div>', unsafe_allow_html=True)
+            col2.markdown('<div class="vs-text">VS</div>',unsafe_allow_html=True)
 
         with col3:
-            st.session_state["fighter_2"] = col3.selectbox("Combattant 2", options)
-            fighter_2 = st.session_state["fighter_2"]
+            fighter_2 = col3.selectbox("Combattant 2", options)
             if fighter_2 != "None":
                 url = df.loc[df['NAME'] == fighter_2, 'img_cbt'].iloc[0]
                 if url == "NO":
@@ -106,9 +44,15 @@ if os.path.exists(file_path):
                 col3.image(url, width=300)
 
         if fighter_1 == "None" or fighter_2 == "None" or fighter_1 == fighter_2:
-            st.write("## Choisissez deux combattants différents.")
+            st.write("## Please select two different fighters.")
+        else:
+            _, c1, _ = st.columns([1.5, 0.5, 1.5], vertical_alignment="center")
+            c1.button("Predict")
 
-        with a2:
+            data = df.loc[(df["NAME"] == fighter_1) | (df["NAME"] == fighter_2), ["NAME", "POIDS", "ÂGE","WIN","LOSSES", "DRAWS", "KO/TKO", "SUB", "DEC"]] #"LA TAILLE"
+            data.set_index("NAME", inplace=True)
+            data = data.round(1)
+            st.table(data.style.format("{:.0f}"))
 
             df_filtre = df[["NAME",'PRÉCISION SAISISSANTE','PRÉCISION DE TAKEDOWN','SIG. STR.DÉFENSE','DÉFENSE DE DÉMOLITION']]
 
@@ -121,20 +65,18 @@ if os.path.exists(file_path):
 
             categories =['strike acccuracy', 'takedown accuracy', 'strike defense', ' takedown defense']
 
-            fig_1 = go.Figure()
+            fig = go.Figure()
+
             for name in [fighter_1, fighter_2]:
-                if name != "None":
-                    person_data = df_filtre[df_filtre['NAME'] == name].iloc[0, 1:].tolist()
-                else :
-                    person_data = [0, 0, 0, 0]
-                fig_1.add_trace(go.Scatterpolar(
+                person_data = df_filtre[df_filtre['NAME'] == name].iloc[0, 1:].tolist()
+                fig.add_trace(go.Scatterpolar(
                     r=person_data,
                     theta=categories + [categories[0]],
                     fill='toself',
                     name=name
                 ))
 
-            fig_1.update_layout(
+            fig.update_layout(
                 polar=dict(
                     radialaxis=dict(
                         visible=True,
@@ -198,18 +140,19 @@ if os.path.exists(file_path):
                 ]
             )
 
-            fig_2 = go.Figure()
+            st.plotly_chart(fig, use_container_width=True)
+
+            fig = go.Figure()
 
             for name in [fighter_1, fighter_2]:
-                if name != "None":
-                    person_data = df[(df['NAME'] == name) ][["sig_str_head", "sig_str_body", "sig_str_leg"]].iloc[0].tolist()
-                    fig_2.add_trace(go.Bar(
-                        x=["frappe tête", "frappe corp", "frappe jambes"],
-                        y=person_data,
-                        name=name
-                    ))
+                person_data = df[(df['NAME'] == name) ][["sig_str_head", "sig_str_body", "sig_str_leg"]].iloc[0].tolist()
+                fig.add_trace(go.Bar(
+                    x=["frappe tête", "frappe corp", "frappe jambes"],
+                    y=person_data,
+                    name=name
+                ))
 
-            fig_2.update_layout(
+            fig.update_layout(
                 barmode='group',
                 height=500,
                 width=700,
@@ -227,15 +170,4 @@ if os.path.exists(file_path):
                 ]
             )
 
-            e1, e2 = st.columns([1, 1])
-
-            with e1:
-                st.plotly_chart(fig_1, use_container_width=True)
-
-            with e2:
-                st.plotly_chart(fig_2, use_container_width=True)
-
-            data = df.loc[(df["NAME"] == fighter_1) | (df["NAME"] == fighter_2), ["NAME", "POIDS", "ÂGE","WIN","LOSSES", "DRAWS", "KO/TKO", "SUB", "DEC"]] #"LA TAILLE"
-            data.set_index("NAME", inplace=True)
-            data = data.round(1)
-            st.table(data.style.format("{:.0f}"))
+            st.plotly_chart(fig, use_container_width=True)

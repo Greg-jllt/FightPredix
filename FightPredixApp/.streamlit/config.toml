@@ -2,7 +2,7 @@
 base = "dark"
 primaryColor = "#E694FF"
 backgroundColor = "#00172B"
-secondaryBackgroundColor = "Blue"
+secondaryBackgroundColor = "#00172B"
 textColor = "#FFFFFF"
 
 [server]

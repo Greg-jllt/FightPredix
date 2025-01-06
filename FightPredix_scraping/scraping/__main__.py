@@ -81,6 +81,7 @@ def main():
     Data.to_csv("Data/Data_ufc_fighters.csv", index=False)
 
     logger.info("Lancement du scraping sur tapology et création des données jointes")
+
     Data = _main_tapology()
     Data.to_pandas().to_csv("Data/Data_ufc_complet.csv", index=False)
 

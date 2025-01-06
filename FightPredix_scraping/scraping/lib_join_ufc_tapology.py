@@ -13,10 +13,15 @@ import logging
 
 def _main_tapology():
     logging.info("Nettoyage des données de tapology")
-    subprocess.run(
-        ["python", "-m", "FightPredix_scraping.scraping.lib_scraping_tapology"],
-        shell=True,
-    )
+
+    scrapper_tapology = False
+    if scrapper_tapology:
+        subprocess.run(
+            ["python", "-m", "FightPredix_scraping.scraping.lib_scraping_tapology"],
+            shell=True,
+        )
+    else:
+        pass
     subprocess.run(
         ["python", "-m", "FightPredix_scraping.scraping.lib_clean_tapology"], shell=True
     )
