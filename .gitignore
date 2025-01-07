@@ -7,5 +7,6 @@
 *.log
 
 creation de modele/
-
+*.csv
+*.pkl
 Data/
