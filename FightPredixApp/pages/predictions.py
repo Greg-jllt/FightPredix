@@ -8,7 +8,7 @@ def page_predictions():
 
     left_co, cent_co,last_co = st.columns([1, 3, 1])
 
-    file_path = "pages/Data_ufc_fighters.csv"
+    file_path = "pages/Data_ufc_fighters"
 
     if os.path.exists(file_path):
 
