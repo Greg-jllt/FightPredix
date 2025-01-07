@@ -77,16 +77,16 @@ def _calcul_stat_cumul(
             stat_t_1[:-1],
         ):
             data.loc[
-                index, f"moyenne_combattant_{num_combattant}{stat_sans_combattant}"
+                index, f"combattant_{num_combattant}{stat_sans_combattant}_moyenne"
             ] = moyenne
             data.loc[
-                index, f"t_1_combattant_{num_combattant}{stat_sans_combattant}"
+                index, f"combattant_{num_combattant}{stat_sans_combattant}_t_1"
             ] = stat_t
 
-        dico_last_combat[f"moyenne_combattant_{stat_sans_combattant}"] = (
+        dico_last_combat[f"{stat_sans_combattant}_moyenne"] = (
             moyennes_cumulatives[-1]
         )
-        dico_last_combat[f"t_1_combattant_{stat_sans_combattant}"] = stat_t_1[-1]
+        dico_last_combat[f"{stat_sans_combattant}_t_1"] = stat_t_1[-1]
 
     return data, dico_last_combat
 
@@ -102,11 +102,11 @@ def _assignement_stat_combattant(
     new_columns: dict[str, float] = dict()
     dico_last_combat = dict()
     for stat in dico_var.keys():
-        stat_sans_combattant = stat.split("combattant")[1]
-        new_columns[f"moyenne_combattant_1{stat_sans_combattant}"] = nan
-        new_columns[f"moyenne_combattant_2{stat_sans_combattant}"] = nan
-        new_columns[f"t_1_combattant_1{stat_sans_combattant}"] = nan
-        new_columns[f"t_1_combattant_2{stat_sans_combattant}"] = nan
+        stat_sans_combattant = stat.split("combattant_")[1]
+        new_columns[f"combattant_1{stat_sans_combattant}_moyenne"] = nan
+        new_columns[f"combattant_2{stat_sans_combattant}_moyenne"] = nan
+        new_columns[f"combattant_1{stat_sans_combattant}_t_1"] = nan
+        new_columns[f"combattant_2{stat_sans_combattant}_t_1"] = nan
 
     new_columns_df = pd.DataFrame(new_columns, index=data.index)
     data = pd.concat([data, new_columns_df], axis=1)

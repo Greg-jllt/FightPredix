@@ -7,15 +7,18 @@ Développée par :
 
 from rapidfuzz import fuzz
 from datetime import datetime
-
+from .lib_stats import _assignement_stat_combattant
+import json
 import numpy as np
 import re
 import pandas as pd
 
 
-def _difference_combats(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
+def _difference_combats(
+    caracteristiques: pd.DataFrame, combats: pd.DataFrame
+) -> pd.DataFrame:
     """
-    Fonction de calcul de la différence entre les caractéristiques des combattants 
+    Fonction de calcul de la différence entre les caractéristiques des combattants
     au sein de chaque combat.
     """
 
@@ -24,17 +27,20 @@ def _difference_combats(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -
     colonnes_a_concat = {}
 
     num_colonnes_combats = combats.select_dtypes(include=["number"]).columns
-    cat_colonnes_caracteristiques = caracteristiques.select_dtypes(include=["object"]).columns.tolist()
-    cat_colonnes_caracteristiques.remove("name") 
+    cat_colonnes_caracteristiques = caracteristiques.select_dtypes(
+        include=["object"]
+    ).columns.tolist()
+    cat_colonnes_caracteristiques.remove("name")
 
     pattern = re.compile(r"combattant_(\d+)_(.+)")
 
     for col in num_colonnes_combats:
         match = pattern.match(col)
         if match:
-            stat_type = match.group(2) 
+            stat_type = match.group(2)
             colonnes_a_concat[f"diff_{stat_type}"] = (
-                combats[f"combattant_1_{stat_type}"] - combats[f"combattant_2_{stat_type}"]
+                combats[f"combattant_1_{stat_type}"]
+                - combats[f"combattant_2_{stat_type}"]
             )
             cols_to_drop.append(f"combattant_1_{stat_type}")
             cols_to_drop.append(f"combattant_2_{stat_type}")
@@ -47,12 +53,16 @@ def _difference_combats(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -
 
         for nom in caracteristiques["name"].values:
             if fuzz.ratio(nom.lower(), combattant_1.lower()) >= 90:
-                stats_combattant_1 = caracteristiques[caracteristiques["name"] == nom].iloc[0]
+                stats_combattant_1 = caracteristiques[
+                    caracteristiques["name"] == nom
+                ].iloc[0]
                 break
 
         for nom in caracteristiques["name"].values:
             if fuzz.ratio(nom.lower(), combattant_2.lower()) >= 90:
-                stats_combattant_2 = caracteristiques[caracteristiques["name"] == nom].iloc[0]
+                stats_combattant_2 = caracteristiques[
+                    caracteristiques["name"] == nom
+                ].iloc[0]
                 break
 
         if stats_combattant_1 is not None and stats_combattant_2 is not None:
@@ -64,11 +74,17 @@ def _difference_combats(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -
 
             lignes_a_ajouter.append(nouvelle_ligne)
 
-    df_categoriel = pd.DataFrame(lignes_a_ajouter).set_index("index") if lignes_a_ajouter else pd.DataFrame()
+    df_categoriel = (
+        pd.DataFrame(lignes_a_ajouter).set_index("index")
+        if lignes_a_ajouter
+        else pd.DataFrame()
+    )
 
     df_numerique = pd.DataFrame(colonnes_a_concat, index=combats.index)
 
-    resultat = pd.concat([combats.reset_index(drop=True), df_numerique, df_categoriel], axis=1)
+    resultat = pd.concat(
+        [combats.reset_index(drop=True), df_numerique, df_categoriel], axis=1
+    )
 
     # if cols_to_drop:
     #     Console().print(f"Colonnes à supprimer : {len(cols_to_drop)}")
@@ -113,7 +129,7 @@ def _clean_column_nom(nom):
 
 
 def _process_valeur(valeur):
-    if pd.isna(valeur) or valeur in ["nan", "None"]: 
+    if pd.isna(valeur) or valeur in ["nan", "None"]:
         return np.nan
 
     valeur = str(valeur)
@@ -174,8 +190,8 @@ def _cleaning(data):
                 )
 
             Data.loc[:, col] = Data[col].apply(_process_valeur)
-            try : 
-                Data[col] = pd.to_numeric(Data[col], errors='raise')
+            try:
+                Data[col] = pd.to_numeric(Data[col], errors="raise")
             except ValueError:
                 pass
 
@@ -238,7 +254,6 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
                     ["win", "losses"]
                 ].values[0]
 
-
                 if (prefixe == "combattant_1" and resultat == 0) or (
                     prefixe == "combattant_2" and resultat == 1
                 ):
@@ -251,7 +266,7 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
                     temp_dict[f"{combattant}_losses_t"] = (
                         temp_dict.get(f"{combattant}_losses_t", 0) + 1
                     )
-                    
+
                 Combats.loc[i, f"{prefixe}_win_t"] = win - temp_dict.get(
                     f"{combattant}_win_t", 0
                 )
@@ -269,6 +284,7 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
 
     return Combats
 
+
 def _main_construct(
     combats: pd.DataFrame, caracteristiques: pd.DataFrame
 ) -> pd.DataFrame:
@@ -285,14 +301,22 @@ def _main_construct(
     combats = _age_temps_t(caracteristiques, combats)
 
     combats = _win_losses_temps_t(caracteristiques, combats)
-    
+
+    with open(
+        "FightPredix_scraping/scraping/dico_formatage/dico_var.json", "r"
+    ) as file:
+        dico_var = json.load(file)
+
+    combats, dico_last_stats = _assignement_stat_combattant(combats, dico_var)
     combats = _difference_combats(caracteristiques, combats)
+
+    pd.DataFrame(dico_last_stats).to_csv("Data/last_stats.csv")
 
     return combats, caracteristiques
 
 
 if __name__ == "__main__":
-    caracteristiques = pd.read_csv("data/Data_ufc_fighters.csv")
+    caracteristiques = pd.read_csv("Data/Data_ufc_fighters.csv")
     combats = pd.read_csv("data/Data_ufc_stats_combats.csv")
 
     caracteristiques = _main_construct(

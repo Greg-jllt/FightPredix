@@ -32,11 +32,11 @@ def _recolte_events(driver) -> list[str]:
         for event in driver.find_elements(
             By.CSS_SELECTOR, ".b-statistics__table-content"
         )[1:]
-        # if int(
-        #     event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
-        #     .text.split(",")[-1]
-        #     .strip()
-        # ) > 2023
+        if int(
+            event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
+            .text.split(",")[-1]
+            .strip()
+        ) > 2023
     ]
 
 

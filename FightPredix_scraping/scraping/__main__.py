@@ -16,8 +16,6 @@ from selenium import webdriver
 import polars as pl
 import pandas as pd
 import os
-from .lib_stats import _assignement_stat_combattant
-import json
 
 
 date = datetime.now().strftime("%Y-%m-%d")
@@ -65,7 +63,6 @@ def _join_arbitre(combats: pd.DataFrame, data_arbitres: pd.DataFrame) -> pl.Data
 
 def main():
     chrome_options = Options()
-
     chrome_options.add_argument("--headless")
 
     main_driver = webdriver.Chrome(options=chrome_options)
@@ -99,6 +96,7 @@ def main():
 
     logger.info("Scraping des données sur les arbitres sur UFC_fans")
     data_arbitres = _main_arbitre().to_pandas()
+    combats = _join_arbitre(combats, data_arbitres).to_pandas()
 
     logger.info("Construction des données finales")
     combats, Data = _constructeur(combats, Data, main_driver)
@@ -106,17 +104,6 @@ def main():
     combats.to_csv("Data/Data_ufc_combat_complet_actuel_clean.csv", index=False)
 
     main_driver.quit()
-
-    combats = _join_arbitre(combats, data_arbitres).to_pandas()
-
-    with open(
-        "FightPredix_scraping/scraping/dico_formatage/dico_var.json", "r"
-    ) as file:
-        dico_var = json.load(file)
-
-    combats, _ = _assignement_stat_combattant(combats, dico_var)
-
-    combats.to_csv("Data/Data_combats_stats.csv", index=False)
 
     Data.to_csv("Data/Data_final_fighters.csv", index=False)
     combats.to_csv("Data/Data_final_combats.csv", index=False)
