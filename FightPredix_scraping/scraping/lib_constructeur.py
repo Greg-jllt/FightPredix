@@ -310,8 +310,6 @@ def _main_construct(
     combats, dico_last_stats = _assignement_stat_combattant(combats, dico_var)
     combats = _difference_combats(caracteristiques, combats)
 
-    pd.DataFrame(dico_last_stats).to_csv("Data/last_stats.csv")
-
     return combats, caracteristiques
 
 
