@@ -36,28 +36,29 @@ cd ./FightPredix/FightPredixApp
 > Il vous faudra tout d'abord installer le package `uv` avec la commande `python -m pip install uv`.
 
 ```bash
-uv venv
+python -m uv venv
 ```
 
-4. Activer l'environnement virtuel avec la commande :
+4. Installer les dépendances avec la commande :
+
+```bash
+python -m uv sync
+```
+
+5. Activer l'environnement virtuel avec la commande :
 
 ```bash
 .venv\Scripts\activate
 ```
 
-5. Installer les dépendances avec la commande :
-
-```bash
-uv sync
-```
-
 6. Lorsque vous voyez `(FightPredixApp)` dans votre terminal, cela indique que vous êtes dans l'environnement virtuel.
 Cela signifie que toutes les commandes Python que vous exécutez fonctionneront dans cet environnement et auront accès aux dépendances installées.
+
 
 7. Lancez l'application avec :
 
 ```bash
-streamlit run app.py
+python -m streamlit run app.py
 ```
 
 ## Features

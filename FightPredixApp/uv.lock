@@ -109,7 +109,7 @@ name = "click"
 version = "8.1.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "platform_system == 'Windows'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b9/2e/0090cbf739cee7d23781ad4b89a9894a41538e4fcf4c31dcdd705b78eb8b/click-8.1.8.tar.gz", hash = "sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a", size = 226593 }
 wheels = [
@@ -139,11 +139,9 @@ name = "fightpredixapp"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "multipage" },
     { name = "pandas" },
     { name = "plotly" },
     { name = "streamlit" },
-    { name = "streamlit-navigation-bar" },
 ]
 
 [package.dev-dependencies]
@@ -156,11 +154,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "multipage", specifier = ">=0.0.0.dev0" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "plotly", specifier = ">=5.24.1" },
     { name = "streamlit", specifier = ">=1.41.1" },
-    { name = "streamlit-navigation-bar", specifier = ">=3.3.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -331,15 +327,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d6/54/cfe61301667036ec958cb99bd3efefba235e65cdeb9c84d24a8293ba1d90/mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba", size = 8729 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8", size = 9979 },
-]
-
-[[package]]
-name = "multipage"
-version = "0.0.0.dev0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/57/be/db718272459ca7455a592903fa4c9963f031cf598c115d48f00df8d226b0/multipage-0.0.0.dev0.tar.gz", hash = "sha256:45bf2f0e3b91e0ad15a1b4fc0d449643f23a2aa87098cfa7c31e7e3ecf72a46f", size = 2835 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4c/d2/906324db5857edd1ec2da1aa7ef8700f8c469e3b8c55e710e8efce42bbf3/multipage-0.0.0.dev0-py3-none-any.whl", hash = "sha256:0928a2eda9359d56d55448e8295a468e1b8cc4ad8ba8c2f27d643e01cc04ddeb", size = 4079 },
 ]
 
 [[package]]
@@ -739,18 +726,6 @@ wheels = [
 ]
 
 [[package]]
-name = "st-theme"
-version = "1.2.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "streamlit" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/31/84/3e2fd95f5acaf6c92a51e7f038f1120235c65bb0b8be9bf43aa9fb4267e5/st-theme-1.2.3.tar.gz", hash = "sha256:ca97aece1a48ded6e83fd742c27cb0851e1bce2100ab4b6c37c7b6e003b65b42", size = 73873 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/30/09/cd7134f1ed5074a7d456640e7ba9a8c8e68a831837b4e7bfd9f29e5700a4/st_theme-1.2.3-py3-none-any.whl", hash = "sha256:0a54d9817dd5f8a6d7b0d071b25ae72eacf536c63a5fb97374923938021b1389", size = 75205 },
-]
-
-[[package]]
 name = "streamlit"
 version = "1.41.1"
 source = { registry = "https://pypi.org/simple" }
@@ -773,24 +748,11 @@ dependencies = [
     { name = "toml" },
     { name = "tornado" },
     { name = "typing-extensions" },
-    { name = "watchdog", marker = "platform_system != 'Darwin'" },
+    { name = "watchdog", marker = "sys_platform != 'darwin'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/78/33/14b5ac0369ecf0af675911e5e84b934e6fcc2cec850857d2390eb373b0a6/streamlit-1.41.1.tar.gz", hash = "sha256:6626d32b098ba1458b71eebdd634c62af2dd876380e59c4b6a1e828a39d62d69", size = 8712473 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c2/87/b2e162869500062a94dde7589c167367b5538dab6eacce2e7c0f00d5c9c5/streamlit-1.41.1-py2.py3-none-any.whl", hash = "sha256:0def00822480071d642e6df36cd63c089f991da3a69fd9eb4ab8f65ce27de4e0", size = 9100386 },
-]
-
-[[package]]
-name = "streamlit-navigation-bar"
-version = "3.3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "st-theme" },
-    { name = "streamlit" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/33/f5/5f950940d4e729bfb441245ca1a979be6a2feb862162af07c799575fc4d1/streamlit-navigation-bar-3.3.0.tar.gz", hash = "sha256:f458c3f9bbb72a3fa07a28c1db98eceabdd49b19f71fafb44dc36042e0d4b4c4", size = 83477 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/34/2f/44010a5393faf2c6f5506096f3cff6bc618bc010f412a56c30a99398f52c/streamlit_navigation_bar-3.3.0-py3-none-any.whl", hash = "sha256:25be9657d7f44c0d4f2759a12bd75de7bb0829ed1dc69d9a5e91a77bc69924d8", size = 84888 },
 ]
 
 [[package]]
