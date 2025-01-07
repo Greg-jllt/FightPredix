@@ -5,3 +5,6 @@
 .coverage
 
 *.log
+
+create_random_model/
+Data_final_fighters.csv
