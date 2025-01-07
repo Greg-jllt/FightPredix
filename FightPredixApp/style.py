@@ -17,7 +17,7 @@ def custom_global(image_file):
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
 
         .stApp {{
             background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url("data:image/png;base64,{base64_image}");
@@ -47,7 +47,8 @@ def custom_navbar():
             width: 100%;
             height: 85px;
             color: white;
-            font-family: 'Bangers', sans-serif;
+            font-family: "Pirata One", serif;
+            # font-family: 'Bangers', sans-serif;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -133,7 +134,8 @@ def custom_navbar():
             background-color: #00172B;
             border: None;
             padding: 5px 2px; /* Espacement */
-            font-family: 'Bangers', sans-serif;
+            font-family: "Pirata One", serif;
+            # font-family: 'Bangers', sans-serif;
             transition: 1s, z-index 0s;
             background-color: transparent;
         }}
@@ -178,7 +180,8 @@ def custom_navbar():
         div.stElementContainer:nth-child(5) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1),
         div.stElementContainer:nth-child(6) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1){{
             border: None;
-            font-family: 'Bangers', sans-serif;
+            font-family: "Pirata One", serif;
+            # font-family: 'Bangers', sans-serif;
             transition: 1s, z-index 0s;
             background-image: linear-gradient(rgba(255, 0, 0, 0.8), rgba(0, 0, 0, 1));
             width: 150px;
@@ -260,18 +263,29 @@ def custom_navbar():
             }}
 
 
-        @keyframes fadeInBackground {{
-            0% {{
-                background-image: none; /* Transparent au début */
-            }}
-            100% {{
-                background-image: url("data:image/png;base64,{get_base64_of_bin_file('./img/fissurenav.png')}"); /* Image de fond */
-            }}
-        }}
+        # @keyframes fadeInBackground {{
+        #     0% {{
+        #         background-image: none; /* Transparent au début */
+        #     }}
+        #     100% {{
+        #         background-image: url("data:image/png;base64,{get_base64_of_bin_file('./img/fissurenav.png')}"); /* Image de fond */
+        #     }}
+        # }}
 
     """,
         unsafe_allow_html=True,
     )
+
+
+# def fleche_menu():
+#     st.markdown(
+#         f"""
+#     <style>
+#     [data-testid="stSidebarNav"] svg {{
+#         display: none !important;
+#     }}
+#     </style>
+# """, unsafe_allow_html=True)
 
 
 def init_pages():
@@ -282,6 +296,9 @@ def init_pages():
         initial_sidebar_state="collapsed",
     )
 
+    # fleche_menu()
+
     custom_navbar()
 
-    custom_global("img/fissure.png")
+    custom_global("img/flamme.png")
+

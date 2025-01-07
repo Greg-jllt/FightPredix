@@ -5,3 +5,7 @@
 .coverage
 
 *.log
+
+Data/
+
+*.csv
