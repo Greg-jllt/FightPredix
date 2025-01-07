@@ -231,7 +231,7 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
     Combats = combats.copy()
     temp_dict: dict = dict()
 
-    def _sub_win_losses_temps_t(combattant, prefixe, resultat):
+    def _sub_win_losses_temps_t(combattant, nickname, prefixe, resultat):
         for nom in Data["name"].values:
             if fuzz.ratio(nom.lower(), combattant.lower()) > 90:
                 win, losses = Data[Data["name"].str.lower() == nom.lower()][
@@ -242,30 +242,36 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
                 if (prefixe == "combattant_1" and resultat == 0) or (
                     prefixe == "combattant_2" and resultat == 1
                 ):
-                    temp_dict[f"{combattant}_win_t"] = (
-                        temp_dict.get(f"{combattant}_win_t", 0) + 1
+                    temp_dict[f"{combattant}_{nickname}_win_t"] = (
+                        temp_dict.get(f"{combattant}_{nickname}_win_t", 0) + 1
                     )
                 elif (prefixe == "combattant_1" and resultat == 1) or (
                     prefixe == "combattant_2" and resultat == 0
                 ):
-                    temp_dict[f"{combattant}_losses_t"] = (
-                        temp_dict.get(f"{combattant}_losses_t", 0) + 1
+                    temp_dict[f"{combattant}_{nickname}_losses_t"] = (
+                        temp_dict.get(f"{combattant}_{nickname}_losses_t", 0) + 1
                     )
                     
                 Combats.loc[i, f"{prefixe}_win_t"] = win - temp_dict.get(
-                    f"{combattant}_win_t", 0
+                    f"{combattant}_{nickname}_win_t", 0
                 )
                 Combats.loc[i, f"{prefixe}_losses_t"] = losses - temp_dict.get(
-                    f"{combattant}_losses_t", 0
+                    f"{combattant}_{nickname}_losses_t", 0
                 )
 
     for i, combat in Combats.iterrows():
-        combattant_1 = combat["combattant_1"]
-        combattant_2 = combat["combattant_2"]
+        combattant_1, nickname_1 = combat["combattant_1"], combats["nickname_1"]
+        combattant_2, nickname_2 = combat["combattant_2"], combats["nickname_2"]
         resultat = combat["resultat"]
 
-        _sub_win_losses_temps_t(combattant_1, "combattant_1", resultat)
-        _sub_win_losses_temps_t(combattant_2, "combattant_2", resultat)
+        if not isinstance(nickname_1,str):
+            nickname_1 = "NO"
+
+        if not isinstance(nickname_2,str):
+            nickname_2 = "NO"
+
+        _sub_win_losses_temps_t(combattant_1, nickname_1, "combattant_1", resultat)
+        _sub_win_losses_temps_t(combattant_2, nickname_2, "combattant_2", resultat)
 
     return Combats
 
