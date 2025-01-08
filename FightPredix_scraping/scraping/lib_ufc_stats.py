@@ -425,7 +425,7 @@ def _ratrappage_manquants(
     data_name = data["NAME"].values
     nicknames = data["NICKNAME"]
     noms_manquants = [
-        nom for nom in noms_unique if nom.lower() not in map(str.lower, data_name)
+        nom for nom in noms_unique if nom.lower() not in map(str.lower, data_name) and all(fuzz.ratio(nom.lower(), dn.lower()) < 90 for dn in data_name)
     ]
 
     logger.info(f"Combattants manquants : {noms_manquants}")

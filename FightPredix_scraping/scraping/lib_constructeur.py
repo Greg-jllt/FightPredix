@@ -4,10 +4,10 @@ Développée par :
     - [Gregory Jaillet](https://github.com/Greg-jllt)
     - [Hugo Cochereau](https://github.com/hugocoche)
 """
-
 from rapidfuzz import fuzz
 from datetime import datetime
 from .lib_stats import _assignement_stat_combattant
+
 import json
 import numpy as np
 import re
@@ -247,7 +247,7 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
     Combats = combats.copy()
     temp_dict: dict = dict()
 
-    def _sub_win_losses_temps_t(combattant, prefixe, resultat):
+    def _sub_win_losses_temps_t(combattant, nickname, prefixe, resultat):
         for nom in Data["name"].values:
             if fuzz.ratio(nom.lower(), combattant.lower()) > 90:
                 win, losses = Data[Data["name"].str.lower() == nom.lower()][
@@ -257,33 +257,101 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
                 if (prefixe == "combattant_1" and resultat == 0) or (
                     prefixe == "combattant_2" and resultat == 1
                 ):
-                    temp_dict[f"{combattant}_win_t"] = (
-                        temp_dict.get(f"{combattant}_win_t", 0) + 1
+                    temp_dict[f"{combattant}_{nickname}_win_t"] = (
+                        temp_dict.get(f"{combattant}_{nickname}_win_t", 0) + 1
                     )
                 elif (prefixe == "combattant_1" and resultat == 1) or (
                     prefixe == "combattant_2" and resultat == 0
                 ):
-                    temp_dict[f"{combattant}_losses_t"] = (
-                        temp_dict.get(f"{combattant}_losses_t", 0) + 1
+                    temp_dict[f"{combattant}_{nickname}_losses_t"] = (
+                        temp_dict.get(f"{combattant}_{nickname}_losses_t", 0) + 1
                     )
 
                 Combats.loc[i, f"{prefixe}_win_t"] = win - temp_dict.get(
-                    f"{combattant}_win_t", 0
+                    f"{combattant}_{nickname}_win_t", 0
                 )
                 Combats.loc[i, f"{prefixe}_losses_t"] = losses - temp_dict.get(
-                    f"{combattant}_losses_t", 0
+                    f"{combattant}_{nickname}_losses_t", 0
                 )
 
     for i, combat in Combats.iterrows():
-        combattant_1 = combat["combattant_1"]
-        combattant_2 = combat["combattant_2"]
+        combattant_1, nickname_1 = combat["combattant_1"], combats["nickname_1"]
+        combattant_2, nickname_2 = combat["combattant_2"], combats["nickname_2"]
         resultat = combat["resultat"]
 
-        _sub_win_losses_temps_t(combattant_1, "combattant_1", resultat)
-        _sub_win_losses_temps_t(combattant_2, "combattant_2", resultat)
+        if not isinstance(nickname_1,str):
+            nickname_1 = "NO"
+
+        if not isinstance(nickname_2,str):
+            nickname_2 = "NO"
+
+        _sub_win_losses_temps_t(combattant_1, nickname_1, "combattant_1", resultat)
+        _sub_win_losses_temps_t(combattant_2, nickname_2, "combattant_2", resultat)
 
     return Combats
 
+
+def _forme_combattant(Combats: pd.DataFrame):
+    """
+    Fonction qui calcule la forme du combattant grace aux victoires et/ou defaites de ses 3 derniers combats
+    """
+    combats = Combats.copy()
+    combats = combats.sort_index(ascending=False)
+    temp_dict = {}
+    def _sub_fonction_forme_combattant(combattant, nickname, prefixe, resultat, index):
+        if f"{combattant}_{nickname}_forme" not in temp_dict.keys():
+            temp_dict[f"{combattant}_{nickname}_forme"] = []
+        combats.loc[index, f"{prefixe}_forme"] = sum(
+            temp_dict[f"{combattant}_{nickname}_forme"]
+        )
+        combats.loc[index, f"{prefixe}_forme"] = sum(
+            temp_dict[f"{combattant}_{nickname}_forme"]
+        )
+        if (prefixe == "combattant_1" and resultat == 0) or (
+            prefixe == "combattant_2" and resultat == 1
+        ):
+            if len(temp_dict[f"{combattant}_{nickname}_forme"]) < 3:
+                temp_dict[f"{combattant}_{nickname}_forme"].append(1)
+            else:
+                for i in range(len(temp_dict[f"{combattant}_{nickname}_forme"]) - 1):
+                    temp_dict[f"{combattant}_{nickname}_forme"][i] = temp_dict[
+                        f"{combattant}_{nickname}_forme"
+                    ][i + 1]
+                temp_dict[f"{combattant}_{nickname}_forme"][2] = 1
+        elif (prefixe == "combattant_1" and resultat == 1) or (
+            prefixe == "combattant_2" and resultat == 0
+        ):
+            if len(temp_dict[f"{combattant}_{nickname}_forme"]) < 3:
+                temp_dict[f"{combattant}_{nickname}_forme"].append(-1)
+            else:
+                for i in range(len(temp_dict[f"{combattant}_{nickname}_forme"]) - 1):
+                    temp_dict[f"{combattant}_{nickname}_forme"][i] = temp_dict[
+                        f"{combattant}_{nickname}_forme"
+                    ][i + 1]
+                temp_dict[f"{combattant}_{nickname}_forme"][2] = -1
+    for i, combat in combats.iterrows():
+        combattant_1, nickname_1 = combat["combattant_1"], combats["nickname_1"]
+        combattant_2, nickname_2 = combat["combattant_2"], combats["nickname_2"]
+        resultat = combat["resultat"]
+        nickname_1 = nickname_1 if isinstance(nickname_1, str) else "NO"
+        nickname_2 = nickname_2 if isinstance(nickname_2, str) else "NO"
+        _sub_fonction_forme_combattant(
+            combattant_1, nickname_1, "combattant_1", resultat, i
+        )
+        _sub_fonction_forme_combattant(
+            combattant_2, nickname_2, "combattant_2", resultat, i
+        )
+    combats = combats.sort_index(ascending=True)
+    return combats
+
+
+def _format_last_stats(dico_last_stats: dict) -> pd.DataFrame:
+    last_stats = pd.DataFrame(dico_last_stats).T
+    last_stats.reset_index(inplace=True)
+    last_stats.rename(columns={"index": "NAME"}, inplace=True)
+    last_stats.columns = last_stats.columns.str.strip()
+    last_stats = last_stats.drop(last_stats.columns[0], axis=1)
+    return last_stats
 
 def _main_construct(
     combats: pd.DataFrame, caracteristiques: pd.DataFrame
@@ -297,10 +365,9 @@ def _main_construct(
     ]
 
     combats = _cleaning(combats)
-
     combats = _age_temps_t(caracteristiques, combats)
-
     combats = _win_losses_temps_t(caracteristiques, combats)
+    combats = _forme_combattant(combats)
 
     with open(
         "FightPredix_scraping/scraping/dico_formatage/dico_var.json", "r"
@@ -309,13 +376,9 @@ def _main_construct(
 
     combats, dico_last_stats = _assignement_stat_combattant(combats, dico_var)
     combats = _difference_combats(caracteristiques, combats)
-    
-    last_stats = pd.DataFrame(dico_last_stats).T  
-    last_stats.reset_index(inplace=True)
-    last_stats.rename(columns={'index':'NAME'}, inplace=True)
-    last_stats.to_csv("Data/last_stats.csv")
-    
-    return combats, caracteristiques
+    last_stats = _format_last_stats(dico_last_stats)
+    return combats, caracteristiques.merge(last_stats, on="name", how="left")
+
 
 
 if __name__ == "__main__":
