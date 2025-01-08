@@ -10,8 +10,8 @@ def get_base64_of_bin_file(bin_file):
 
 #, url("data:image/png;base64,{base64_image}")
 # Charger l'image et l'injecter dans le CSS
-def custom_global(image_file):
-    base64_image = get_base64_of_bin_file(image_file)
+def custom_global():
+    # base64_image = get_base64_of_bin_file(image_file)
     st.markdown(
         f"""
         <style>
@@ -57,6 +57,7 @@ def custom_navbar():
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            # background: linear-gradient(rgba(0, 23, 43, 0.8), rgba(160, 0, 0, 0.8));
             animation: fadeInBackground 1.5s ease-in-out forwards; /* Animation à déclencher */
             animation-delay: 0.5s;
         }}
@@ -107,7 +108,7 @@ def custom_navbar():
 
         div.stHorizontalBlock:nth-child(4) {{
             top: 0;
-            left: 15%;
+            left: 25%;
             width: 70%;
             gap: 20px;
             height: 85px;
@@ -305,5 +306,5 @@ def init_pages():
 
     custom_navbar()
 
-    custom_global("img/flamme.png")
+    custom_global()
 

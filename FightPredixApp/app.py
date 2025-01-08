@@ -3,6 +3,9 @@ import streamlit as st
 import os
 import pandas as pd
 import plotly.graph_objects as go
+import requests
+from PIL import Image
+import os
 
 
 from pages import page_predictions
@@ -21,14 +24,14 @@ def navbar():
     with col1:
         st.image("./img/logo_readme.png", width=100)
 
-    col2, col3, col4, col5 = st.columns(4, gap="small")
+    col2, col3, col4 = st.columns(3, gap="small")
 
     with col2:
         if st.button("Accueil", key="home"):
             st.session_state.current_page = "home"
-    with col5:
-        if st.button("Contact", key="contact"):
-            st.session_state.current_page = "contact"
+    # with col5:
+    #     if st.button("Contact", key="contact"):
+    #         st.session_state.current_page = "contact"
 
     with col3:
         if st.button("Combattants", key="combattants"):
@@ -43,7 +46,7 @@ navbar()
 def navbar_sidebar():
 
     st.sidebar.title("Navigation")
-    col1, col2, col3, col4 = st.sidebar.columns(4, gap="small")
+    col1, col2, col3 = st.sidebar.columns(3, gap="small")
 
     with col1:
         if st.sidebar.button("Accueil", key="home_sidebar"):
@@ -57,15 +60,11 @@ def navbar_sidebar():
         if st.sidebar.button("Prédictions", key="predictions_sidebar"):
             st.session_state.current_page = "predictions"
 
-    with col4:
-        if st.sidebar.button("Contact", key="contact_sidebar"):
-            st.session_state.current_page = "contact"
-
 
 def titre(texte):
     return st.markdown(
         f"""
-        <p style="font-family:IM Fell Great Primer SC; font-size: 50px;">
+        <p style="font-family:IM Fell Great Primer SC; font-size: 45px;">
         {texte}
         </p>
         """,
@@ -74,10 +73,19 @@ def titre(texte):
 
 navbar_sidebar()
 
+if "predictable" not in st.session_state:
+        st.session_state["predictable"] = False
 
 if st.session_state.current_page == "home":
+    _, cent_co,_ = st.columns([1.5,1, 1])
+
+    with cent_co:
+        st.image(os.path.join("img", "logo.png"), width=350)
+
     titre("Bienvenue sur FightPredix !")
-    st.write("Ceci est la page d'accueil.")
+    st.write("FightPredix est une application développé avec python dans le but d'essayer de prédire les résultats des combats de L'UFC.")
+    st.write("La section combattants permet de comparer deux combattants et de voir leurs statistiques respectives. Une fois les combattants choisis, allez simplement dans la section prédictions pour voir le résultat du combat.")
+    st.write("La section prédictions permet de prédire le résultat d'un combat entre les combattants choisis.")
 
 
 elif st.session_state.current_page == "combattants":
@@ -85,8 +93,7 @@ elif st.session_state.current_page == "combattants":
     _, cent_co,_ = st.columns([1.5,1, 1])
 
     with cent_co:
-        titre("Section Combattants")
-        st.write("Ici, vous verrez les combattants...")
+        titre("Section Combattants") 
 
     st.markdown(
     """
@@ -111,8 +118,11 @@ elif st.session_state.current_page == "combattants":
     if "fighter_2" not in st.session_state:
         st.session_state["fighter_2"] = "None"
 
-    # with cent_co:
-    #     st.image(os.path.join("img", "logo.png"), width=350)
+    if "url_1" not in st.session_state:
+        st.session_state["url_1"] = "None"
+
+    if "url_2" not in st.session_state:
+        st.session_state["url_2"] = "None"
 
     file_path = os.path.join("Data/Data_final_fighters.csv")
 
@@ -123,6 +133,7 @@ elif st.session_state.current_page == "combattants":
         df = pd.read_csv(file_path)
  
         df = df.dropna(subset=["actif"])
+        df = df[df["actif"] == True]
 
         with a1:
 
@@ -139,10 +150,10 @@ elif st.session_state.current_page == "combattants":
                 st.session_state["fighter_1"] = st.selectbox("Combattant 1", options)
                 fighter_1 = st.session_state["fighter_1"]
                 if fighter_1 != "None":
-                    url = df.loc[df['name'] == fighter_1, 'img_cbt'].iloc[0]
-                    if url == "NO":
-                        url = os.path.join("img", "fighter.png")
-                    col1.image(url, width=300)
+                    st.session_state["url_1"] = df.loc[df['name'] == fighter_1, 'img_cbt'].iloc[0]
+                    if st.session_state["url_1"] == "NO":
+                        st.session_state["url_1"] = os.path.join("img", "fighter.png")
+                    col1.image(st.session_state["url_1"], width=300)
 
             with col2:
                 col2.markdown('<div class="vs-text">VS</div>', unsafe_allow_html=True)
@@ -151,13 +162,16 @@ elif st.session_state.current_page == "combattants":
                 st.session_state["fighter_2"] = col3.selectbox("Combattant 2", options)
                 fighter_2 = st.session_state["fighter_2"]
                 if fighter_2 != "None":
-                    url = df.loc[df['name'] == fighter_2, 'img_cbt'].iloc[0]
-                    if url == "NO":
-                        url = os.path.join("img", "fighter.png")
-                    col3.image(url, width=300)
+                    st.session_state["url_2"] = df.loc[df['name'] == fighter_2, 'img_cbt'].iloc[0]
+                    if st.session_state["url_2"] == "NO":
+                        st.session_state["url_2"] = os.path.join("img", "fighter.png")
+                    col3.image(st.session_state["url_2"], width=300)
 
             if fighter_1 == "None" or fighter_2 == "None" or fighter_1 == fighter_2:
-                st.write("## Choisissez deux combattants différents.")
+                titre("Choisissez deux combattants différents.")
+                st.session_state["predictable"] = False
+            else:
+                st.session_state["predictable"] = True
 
             with a2:
 
@@ -296,25 +310,105 @@ elif st.session_state.current_page == "combattants":
                 st.table(data.style.format("{:.0f}"))
 
 elif st.session_state.current_page == "predictions":
-    titre("Section Prédictions")
-    page_predictions()
+    # page_predictions()
 
-    # def image_to_base64(image_path):
-    #     with open(image_path, "rb") as image_file:
-    #         encoded_string = base64.b64encode(image_file.read()).decode()
-    #     return encoded_string
+    if st.session_state["predictable"] == False:
+        titre("Choisissez deux combattants différents.")
+    else:
+        def download_and_convert_image(url, filename):
+            if not os.path.exists('img'):
+                os.makedirs('img')
 
-    # image_path = os.path.join("img", "test1.png")
+            if url != "None":
+                with open(filename, 'wb') as handle:
+                    response = requests.get(url, stream=True)
+                    if not response.ok:
+                        print(response)
+                        return None
+                    for block in response.iter_content(1024):
+                        if not block:
+                            break
+                        handle.write(block)
 
-    # image_base64 = image_to_base64(image_path)
+                if os.path.exists(filename):
+                    im = Image.open(filename)
+                    png_filename = filename.replace('.jpg', '.png')
+                    im.save(png_filename)
+                    os.remove(filename)
+                    return png_filename
+            return None
 
+        image_path_1 = download_and_convert_image(st.session_state.get("url_1", "None"), 'img/cbt1.jpg')
+        image_path_2 = download_and_convert_image(st.session_state.get("url_2", "None"), 'img/cbt2 .jpg')
 
-    # # Générer la balise HTML pour afficher l'image avec base64
-    # img_html = f'<img src="data:image/png;base64,{image_base64}" width="600">'
+        if image_path_1 is not None and image_path_2 is not None:
+            cbt1 = Image.open(image_path_1)
+            cbt2  = Image.open(image_path_2)
 
-    # # Afficher l'image dans Streamlit via st.markdown 
-    # st.markdown(img_html, unsafe_allow_html=True)
+        values = [0.1, 0.9]
+        labels = [st.session_state["fighter_1"], st.session_state["fighter_2"]]
+        imgs = [cbt1, cbt2]
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Bar(x=labels, 
+                             y=values, 
+                             marker_color=['#00172B', '#00172B'],
+                             opacity=1))
+
+        fig.add_layout_image(
+                dict(
+                    source=cbt1,
+                    xref="x domain",
+                    yref="y domain",
+                    x=0.75-1/2,
+                    y=values[0]/2, 
+                    layer="above",
+                    xanchor="center",
+                    yanchor="bottom", 
+                    sizex=0.6,
+                    sizey=0.6,
+                )
+            )
+        
+        fig.add_layout_image(
+                dict(
+                    source=cbt2,
+                    xref="x domain",
+                    yref="y domain",
+                    x=0.75,
+                    y=values[1]/2, 
+                    layer="above",
+                    xanchor="center",
+                    yanchor="bottom", 
+                    sizex=0.6,
+                    sizey=0.6,
+                )
+            )
+
+        # Configurer le layout
+        fig.update_layout(
+            title="",
+            xaxis_title="",
+            yaxis=dict(
+                title=' ', 
+                range=[0, 2],
+                showticklabels=False, 
+                showgrid=False        
+            ),
+            height=600,
+            width=900,
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            template="plotly_white"
+        )
+
+        _, cent_co,_ = st.columns([1,1, 1])
+        with cent_co:
+            st.plotly_chart(fig)
+            st.write(f"Selon l'algorrithme, {st.session_state['fighter_1']} a une probabilité de vaincre {st.session_state['fighter_2']} de {values[0]*100}%, la où {st.session_state['fighter_2']} a une probabilité de vaincre {st.session_state['fighter_1']} de {values[1]*100}%.")
+
 
 else:
-    titre("Page non trouvée")
-    st.write("La page demandée n'existe pas.")
+        titre("Page non trouvée")
+        st.write("La page demandée n'existe pas.")
