@@ -8,4 +8,7 @@
 
 *.csv
 
+creation de modele/
+*.csv
+*.pkl
 Data/

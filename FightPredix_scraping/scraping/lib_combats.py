@@ -32,11 +32,11 @@ def _recolte_events(driver) -> list[str]:
         for event in driver.find_elements(
             By.CSS_SELECTOR, ".b-statistics__table-content"
         )[1:]
-        # if int(
-        #     event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
-        #     .text.split(",")[-1]
-        #     .strip()
-        # ) > 2023
+        if int(
+            event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
+            .text.split(",")[-1]
+            .strip()
+        ) > 2023
     ]
 
 
@@ -234,28 +234,32 @@ def _acces_events(liste_events: list, driver: webdriver.Chrome) -> pd.DataFrame:
 
     results: list[pd.DataFrame] = []
     i = 0
-    for event in liste_events:
-        try:
-            logger.info(f"Event : {event}")
+    try:
+        for event in liste_events:
+            try:
+                logger.info(f"Event : {event}")
 
-            driver.get(event)
-            rows = driver.find_elements(
-                By.CSS_SELECTOR, "tr.b-fight-details__table-row"
-            )[1:]
+                driver.get(event)
+                rows = driver.find_elements(
+                    By.CSS_SELECTOR, "tr.b-fight-details__table-row"
+                )[1:]
 
-            for row in rows:
-                row_data_link = row.get_attribute("data-link")
+                for row in rows:
+                    row_data_link = row.get_attribute("data-link")
 
-                results, i = _sub_access_events(
-                    row, results, i, driver, sub_driver, frappe_types, row_data_link
-                )
-
-        except (Exception, KeyboardInterrupt) as e:
-            logger.error(f"Erreur : {e}")
-            with open("data/Data_ufc_combats_test_fin.csv", "w") as f:
-                f.write(pd.concat(results).to_csv(index=False))
-            pass
-    return pd.concat(results)
+                    results, i = _sub_access_events(
+                        row, results, i, driver, sub_driver, frappe_types, row_data_link
+                    )
+            except Exception as e:
+                logger.error(f"Erreur lors du traitement de l'événement {event} : {e}")
+                continue  
+        return pd.concat(results)
+    except (Exception, KeyboardInterrupt) as e:
+        logger.error(f"Erreur générale : {e}")
+        with open("data/Data_ufc_combats_test_fin.csv", "w") as f:
+            f.write(pd.concat(results).to_csv(index=False))
+        pass
+    
 
 
 def _sub_fonction_listes(data: pl.DataFrame) -> tuple[list[Any], list[Any]]:
