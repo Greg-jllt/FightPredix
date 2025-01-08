@@ -18,6 +18,9 @@ import pandas as pd
 def _difference_cat_combts(
     caracteristiques: pd.DataFrame, combats: pd.DataFrame
 ) -> pd.DataFrame:
+    """
+    Fonction de calcul de la différence entre les caractéristiques des combattants
+    """
     lignes_a_ajouter = []
     cat_colonnes_caracteristiques = caracteristiques.select_dtypes(
         include=["object"]
@@ -64,9 +67,7 @@ def _difference_cat_combts(
     return resultat
 
 
-def _difference_num_combats(
-    caracteristiques: pd.DataFrame, combats: pd.DataFrame
-) -> pd.DataFrame:
+def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
     """
     Fonction de calcul de la différence entre les caractéristiques des combattants
     au sein de chaque combat.
@@ -133,10 +134,16 @@ def _transformation_debut_octogone(data):
 
 
 def _clean_column_nom(nom):
+    """
+    Fonction qui nettoie les noms des colonnes
+    """
     return re.sub(r"[^A-Za-z0-9À-ÖØ-öø-ÿ_]+", "_", nom).lower()
 
 
 def _process_valeur(valeur):
+    """
+    Fonction qui nettoie les valeurs
+    """
     if pd.isna(valeur) or valeur in ["nan", "None"]:
         return np.nan
 
@@ -167,6 +174,9 @@ def _process_valeur(valeur):
 
 
 def _process_ratio(valeur):
+    """
+    Fonction qui nettoie les ratios
+    """
     valeur = str(valeur)
     match_ratio = re.match(r"^(\d+)\s+of\s+(\d+)$", valeur)
     if match_ratio:
@@ -305,7 +315,7 @@ def _forme_combattant(Combats: pd.DataFrame):
     """
     combats = Combats.copy()
     combats = combats.sort_index(ascending=False)
-    temp_dict = {}
+    temp_dict: dict = {}
 
     def _sub_fonction_forme_combattant(combattant, nickname, prefixe, resultat, index):
         if f"{combattant}_{nickname}_forme" not in temp_dict.keys():
@@ -356,6 +366,9 @@ def _forme_combattant(Combats: pd.DataFrame):
 
 
 def _format_last_stats(dico_last_stats: dict) -> pd.DataFrame:
+    """
+    Fonction qui formate les dernières statistiques des combattants
+    """
     last_stats = pd.DataFrame(dico_last_stats).T
     last_stats.reset_index(inplace=True)
     last_stats.rename(columns={"index": "NAME"}, inplace=True)
@@ -367,6 +380,9 @@ def _format_last_stats(dico_last_stats: dict) -> pd.DataFrame:
 def _main_construct(
     combats: pd.DataFrame, caracteristiques: pd.DataFrame
 ) -> pd.DataFrame:
+    """
+    Fonction principale de construction de la base de données
+    """
     caracteristiques = _age_by_DOB(caracteristiques)
 
     caracteristiques = _transformation_debut_octogone(caracteristiques)
@@ -387,7 +403,7 @@ def _main_construct(
         dico_var = json.load(file)
 
     combats, dico_last_stats = _assignement_stat_combattant(combats, dico_var)
-    combats = _difference_num_combats(caracteristiques, combats)
+    combats = _difference_num_combats(combats)
     last_stats = _format_last_stats(dico_last_stats)
     return combats, caracteristiques.merge(last_stats, on="name", how="left")
 
