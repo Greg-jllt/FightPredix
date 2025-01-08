@@ -76,7 +76,6 @@ def _accès_cbt_page(temp_dict: dict, driver: webdriver.Chrome) -> None:
     rows = driver.find_elements(By.CSS_SELECTOR, "tr.b-statistics__table-row")
 
     for row in rows[2:]:
-
         cells = row.find_elements(By.XPATH, "./td")
         prenom_cell = cells[0].text.strip() if len(cells) > 0 else ""
         nom_cell = cells[1].text.strip() if len(cells) > 1 else ""
@@ -285,7 +284,6 @@ def _integration_metriques(
 
     try:
         if cplt_name in data["NAME"].values:
-
             combattant_row = data[data["NAME"] == cplt_name].index[0]
 
             for key, value in dictio.items():
@@ -315,7 +313,6 @@ def _integration_metriques(
 
 
 def _compte_victoires_defaites_cbt(driver: webdriver.Chrome) -> Counter:
-
     counter = Counter(
         res.text.strip().upper()
         for res in driver.find_elements(By.CSS_SELECTOR, "i.b-flag__text")
@@ -438,7 +435,6 @@ def _ratrappage_manquants(
 
 
 if __name__ == "__main__":
-
     chrome_options = Options()
 
     chrome_options.add_argument("--headless")

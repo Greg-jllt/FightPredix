@@ -8,7 +8,7 @@ Développée par :
 from rapidfuzz import fuzz
 from datetime import datetime
 from .lib_stats import _assignement_stat_combattant
-
+from unidecode import unidecode
 import json
 import numpy as np
 import re
@@ -371,10 +371,29 @@ def _format_last_stats(dico_last_stats: dict) -> pd.DataFrame:
     """
     last_stats = pd.DataFrame(dico_last_stats).T
     last_stats.reset_index(inplace=True)
-    last_stats.rename(columns={"index": "NAME"}, inplace=True)
+    last_stats.rename(columns={"index": "name"}, inplace=True)
     last_stats.columns = last_stats.columns.str.strip()
-    last_stats = last_stats.drop(last_stats.columns[0], axis=1)
     return last_stats
+
+
+def _format_last_stats_nom_identique(
+    dico_last_stats_nom_identique: dict,
+) -> pd.DataFrame:
+    """
+    Fonction qui formate les dernières statistiques des combattants à nom identique
+    """
+    last_stats_nom_identique = pd.DataFrame(dico_last_stats_nom_identique).T
+    last_stats_nom_identique.reset_index(inplace=True)
+    last_stats_nom_identique.rename(columns={"index": "nickname"}, inplace=True)
+    last_stats_nom_identique.columns = last_stats_nom_identique.columns.str.strip()
+    return last_stats_nom_identique
+
+
+def supprimer_caracteres_speciaux(chaine):
+    chaine = unidecode(chaine)
+    chaine = re.sub(r"[^a-zA-Z0-9\s]", "", chaine)
+    chaine = chaine.title()
+    return chaine
 
 
 def _main_construct(
@@ -402,10 +421,71 @@ def _main_construct(
     ) as file:
         dico_var = json.load(file)
 
-    combats, dico_last_stats = _assignement_stat_combattant(combats, dico_var)
+    combats, dico_last_stats, dico_last_stats_nom_identique = (
+        _assignement_stat_combattant(combats, dico_var)
+    )
+
     combats = _difference_num_combats(combats)
-    last_stats = _format_last_stats(dico_last_stats)
+    last_stats, last_stats_nom_identique = (
+        _format_last_stats(dico_last_stats),
+        _format_last_stats_nom_identique(dico_last_stats_nom_identique),
+    )
+    caracteristiques["name"] = [
+        supprimer_caracteres_speciaux(nom) for nom in caracteristiques["name"]
+    ]
+    last_stats_nom_identique.to_csv("data/Data_stats_nom_identique.csv", index=False)
     return combats, caracteristiques.merge(last_stats, on="name", how="left")
+
+
+def _derniere_difference(
+    DataCombats: pd.DataFrame, DataFighters: pd.DataFrame
+) -> pd.DataFrame:
+    for nom in DataFighters["name"]:
+        for c1, c2 in zip(DataCombats["combattant_1"], DataCombats["combattant_2"]):
+            if nom == c1:
+                DataCombats.loc[DataCombats["combattant_1"] == nom, "la_taille_1"] = (
+                    DataFighters[DataFighters["name"] == nom]["la_taille"].values[0]
+                )
+                DataCombats.loc[DataCombats["combattant_1"] == nom, "poids_1"] = (
+                    DataFighters[DataFighters["name"] == nom]["poids"].values[0]
+                )
+                DataCombats.loc[DataCombats["combattant_1"] == nom, "reach_1"] = (
+                    DataFighters[DataFighters["name"] == nom]["reach"].values[0]
+                )
+                DataCombats.loc[
+                    DataCombats["combattant_1"] == nom, "portée_de_la_jambe_1"
+                ] = DataFighters[DataFighters["name"] == nom][
+                    "portée_de_la_jambe"
+                ].values[
+                    0
+                ]
+            if nom == c2:
+                DataCombats.loc[DataCombats["combattant_2"] == nom, "la_taille_2"] = (
+                    DataFighters[DataFighters["name"] == nom]["la_taille"].values[0]
+                )
+                DataCombats.loc[DataCombats["combattant_2"] == nom, "poids_2"] = (
+                    DataFighters[DataFighters["name"] == nom]["poids"].values[0]
+                )
+                DataCombats.loc[DataCombats["combattant_2"] == nom, "reach_2"] = (
+                    DataFighters[DataFighters["name"] == nom]["reach"].values[0]
+                )
+                DataCombats.loc[
+                    DataCombats["combattant_2"] == nom, "portée_de_la_jambe_2"
+                ] = DataFighters[DataFighters["name"] == nom][
+                    "portée_de_la_jambe"
+                ].values[
+                    0
+                ]
+
+    DataCombats["diff_la_taille"] = (
+        DataCombats["la_taille_1"] - DataCombats["la_taille_2"]
+    )
+    DataCombats["diff_poids"] = DataCombats["poids_1"] - DataCombats["poids_2"]
+    DataCombats["diff_reach"] = DataCombats["reach_1"] - DataCombats["reach_2"]
+    DataCombats["diff_portée_de_la_jambe"] = (
+        DataCombats["portée_de_la_jambe_1"] - DataCombats["portée_de_la_jambe_2"]
+    )
+    return DataCombats
 
 
 if __name__ == "__main__":

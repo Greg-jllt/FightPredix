@@ -17,11 +17,9 @@ from selenium.common.exceptions import TimeoutException, WebDriverException
 from .lib_caracteristic_collector import _extraire_info_combattant
 from typing import Any
 from datetime import datetime
-
 import re
 import time
 import pandas as pd
-
 from .outils import configure_logger
 
 
@@ -115,7 +113,7 @@ def _page_principal_UFC(
     result: list[Any] = list()
     hrefs = list()
 
-    main_driver.get("https://www.ufc.com/athletes/all") #?filters%5B0%5D=status%3A23
+    main_driver.get("https://www.ufc.com/athletes/all")  # ?filters%5B0%5D=status%3A23
 
     if Data is None:
         Data = pd.DataFrame(columns=["NAME"])

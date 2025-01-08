@@ -1,11 +1,9 @@
 *.ipynb
-
 *.pycache
-
+*.pyc
 .coverage
-
 *.log
-
+*.venv
 creation de modele/
 *.csv
 *.pkl
