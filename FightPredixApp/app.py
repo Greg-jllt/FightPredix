@@ -84,8 +84,8 @@ if st.session_state.current_page == "home":
 
     titre("Bienvenue sur FightPredix !")
     st.write("FightPredix est une application développé avec python dans le but d'essayer de prédire les résultats des combats de L'UFC.")
-    st.write("La section combattants permet de comparer deux combattants et de voir leurs statistiques respectives. Une fois les combattants choisis, allez simplement dans la section prédictions pour voir le résultat du combat.")
-    st.write("La section prédictions permet de prédire le résultat d'un combat entre les combattants choisis.")
+    st.write("La section combattants permet de comparer deux combattants et de voir leurs statistiques respectives.")
+    st.write("Enfin la section prédictions, comme son nom l'indique, permet de prédire le résultat d'un combat entre deux combattants.")
 
 
 elif st.session_state.current_page == "combattants":
@@ -158,6 +158,7 @@ elif st.session_state.current_page == "combattants":
             with col2:
                 col2.markdown('<div class="vs-text">VS</div>', unsafe_allow_html=True)
 
+
             with col3:
                 st.session_state["fighter_2"] = col3.selectbox("Combattant 2", options)
                 fighter_2 = st.session_state["fighter_2"]
@@ -170,8 +171,11 @@ elif st.session_state.current_page == "combattants":
             if fighter_1 == "None" or fighter_2 == "None" or fighter_1 == fighter_2:
                 titre("Choisissez deux combattants différents.")
                 st.session_state["predictable"] = False
-            else:
-                st.session_state["predictable"] = True
+            else :
+                with col2 :
+                    if col2.button("Predict", key="predict"):
+                        st.session_state["predictable"] = True
+
 
             with a2:
 
