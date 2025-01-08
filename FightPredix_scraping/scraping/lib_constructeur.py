@@ -297,16 +297,20 @@ def _forme_combattant(Combats: pd.DataFrame):
     """
     combats = Combats.copy()
     combats = combats.sort_index(ascending=False)
+
     temp_dict = {}
+
     def _sub_fonction_forme_combattant(combattant, nickname, prefixe, resultat, index):
         if f"{combattant}_{nickname}_forme" not in temp_dict.keys():
             temp_dict[f"{combattant}_{nickname}_forme"] = []
+
         combats.loc[index, f"{prefixe}_forme"] = sum(
             temp_dict[f"{combattant}_{nickname}_forme"]
         )
         combats.loc[index, f"{prefixe}_forme"] = sum(
             temp_dict[f"{combattant}_{nickname}_forme"]
         )
+
         if (prefixe == "combattant_1" and resultat == 0) or (
             prefixe == "combattant_2" and resultat == 1
         ):
@@ -318,6 +322,7 @@ def _forme_combattant(Combats: pd.DataFrame):
                         f"{combattant}_{nickname}_forme"
                     ][i + 1]
                 temp_dict[f"{combattant}_{nickname}_forme"][2] = 1
+
         elif (prefixe == "combattant_1" and resultat == 1) or (
             prefixe == "combattant_2" and resultat == 0
         ):
@@ -329,19 +334,24 @@ def _forme_combattant(Combats: pd.DataFrame):
                         f"{combattant}_{nickname}_forme"
                     ][i + 1]
                 temp_dict[f"{combattant}_{nickname}_forme"][2] = -1
+
     for i, combat in combats.iterrows():
         combattant_1, nickname_1 = combat["combattant_1"], combats["nickname_1"]
         combattant_2, nickname_2 = combat["combattant_2"], combats["nickname_2"]
         resultat = combat["resultat"]
+
         nickname_1 = nickname_1 if isinstance(nickname_1, str) else "NO"
         nickname_2 = nickname_2 if isinstance(nickname_2, str) else "NO"
+
         _sub_fonction_forme_combattant(
             combattant_1, nickname_1, "combattant_1", resultat, i
         )
         _sub_fonction_forme_combattant(
             combattant_2, nickname_2, "combattant_2", resultat, i
         )
+
     combats = combats.sort_index(ascending=True)
+
     return combats
 
 
@@ -352,6 +362,7 @@ def _format_last_stats(dico_last_stats: dict) -> pd.DataFrame:
     last_stats.columns = last_stats.columns.str.strip()
     last_stats = last_stats.drop(last_stats.columns[0], axis=1)
     return last_stats
+
 
 def _main_construct(
     combats: pd.DataFrame, caracteristiques: pd.DataFrame
@@ -375,6 +386,7 @@ def _main_construct(
         dico_var = json.load(file)
 
     combats, dico_last_stats = _assignement_stat_combattant(combats, dico_var)
+
     combats = _difference_combats(caracteristiques, combats)
     last_stats = _format_last_stats(dico_last_stats)
     return combats, caracteristiques.merge(last_stats, on="name", how="left")

@@ -111,8 +111,9 @@ def main():
     combats.to_csv("Data/Data_ufc_combat_complet_actuel_clean.csv", index=False)
     main_driver.quit()
 
-    Data.to_csv("Data/Data_final_fighters_V.csv", index=False)
-    combats.to_csv("Data/Data_final_combats_V.csv", index=False)
+    Data.to_csv("Data/Data_final_fighters.csv", index=False)
+
+    combats.to_csv("Data/Data_final_combats.csv", index=False)
 
     logger.info("Suppression des fichiers temporaires")
     for file_path in [
