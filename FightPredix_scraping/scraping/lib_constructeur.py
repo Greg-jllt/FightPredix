@@ -4,6 +4,7 @@ Développée par :
     - [Gregory Jaillet](https://github.com/Greg-jllt)
     - [Hugo Cochereau](https://github.com/hugocoche)
 """
+
 from rapidfuzz import fuzz
 from datetime import datetime
 from .lib_stats import _assignement_stat_combattant
@@ -14,36 +15,14 @@ import re
 import pandas as pd
 
 
-def _difference_combats(
+def _difference_cat_combts(
     caracteristiques: pd.DataFrame, combats: pd.DataFrame
 ) -> pd.DataFrame:
-    """
-    Fonction de calcul de la différence entre les caractéristiques des combattants
-    au sein de chaque combat.
-    """
-
-    cols_to_drop = []
     lignes_a_ajouter = []
-    colonnes_a_concat = {}
-
-    num_colonnes_combats = combats.select_dtypes(include=["number"]).columns
     cat_colonnes_caracteristiques = caracteristiques.select_dtypes(
         include=["object"]
     ).columns.tolist()
     cat_colonnes_caracteristiques.remove("name")
-
-    pattern = re.compile(r"combattant_(\d+)_(.+)")
-
-    for col in num_colonnes_combats:
-        match = pattern.match(col)
-        if match:
-            stat_type = match.group(2)
-            colonnes_a_concat[f"diff_{stat_type}"] = (
-                combats[f"combattant_1_{stat_type}"]
-                - combats[f"combattant_2_{stat_type}"]
-            )
-            cols_to_drop.append(f"combattant_1_{stat_type}")
-            cols_to_drop.append(f"combattant_2_{stat_type}")
 
     for i, combat in combats.iterrows():
         combattant_1 = combat["combattant_1"]
@@ -80,11 +59,40 @@ def _difference_combats(
         else pd.DataFrame()
     )
 
+    resultat = pd.concat([combats.reset_index(drop=True), df_categoriel], axis=1)
+
+    return resultat
+
+
+def _difference_num_combats(
+    caracteristiques: pd.DataFrame, combats: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Fonction de calcul de la différence entre les caractéristiques des combattants
+    au sein de chaque combat.
+    """
+
+    cols_to_drop = []
+    colonnes_a_concat = {}
+
+    num_colonnes_combats = combats.select_dtypes(include=["number"]).columns
+
+    pattern = re.compile(r"combattant_(\d+)_(.+)")
+
+    for col in num_colonnes_combats:
+        match = pattern.match(col)
+        if match:
+            stat_type = match.group(2)
+            colonnes_a_concat[f"diff_{stat_type}"] = (
+                combats[f"combattant_1_{stat_type}"]
+                - combats[f"combattant_2_{stat_type}"]
+            )
+            cols_to_drop.append(f"combattant_1_{stat_type}")
+            cols_to_drop.append(f"combattant_2_{stat_type}")
+
     df_numerique = pd.DataFrame(colonnes_a_concat, index=combats.index)
 
-    resultat = pd.concat(
-        [combats.reset_index(drop=True), df_numerique, df_categoriel], axis=1
-    )
+    resultat = pd.concat([combats.reset_index(drop=True), df_numerique], axis=1)
 
     # if cols_to_drop:
     #     Console().print(f"Colonnes à supprimer : {len(cols_to_drop)}")
@@ -279,10 +287,10 @@ def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFra
         combattant_2, nickname_2 = combat["combattant_2"], combats["nickname_2"]
         resultat = combat["resultat"]
 
-        if not isinstance(nickname_1,str):
+        if not isinstance(nickname_1, str):
             nickname_1 = "NO"
 
-        if not isinstance(nickname_2,str):
+        if not isinstance(nickname_2, str):
             nickname_2 = "NO"
 
         _sub_win_losses_temps_t(combattant_1, nickname_1, "combattant_1", resultat)
@@ -297,20 +305,17 @@ def _forme_combattant(Combats: pd.DataFrame):
     """
     combats = Combats.copy()
     combats = combats.sort_index(ascending=False)
-
     temp_dict = {}
 
     def _sub_fonction_forme_combattant(combattant, nickname, prefixe, resultat, index):
         if f"{combattant}_{nickname}_forme" not in temp_dict.keys():
             temp_dict[f"{combattant}_{nickname}_forme"] = []
-
         combats.loc[index, f"{prefixe}_forme"] = sum(
             temp_dict[f"{combattant}_{nickname}_forme"]
         )
         combats.loc[index, f"{prefixe}_forme"] = sum(
             temp_dict[f"{combattant}_{nickname}_forme"]
         )
-
         if (prefixe == "combattant_1" and resultat == 0) or (
             prefixe == "combattant_2" and resultat == 1
         ):
@@ -322,7 +327,6 @@ def _forme_combattant(Combats: pd.DataFrame):
                         f"{combattant}_{nickname}_forme"
                     ][i + 1]
                 temp_dict[f"{combattant}_{nickname}_forme"][2] = 1
-
         elif (prefixe == "combattant_1" and resultat == 1) or (
             prefixe == "combattant_2" and resultat == 0
         ):
@@ -339,19 +343,15 @@ def _forme_combattant(Combats: pd.DataFrame):
         combattant_1, nickname_1 = combat["combattant_1"], combats["nickname_1"]
         combattant_2, nickname_2 = combat["combattant_2"], combats["nickname_2"]
         resultat = combat["resultat"]
-
         nickname_1 = nickname_1 if isinstance(nickname_1, str) else "NO"
         nickname_2 = nickname_2 if isinstance(nickname_2, str) else "NO"
-
         _sub_fonction_forme_combattant(
             combattant_1, nickname_1, "combattant_1", resultat, i
         )
         _sub_fonction_forme_combattant(
             combattant_2, nickname_2, "combattant_2", resultat, i
         )
-
     combats = combats.sort_index(ascending=True)
-
     return combats
 
 
@@ -376,6 +376,7 @@ def _main_construct(
     ]
 
     combats = _cleaning(combats)
+    combats = _difference_cat_combts(caracteristiques, combats)
     combats = _age_temps_t(caracteristiques, combats)
     combats = _win_losses_temps_t(caracteristiques, combats)
     combats = _forme_combattant(combats)
@@ -386,15 +387,13 @@ def _main_construct(
         dico_var = json.load(file)
 
     combats, dico_last_stats = _assignement_stat_combattant(combats, dico_var)
-
-    combats = _difference_combats(caracteristiques, combats)
+    combats = _difference_num_combats(caracteristiques, combats)
     last_stats = _format_last_stats(dico_last_stats)
     return combats, caracteristiques.merge(last_stats, on="name", how="left")
 
 
-
 if __name__ == "__main__":
-    caracteristiques = pd.read_csv("Data/Data_ufc_fighters.csv")
+    caracteristiques = pd.read_csv("data/Data_ufc_fighters.csv")
     combats = pd.read_csv("data/Data_ufc_stats_combats.csv")
 
     caracteristiques = _main_construct(
