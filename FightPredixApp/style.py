@@ -8,7 +8,7 @@ def get_base64_of_bin_file(bin_file):
         data = f.read()
     return base64.b64encode(data).decode()
 
-
+#, url("data:image/png;base64,{base64_image}")
 # Charger l'image et l'injecter dans le CSS
 def custom_global(image_file):
     base64_image = get_base64_of_bin_file(image_file)
@@ -18,12 +18,17 @@ def custom_global(image_file):
         @import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer+SC&family=Pirata+One&display=swap');
 
         .stApp {{
-            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url("data:image/png;base64,{base64_image}");
+            background: linear-gradient(rgba(160, 0, 0, 0.8), rgba(0, 23, 43, 0.8));
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+        }}
+
+        p {{
+            font-family: "IM Fell Great Primer SC", serif;
         }}
         """,
         unsafe_allow_html=True,
@@ -119,9 +124,9 @@ def custom_navbar():
         .st-key-contact > div:nth-child(1) > button:nth-child(1) {{
             border: None; /* Supprimer la bordure */
             color: white; /* Couleur du texte */
-            background-image: linear-gradient(rgba(255, 0, 0, 0.8), rgba(0, 0, 0, 1)); /* Dégradé de couleur */
+            background-image: linear-gradient(rgba(160, 0, 0, 0.8), rgba(160, 0, 0, 0.8)); /* Dégradé de couleur */
             width: 130px; /* Largeur */
-            box-shadow: 0 0 10px red; /* Ombre portée */
+            # box-shadow: 0 0 10px red; /* Ombre portée */
             transition: 1s, z-index 0s; /* Transition */
             animation: hitNavbar 1.5s; /* Animation */
         }}
@@ -183,7 +188,7 @@ def custom_navbar():
             font-family: "Pirata One", serif;
             # font-family: 'Bangers', sans-serif;
             transition: 1s, z-index 0s;
-            background-image: linear-gradient(rgba(255, 0, 0, 0.8), rgba(0, 0, 0, 1));
+            background-image: linear-gradient(rgba(100, 0, 0, 0.8), rgba(0, 0, 0, 1));
             width: 150px;
             border-radius: 5px;
             padding: 35px 10px;
@@ -208,7 +213,7 @@ def custom_navbar():
         }}
 
         div.st-emotion-cache-5dda5n.e1dbuyne15 button.st-emotion-cache-1soyyad.e1obcldf18 {{
-            background-image: linear-gradient(rgba(255, 0, 0, 0.6), rgba(0, 0, 0, 1)) !important;
+            background-image: linear-gradient(rgba(100, 0, 0, 0.6), rgba(0, 0, 0, 1)) !important;
         }}
 
         /*media query*/
@@ -292,7 +297,7 @@ def init_pages():
     st.set_page_config(
         page_title="FightPredix",
         page_icon="🥊",
-        layout="centered",
+        layout="wide",
         initial_sidebar_state="collapsed",
     )
 
