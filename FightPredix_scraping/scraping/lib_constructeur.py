@@ -232,110 +232,83 @@ def _age_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
     return Combats
 
 
-def _win_losses_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
+
+def calcul_statistique_generique(combats: pd.DataFrame, calculs_par_combattant) -> pd.DataFrame:
     """
-    Fonction qui calcule les victoires des combattants au moment du combat
+    Fonction générique pour calculer des statistiques des combattants à partir des combats.
     """
-    Combats = combats.copy()
-    temp_dict: dict = dict()
+    cob = combats.copy()
+    cob = cob.sort_index(ascending=False) 
 
-    def _sub_win_losses_temps_t(combattant, nickname, prefixe, resultat):
-        for nom in Data["name"].values:
-            if fuzz.ratio(nom.lower(), combattant.lower()) > 90:
-                win, losses = Data[Data["name"].str.lower() == nom.lower()][
-                    ["win", "losses"]
-                ].values[0]
-
-
-                if (prefixe == "combattant_1" and resultat == 0) or (
-                    prefixe == "combattant_2" and resultat == 1
-                ):
-                    temp_dict[f"{combattant}_{nickname}_win_t"] = (
-                        temp_dict.get(f"{combattant}_{nickname}_win_t", 0) + 1
-                    )
-                elif (prefixe == "combattant_1" and resultat == 1) or (
-                    prefixe == "combattant_2" and resultat == 0
-                ):
-                    temp_dict[f"{combattant}_{nickname}_losses_t"] = (
-                        temp_dict.get(f"{combattant}_{nickname}_losses_t", 0) + 1
-                    )
-                    
-                Combats.loc[i, f"{prefixe}_win_t"] = win - temp_dict.get(
-                    f"{combattant}_{nickname}_win_t", 0
-                )
-                Combats.loc[i, f"{prefixe}_losses_t"] = losses - temp_dict.get(
-                    f"{combattant}_{nickname}_losses_t", 0
-                )
-
-    for i, combat in Combats.iterrows():
-        combattant_1, nickname_1 = combat["combattant_1"], combats["nickname_1"]
-        combattant_2, nickname_2 = combat["combattant_2"], combats["nickname_2"]
+    temp_dict = {} 
+    
+    for i, combat in cob.iterrows():
+        combattant_1, nickname_1 = combat["combattant_1"], combat["nickname_1"]
+        combattant_2, nickname_2 = combat["combattant_2"], combat["nickname_2"]
         resultat = combat["resultat"]
 
-        if not isinstance(nickname_1,str):
-            nickname_1 = "NO"
-
-        if not isinstance(nickname_2,str):
-            nickname_2 = "NO"
-
-        _sub_win_losses_temps_t(combattant_1, nickname_1, "combattant_1", resultat)
-        _sub_win_losses_temps_t(combattant_2, nickname_2, "combattant_2", resultat)
-
-    return Combats
-
-
-def _forme_combattant(Combats: pd.DataFrame):
-    """
-    Fonction qui calcule la forme du combattant grace aux victoires et/ou defaites de ses 3 derniers combats
-    """
-    combats = Combats.copy()
-    combats = combats.sort_index(ascending=False)
-    temp_dict = {}
-    def _sub_fonction_forme_combattant(combattant, nickname, prefixe, resultat, index):
-        if f"{combattant}_{nickname}_forme" not in temp_dict.keys():
-            temp_dict[f"{combattant}_{nickname}_forme"] = []
-        combats.loc[index, f"{prefixe}_forme"] = sum(
-            temp_dict[f"{combattant}_{nickname}_forme"]
-        )
-        combats.loc[index, f"{prefixe}_forme"] = sum(
-            temp_dict[f"{combattant}_{nickname}_forme"]
-        )
-        if (prefixe == "combattant_1" and resultat == 0) or (
-            prefixe == "combattant_2" and resultat == 1
-        ):
-            if len(temp_dict[f"{combattant}_{nickname}_forme"]) < 3:
-                temp_dict[f"{combattant}_{nickname}_forme"].append(1)
-            else:
-                for i in range(len(temp_dict[f"{combattant}_{nickname}_forme"]) - 1):
-                    temp_dict[f"{combattant}_{nickname}_forme"][i] = temp_dict[
-                        f"{combattant}_{nickname}_forme"
-                    ][i + 1]
-                temp_dict[f"{combattant}_{nickname}_forme"][2] = 1
-        elif (prefixe == "combattant_1" and resultat == 1) or (
-            prefixe == "combattant_2" and resultat == 0
-        ):
-            if len(temp_dict[f"{combattant}_{nickname}_forme"]) < 3:
-                temp_dict[f"{combattant}_{nickname}_forme"].append(-1)
-            else:
-                for i in range(len(temp_dict[f"{combattant}_{nickname}_forme"]) - 1):
-                    temp_dict[f"{combattant}_{nickname}_forme"][i] = temp_dict[
-                        f"{combattant}_{nickname}_forme"
-                    ][i + 1]
-                temp_dict[f"{combattant}_{nickname}_forme"][2] = -1
-    for i, combat in combats.iterrows():
-        combattant_1, nickname_1 = combat["combattant_1"], combats["nickname_1"]
-        combattant_2, nickname_2 = combat["combattant_2"], combats["nickname_2"]
-        resultat = combat["resultat"]
         nickname_1 = nickname_1 if isinstance(nickname_1, str) else "NO"
         nickname_2 = nickname_2 if isinstance(nickname_2, str) else "NO"
-        _sub_fonction_forme_combattant(
-            combattant_1, nickname_1, "combattant_1", resultat, i
-        )
-        _sub_fonction_forme_combattant(
-            combattant_2, nickname_2, "combattant_2", resultat, i
-        )
-    combats = combats.sort_index(ascending=True)
-    return combats
+
+        calculs_par_combattant(temp_dict, cob, combattant_1, nickname_1, "combattant_1", resultat, i)
+        calculs_par_combattant(temp_dict, cob, combattant_2, nickname_2, "combattant_2", resultat, i)
+
+    cob = cob.sort_index(ascending=True)
+    return cob
+
+
+def calcul_victoires_defaites(temp_dict, cob, combattant, nickname, prefixe, resultat, index):
+    """
+    Sous fonction qui calcule les victoires et les défaites des combattants au temps t
+    """
+    if f"{combattant}_{nickname}_win_t" not in temp_dict:
+        temp_dict[f"{combattant}_{nickname}_win_t"] = 0
+    if f"{combattant}_{nickname}_losses_t" not in temp_dict:
+        temp_dict[f"{combattant}_{nickname}_losses_t"] = 0
+
+    cob.loc[index, f"{prefixe}_win_t"] = temp_dict[f"{combattant}_{nickname}_win_t"]
+    cob.loc[index, f"{prefixe}_losses_t"] = temp_dict[f"{combattant}_{nickname}_losses_t"]
+
+    if (prefixe == "combattant_1" and resultat == 0) or (prefixe == "combattant_2" and resultat == 1):
+        temp_dict[f"{combattant}_{nickname}_win_t"] += 1
+    elif (prefixe == "combattant_1" and resultat == 1) or (prefixe == "combattant_2" and resultat == 0):
+        temp_dict[f"{combattant}_{nickname}_losses_t"] += 1
+
+
+def calcul_forme_combattant(temp_dict, cob, combattant, nickname, prefixe, resultat, index):
+    """
+    Sous fonction qui calcule la forme des combattants au travers des resultats des 3 derniers combats au temps t de chaque combattant
+    """
+    if f"{combattant}_{nickname}_forme" not in temp_dict:
+        temp_dict[f"{combattant}_{nickname}_forme"] = []
+
+    cob.loc[index, f"{prefixe}_forme"] = sum(temp_dict[f"{combattant}_{nickname}_forme"])
+
+    if (prefixe == "combattant_1" and resultat == 0) or (prefixe == "combattant_2" and resultat == 1):
+        if len(temp_dict[f"{combattant}_{nickname}_forme"]) < 3:
+            temp_dict[f"{combattant}_{nickname}_forme"].append(1)
+        else:
+            temp_dict[f"{combattant}_{nickname}_forme"] = temp_dict[f"{combattant}_{nickname}_forme"][1:] + [1]
+    elif (prefixe == "combattant_1" and resultat == 1) or (prefixe == "combattant_2" and resultat == 0):
+        if len(temp_dict[f"{combattant}_{nickname}_forme"]) < 3:
+            temp_dict[f"{combattant}_{nickname}_forme"].append(-1)
+        else:
+            temp_dict[f"{combattant}_{nickname}_forme"] = temp_dict[f"{combattant}_{nickname}_forme"][1:] + [-1]
+
+
+def calcul_serie_victoires(temp_dict, cob, combattant, nickname, prefixe, resultat, index):
+    """
+    Sous fonction qui calcule la série de victoires des combattants au temps t, dès qu'une defaite est enregistrée la série est remise à 0
+    """
+    if f"{combattant}_{nickname}_serie" not in temp_dict:
+        temp_dict[f"{combattant}_{nickname}_serie"] = []
+
+    cob.loc[index, f"{prefixe}_serie"] = sum(temp_dict[f"{combattant}_{nickname}_serie"])
+
+    if (prefixe == "combattant_1" and resultat == 0) or (prefixe == "combattant_2" and resultat == 1):
+        temp_dict[f"{combattant}_{nickname}_serie"].append(1)
+    elif (prefixe == "combattant_1" and resultat == 1) or (prefixe == "combattant_2" and resultat == 0):
+        temp_dict[f"{combattant}_{nickname}_serie"].clear()
 
 
 def _format_last_stats(dico_last_stats: dict) -> pd.DataFrame:
@@ -360,8 +333,9 @@ def _main_construct(
     combats = _cleaning(combats)
     combats = _difference_cat_combts(caracteristiques, combats)
     combats = _age_temps_t(caracteristiques, combats)
-    combats = _win_losses_temps_t(caracteristiques, combats)
-    combats = _forme_combattant(combats)
+    combats = calcul_statistique_generique(combats, calcul_victoires_defaites)
+    combats = calcul_statistique_generique(combats, calcul_forme_combattant)
+    combats = calcul_statistique_generique(combats, calcul_serie_victoires)
 
     with open(
         "FightPredix_scraping/scraping/dico_formatage/dico_var.json", "r"
