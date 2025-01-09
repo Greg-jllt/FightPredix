@@ -117,6 +117,44 @@ def custom_navbar():
             align-items: center;
         }}
 
+        /* Bouton predict */
+
+        .st-key-predict > div:nth-child(1) > button:nth-child(1) {{
+            background-image: linear-gradient(rgba(0, 23, 43, 1), rgba(0, 23, 43, 1));
+            display: flex;
+            align-items: center; 
+            justify-content: center;
+            gap: 0px; /* Espacement entre l'image et le texte */
+            padding: 5px 0px; /* Espacement interne en fonction de la largeur de l'écran */
+            height: 55 px; /* Ajuste automatiquement la hauteur en fonction du contenu */
+            min-width:100%;
+            position: relative;
+        }}
+
+        .st-key-predict > div:nth-child(1) > button:nth-child(1)::before {{
+            content: "";
+            display: inline-block;
+            width: 2.5vw; /* Largeur de l'image relative à la largeur du bouton */
+            height: 2vw; /* Ajuste la hauteur automatiquement pour garder les proportions */
+            background-image: url("data:image/png;base64,{get_base64_of_bin_file('./img/logo.png')}");
+            background-size: contain; 
+            background-repeat: no-repeat; 
+        }}
+
+        /* Media query pour les petits écrans */
+        @media (max-width: 768px) {{
+            .st-key-predict > div:nth-child(1) > button:nth-child(1) {{
+                padding: 2vw 3vw; /* Augmente l'espacement sur les petits écrans */
+                min-height: 45px; /* Réduit légèrement la hauteur minimale */
+            }}
+
+            .st-key-predict > div:nth-child(1) > button:nth-child(1)::before {{
+                width: 15%; /* Ajuste l'image pour qu'elle soit plus petite sur les petits écrans */
+                max-width: 40px; /* Réduit la limite maximale pour l'image */
+            }}
+        }}
+
+
 
         /* Boutons de la navbar */
         .st-key-home > div:nth-child(1) > button:nth-child(1),
@@ -172,50 +210,50 @@ def custom_navbar():
 
 
         /* élément de la sidebar */
-        .st-emotion-cache-hzo1qh > img:nth-child(1), .st-emotion-cache-79elbk, .st-emotion-cache-kgpedg > img:nth-child(1){{
-            display: None;
-        }}
+        # .st-emotion-cache-hzo1qh > img:nth-child(1), .st-emotion-cache-79elbk, .st-emotion-cache-kgpedg > img:nth-child(1){{
+        #     display: None;
+        # }}
 
-        .stSidebar {{
-            width: 10px !important;
-            display: None;
-        }}
+        # .stSidebar {{
+        #     width: 10px !important;
+        #     display: None;
+        # }}
 
-        div.stElementContainer:nth-child(3) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1),
-        div.stElementContainer:nth-child(4) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1),
-        div.stElementContainer:nth-child(5) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1),
-        div.stElementContainer:nth-child(6) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1){{
-            border: None;
-            font-family: "Pirata One", serif;
-            # font-family: 'Bangers', sans-serif;
-            transition: 1s, z-index 0s;
-            background-image: linear-gradient(rgba(100, 0, 0, 0.8), rgba(0, 0, 0, 1));
-            width: 150px;
-            border-radius: 5px;
-            padding: 35px 10px;
-            box-shadow: 0 0 10px red;
-        }}
+        # div.stElementContainer:nth-child(3) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1),
+        # div.stElementContainer:nth-child(4) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1),
+        # div.stElementContainer:nth-child(5) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1),
+        # div.stElementContainer:nth-child(6) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1){{
+        #     border: None;
+        #     font-family: "Pirata One", serif;
+        #     # font-family: 'Bangers', sans-serif;
+        #     transition: 1s, z-index 0s;
+        #     background-image: linear-gradient(rgba(100, 0, 0, 0.8), rgba(0, 0, 0, 1));
+        #     width: 150px;
+        #     border-radius: 5px;
+        #     padding: 35px 10px;
+        #     box-shadow: 0 0 10px red;
+        # }}
 
-        div.stElementContainer:nth-child(3) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1):hover,
-        div.stElementContainer:nth-child(4) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1):hover,
-        div.stElementContainer:nth-child(5) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1):hover,
-        div.stElementContainer:nth-child(6) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1):hover{{
-            color: red;
-            transform: scale(1.2);
-            cursor: pointer;
-        }}
+        # div.stElementContainer:nth-child(3) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1):hover,
+        # div.stElementContainer:nth-child(4) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1):hover,
+        # div.stElementContainer:nth-child(5) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1):hover,
+        # div.stElementContainer:nth-child(6) > div:nth-child(1) > button:nth-child(1) > div:nth-child(1):hover{{
+        #     color: red;
+        #     transform: scale(1.2);
+        #     cursor: pointer;
+        # }}
 
-        div.stElementContainer:nth-child(3) > div:nth-child(1) > button:nth-child(1),
-        div.stElementContainer:nth-child(4) > div:nth-child(1) > button:nth-child(1),
-        div.stElementContainer:nth-child(5) > div:nth-child(1) > button:nth-child(1),
-        div.stElementContainer:nth-child(6) > div:nth-child(1) > button:nth-child(1){{
-            border: None;
-            background-color: transparent;
-        }}
+        # div.stElementContainer:nth-child(3) > div:nth-child(1) > button:nth-child(1),
+        # div.stElementContainer:nth-child(4) > div:nth-child(1) > button:nth-child(1),
+        # div.stElementContainer:nth-child(5) > div:nth-child(1) > button:nth-child(1),
+        # div.stElementContainer:nth-child(6) > div:nth-child(1) > button:nth-child(1){{
+        #     border: None;
+        #     background-color: transparent;
+        # }}
 
-        div.st-emotion-cache-5dda5n.e1dbuyne15 button.st-emotion-cache-1soyyad.e1obcldf18 {{
-            background-image: linear-gradient(rgba(100, 0, 0, 0.6), rgba(0, 0, 0, 1)) !important;
-        }}
+        # div.st-emotion-cache-5dda5n.e1dbuyne15 button.st-emotion-cache-1soyyad.e1obcldf18 {{
+        #     background-image: linear-gradient(rgba(100, 0, 0, 0.6), rgba(0, 0, 0, 1)) !important;
+        # }}
 
         /*media query*/
 
@@ -292,6 +330,40 @@ def custom_navbar():
 #     }}
 #     </style>
 # """, unsafe_allow_html=True)
+
+def bouton_prediction():
+    def get_base64_image(chemin):
+        with open(chemin, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode("utf-8")
+
+    image_base64 = get_base64_image("img/logo.png")
+
+    st.markdown(f"""
+    <style>
+    .custom-button {{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 20px;
+        color: white;
+        background-color: #00172B;
+        border: none;
+        border-radius: 7px;
+        cursor: pointer;
+        text-decoration: none;
+        width: 80 px;
+        height: 50px;
+    }}
+    .custom-button img {{
+        width: 80px;
+        height: 40px;
+        margin-right: 0px;
+    }}
+    </style>
+    <a class="custom-button" onclick="document.location.reload()">
+        <img src="data:image/png;base64,{image_base64}" alt="Icon">
+    </a>
+    """, unsafe_allow_html=True)
 
 
 def init_pages():

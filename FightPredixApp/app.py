@@ -9,7 +9,7 @@ import os
 
 
 from pages import page_predictions
-from style import init_pages
+from style import init_pages, bouton_prediction
 
 init_pages()
 
@@ -71,7 +71,7 @@ def titre(texte):
         unsafe_allow_html=True,
     )
 
-navbar_sidebar()
+# navbar_sidebar()
 
 if "predictable" not in st.session_state:
         st.session_state["predictable"] = False
@@ -84,7 +84,7 @@ if st.session_state.current_page == "home":
 
     titre("Bienvenue sur FightPredix !")
     st.write("FightPredix est une application développé avec python dans le but d'essayer de prédire les résultats des combats de L'UFC.")
-    st.write("La section combattants permet de comparer deux combattants et de voir leurs statistiques respectives.")
+    st.write("La section combattants permet de comparer deux combattants et de voir leurs statistiques respectives. Une fois la sélèction effectué cliquez sur le logo.")
     st.write("Enfin la section prédictions, comme son nom l'indique, permet de prédire le résultat d'un combat entre deux combattants.")
 
 
@@ -173,9 +173,9 @@ elif st.session_state.current_page == "combattants":
                 st.session_state["predictable"] = False
             else :
                 with col2 :
-                    if col2.button("Predict", key="predict"):
+                    # col2.markdown("<br><br><br><br><br>", unsafe_allow_html=True)  # Deux sauts de ligne HTML
+                    if col2.button("", key="predict"):
                         st.session_state["predictable"] = True
-
 
             with a2:
 
