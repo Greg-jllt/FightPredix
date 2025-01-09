@@ -233,7 +233,7 @@ def _age_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
 
 
 
-def calcul_statistique_generique(combats: pd.DataFrame, calculs_par_combattant) -> pd.DataFrame:
+def _calcul_statistique_generique(combats: pd.DataFrame, calculs_par_combattant) -> pd.DataFrame:
     """
     Fonction générique pour calculer des statistiques des combattants à partir des combats.
     """
@@ -257,7 +257,7 @@ def calcul_statistique_generique(combats: pd.DataFrame, calculs_par_combattant) 
     return cob
 
 
-def calcul_victoires_defaites(temp_dict, cob, combattant, nickname, prefixe, resultat, index):
+def _calcul_victoires_defaites(temp_dict, cob, combattant, nickname, prefixe, resultat, index):
     """
     Sous fonction qui calcule les victoires et les défaites des combattants au temps t
     """
@@ -275,7 +275,7 @@ def calcul_victoires_defaites(temp_dict, cob, combattant, nickname, prefixe, res
         temp_dict[f"{combattant}_{nickname}_losses_t"] += 1
 
 
-def calcul_forme_combattant(temp_dict, cob, combattant, nickname, prefixe, resultat, index):
+def _calcul_forme_combattant(temp_dict, cob, combattant, nickname, prefixe, resultat, index):
     """
     Sous fonction qui calcule la forme des combattants au travers des resultats des 3 derniers combats au temps t de chaque combattant
     """
@@ -296,7 +296,7 @@ def calcul_forme_combattant(temp_dict, cob, combattant, nickname, prefixe, resul
             temp_dict[f"{combattant}_{nickname}_forme"] = temp_dict[f"{combattant}_{nickname}_forme"][1:] + [-1]
 
 
-def calcul_serie_victoires(temp_dict, cob, combattant, nickname, prefixe, resultat, index):
+def _calcul_serie_victoires(temp_dict, cob, combattant, nickname, prefixe, resultat, index):
     """
     Sous fonction qui calcule la série de victoires des combattants au temps t, dès qu'une defaite est enregistrée la série est remise à 0
     """
@@ -333,9 +333,9 @@ def _main_construct(
     combats = _cleaning(combats)
     combats = _difference_cat_combts(caracteristiques, combats)
     combats = _age_temps_t(caracteristiques, combats)
-    combats = calcul_statistique_generique(combats, calcul_victoires_defaites)
-    combats = calcul_statistique_generique(combats, calcul_forme_combattant)
-    combats = calcul_statistique_generique(combats, calcul_serie_victoires)
+    combats = _calcul_statistique_generique(combats, _calcul_victoires_defaites)
+    combats = _calcul_statistique_generique(combats, _calcul_forme_combattant)
+    combats = _calcul_statistique_generique(combats, _calcul_serie_victoires)
 
     with open(
         "FightPredix_scraping/scraping/dico_formatage/dico_var.json", "r"
