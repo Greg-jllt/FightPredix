@@ -3,15 +3,24 @@ import streamlit as st
 import os
 import pandas as pd
 import plotly.graph_objects as go
+import joblib
 import requests
 from PIL import Image
-import os
+import time
 
 
 from pages import page_predictions
 from style import init_pages, bouton_prediction
 
 init_pages()
+
+
+@st.cache_resource
+def load_model():
+    return joblib.load("model.pkl")
+
+if os.path.exists("model.pkl"):
+    model = load_model()
 
 # Gestion de l'état pour suivre la page courante
 if "current_page" not in st.session_state:
@@ -315,7 +324,6 @@ elif st.session_state.current_page == "combattants":
 
 elif st.session_state.current_page == "predictions":
     # page_predictions()
-
     if st.session_state["predictable"] == False:
         titre("Choisissez deux combattants différents.")
     else:
@@ -409,8 +417,10 @@ elif st.session_state.current_page == "predictions":
 
         _, cent_co,_ = st.columns([1,1, 1])
         with cent_co:
-            st.plotly_chart(fig)
-            st.write(f"Selon l'algorrithme, {st.session_state['fighter_1']} a une probabilité de vaincre {st.session_state['fighter_2']} de {values[0]*100}%, la où {st.session_state['fighter_2']} a une probabilité de vaincre {st.session_state['fighter_1']} de {values[1]*100}%.")
+            with st.spinner('Prediction en cours'):
+                time.sleep(6)
+                st.plotly_chart(fig)
+                st.write(f"Selon l'algorrithme, {st.session_state['fighter_1']} a une probabilité de vaincre {st.session_state['fighter_2']} de {values[0]*100}%, la où {st.session_state['fighter_2']} a une probabilité de vaincre {st.session_state['fighter_1']} de {values[1]*100}%.")
 
 
 else:
