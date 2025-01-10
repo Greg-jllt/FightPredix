@@ -125,9 +125,6 @@ def _process_valeur(valeur):
         return np.nan
 
     valeur = str(valeur)
-    match_ratio = re.match(r"^(\d+)\s+of\s+(\d+)$", valeur)
-    if match_ratio:
-        return int(match_ratio.group(2))
 
     match_percentage = re.match(r"^(\d+)%$", valeur)
     if match_percentage:
@@ -151,11 +148,15 @@ def _process_valeur(valeur):
 
 
 def _process_ratio(valeur):
+    """
+    Extrait le numérateur et le dénominateur d'une chaîne 
+    """
     valeur = str(valeur)
     match_ratio = re.match(r"^(\d+)\s+of\s+(\d+)$", valeur)
     if match_ratio:
         num, denom = map(int, match_ratio.groups())
-        return round(num / denom, 2) if denom != 0 else np.nan
+        ratio = round(num / denom, 2) if denom != 0 else np.nan
+        return num, denom, ratio
 
 
 def _cleaning(data):
@@ -177,9 +178,11 @@ def _cleaning(data):
             )
 
             if ratio_bool.any():
-                new_columns[f"{col}_ratio"] = (
-                    Data[col].where(ratio_bool).apply(_process_ratio)
+                Data[[f"{col}_réussi", f"{col}_total", f"{col}_ratio"]] = Data[col].apply(
+                    lambda x: pd.Series(_process_ratio(x))
                 )
+                Data.drop(col, axis=1, inplace=True)
+                continue
 
             Data.loc[:, col] = Data[col].apply(_process_valeur)
             try : 
