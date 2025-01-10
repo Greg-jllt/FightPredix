@@ -168,7 +168,9 @@ if __name__ == "__main__":
 
     data = pd.read_csv("data/Data_ufc_combat_complet_actuel_clean.csv")
 
-    data, dico_last_stat = _assignement_stat_combattant(data, dico_var)
+    data, dico_last_stat, dico_last_stats_nom_identiques = _assignement_stat_combattant(
+        data, dico_var
+    )
 
     data.to_csv("data/Data_ufc_combat_complet_actuel_clean.csv", index=False)
     with open("data/dico_last_stat.json", "w") as file:

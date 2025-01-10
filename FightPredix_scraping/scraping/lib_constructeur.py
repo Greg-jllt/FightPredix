@@ -258,7 +258,7 @@ def _calcul_statistique_generique(
     cob = combats.copy()
     cob = cob.sort_index(ascending=False)
 
-    temp_dict = {}
+    temp_dict: dict = {}
 
     for i, combat in cob.iterrows():
         combattant_1, nickname_1 = combat["combattant_1"], combat["nickname_1"]
@@ -447,7 +447,9 @@ def _derniere_difference(
                     "combattant_1_portée_de_la_jambe",
                 ] = DataFighters[DataFighters["name"] == nom][
                     "portée_de_la_jambe"
-                ].values[0]
+                ].values[
+                    0
+                ]
             if nom == c2:
                 DataCombats.loc[
                     DataCombats["combattant_2"] == nom, "combattant_2_la_taille"
@@ -463,7 +465,9 @@ def _derniere_difference(
                     "combattant_2_portée_de_la_jambe",
                 ] = DataFighters[DataFighters["name"] == nom][
                     "portée_de_la_jambe"
-                ].values[0]
+                ].values[
+                    0
+                ]
 
     DataCombats["diff_la_taille"] = (
         DataCombats["combattant_1_la_taille"] - DataCombats["combattant_2_la_taille"]
