@@ -4,20 +4,25 @@ Développée par :
     - [Gregory Jaillet](https://github.com/Greg-jllt)
     - [Hugo Cochereau](https://github.com/hugocoche)
 """
+
 from rapidfuzz import fuzz
 from datetime import datetime
 from .lib_stats import _assignement_stat_combattant
-
+from unidecode import unidecode
 import json
 import numpy as np
 import re
 import pandas as pd
 
-def _difference_cat_combts(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
 
+def _difference_cat_combts(
+    caracteristiques: pd.DataFrame, combats: pd.DataFrame
+) -> pd.DataFrame:
     lignes_a_ajouter = []
-    cat_colonnes_caracteristiques = caracteristiques.select_dtypes(include=["object"]).columns.tolist()
-    cat_colonnes_caracteristiques.remove("name") 
+    cat_colonnes_caracteristiques = caracteristiques.select_dtypes(
+        include=["object"]
+    ).columns.tolist()
+    cat_colonnes_caracteristiques.remove("name")
 
     for i, combat in combats.iterrows():
         combattant_1 = combat["combattant_1"]
@@ -27,12 +32,16 @@ def _difference_cat_combts(caracteristiques: pd.DataFrame, combats: pd.DataFrame
 
         for nom in caracteristiques["name"].values:
             if fuzz.ratio(nom.lower(), combattant_1.lower()) >= 90:
-                stats_combattant_1 = caracteristiques[caracteristiques["name"] == nom].iloc[0]
+                stats_combattant_1 = caracteristiques[
+                    caracteristiques["name"] == nom
+                ].iloc[0]
                 break
 
         for nom in caracteristiques["name"].values:
             if fuzz.ratio(nom.lower(), combattant_2.lower()) >= 90:
-                stats_combattant_2 = caracteristiques[caracteristiques["name"] == nom].iloc[0]
+                stats_combattant_2 = caracteristiques[
+                    caracteristiques["name"] == nom
+                ].iloc[0]
                 break
 
         if stats_combattant_1 is not None and stats_combattant_2 is not None:
@@ -44,15 +53,20 @@ def _difference_cat_combts(caracteristiques: pd.DataFrame, combats: pd.DataFrame
 
             lignes_a_ajouter.append(nouvelle_ligne)
 
-    df_categoriel = pd.DataFrame(lignes_a_ajouter).set_index("index") if lignes_a_ajouter else pd.DataFrame()
+    df_categoriel = (
+        pd.DataFrame(lignes_a_ajouter).set_index("index")
+        if lignes_a_ajouter
+        else pd.DataFrame()
+    )
 
     resultat = pd.concat([combats.reset_index(drop=True), df_categoriel], axis=1)
 
     return resultat
 
+
 def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
     """
-    Fonction de calcul de la différence entre les caractéristiques des combattants 
+    Fonction de calcul de la différence entre les caractéristiques des combattants
     au sein de chaque combat.
     """
 
@@ -61,15 +75,15 @@ def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
 
     num_colonnes_combats = combats.select_dtypes(include=["number"]).columns
 
-
     pattern = re.compile(r"combattant_(\d+)_(.+)")
 
     for col in num_colonnes_combats:
         match = pattern.match(col)
         if match:
-            stat_type = match.group(2) 
+            stat_type = match.group(2)
             colonnes_a_concat[f"diff_{stat_type}"] = (
-                combats[f"combattant_1_{stat_type}"] - combats[f"combattant_2_{stat_type}"]
+                combats[f"combattant_1_{stat_type}"]
+                - combats[f"combattant_2_{stat_type}"]
             )
             cols_to_drop.append(f"combattant_1_{stat_type}")
             cols_to_drop.append(f"combattant_2_{stat_type}")
@@ -121,7 +135,7 @@ def _clean_column_nom(nom):
 
 
 def _process_valeur(valeur):
-    if pd.isna(valeur) or valeur in ["nan", "None"]: 
+    if pd.isna(valeur) or valeur in ["nan", "None"]:
         return np.nan
 
     valeur = str(valeur)
@@ -149,7 +163,7 @@ def _process_valeur(valeur):
 
 def _process_ratio(valeur):
     """
-    Extrait le numérateur et le dénominateur d'une chaîne 
+    Extrait le numérateur et le dénominateur d'une chaîne
     """
     valeur = str(valeur)
     match_ratio = re.match(r"^(\d+)\s+of\s+(\d+)$", valeur)
@@ -178,15 +192,15 @@ def _cleaning(data):
             )
 
             if ratio_bool.any():
-                Data[[f"{col}_réussi", f"{col}_total", f"{col}_ratio"]] = Data[col].apply(
-                    lambda x: pd.Series(_process_ratio(x))
-                )
+                Data[[f"{col}_réussi", f"{col}_total", f"{col}_ratio"]] = Data[
+                    col
+                ].apply(lambda x: pd.Series(_process_ratio(x)))
                 Data.drop(col, axis=1, inplace=True)
                 continue
 
             Data.loc[:, col] = Data[col].apply(_process_valeur)
-            try : 
-                Data[col] = pd.to_numeric(Data[col], errors='raise')
+            try:
+                Data[col] = pd.to_numeric(Data[col], errors="raise")
             except ValueError:
                 pass
 
@@ -235,16 +249,17 @@ def _age_temps_t(Data: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
     return Combats
 
 
-
-def _calcul_statistique_generique(combats: pd.DataFrame, calculs_par_combattant) -> pd.DataFrame:
+def _calcul_statistique_generique(
+    combats: pd.DataFrame, calculs_par_combattant
+) -> pd.DataFrame:
     """
     Fonction générique pour calculer des statistiques des combattants à partir des combats.
     """
     cob = combats.copy()
-    cob = cob.sort_index(ascending=False) 
+    cob = cob.sort_index(ascending=False)
 
-    temp_dict = {} 
-    
+    temp_dict = {}
+
     for i, combat in cob.iterrows():
         combattant_1, nickname_1 = combat["combattant_1"], combat["nickname_1"]
         combattant_2, nickname_2 = combat["combattant_2"], combat["nickname_2"]
@@ -253,14 +268,20 @@ def _calcul_statistique_generique(combats: pd.DataFrame, calculs_par_combattant)
         nickname_1 = nickname_1 if isinstance(nickname_1, str) else "NO"
         nickname_2 = nickname_2 if isinstance(nickname_2, str) else "NO"
 
-        calculs_par_combattant(temp_dict, cob, combattant_1, nickname_1, "combattant_1", resultat, i)
-        calculs_par_combattant(temp_dict, cob, combattant_2, nickname_2, "combattant_2", resultat, i)
+        calculs_par_combattant(
+            temp_dict, cob, combattant_1, nickname_1, "combattant_1", resultat, i
+        )
+        calculs_par_combattant(
+            temp_dict, cob, combattant_2, nickname_2, "combattant_2", resultat, i
+        )
 
     cob = cob.sort_index(ascending=True)
     return cob
 
 
-def _calcul_victoires_defaites(temp_dict, cob, combattant, nickname, prefixe, resultat, index):
+def _calcul_victoires_defaites(
+    temp_dict, cob, combattant, nickname, prefixe, resultat, index
+):
     """
     Sous fonction qui calcule les victoires et les défaites des combattants au temps t
     """
@@ -270,47 +291,73 @@ def _calcul_victoires_defaites(temp_dict, cob, combattant, nickname, prefixe, re
         temp_dict[f"{combattant}_{nickname}_losses_t"] = 0
 
     cob.loc[index, f"{prefixe}_win_t"] = temp_dict[f"{combattant}_{nickname}_win_t"]
-    cob.loc[index, f"{prefixe}_losses_t"] = temp_dict[f"{combattant}_{nickname}_losses_t"]
+    cob.loc[index, f"{prefixe}_losses_t"] = temp_dict[
+        f"{combattant}_{nickname}_losses_t"
+    ]
 
-    if (prefixe == "combattant_1" and resultat == 0) or (prefixe == "combattant_2" and resultat == 1):
+    if (prefixe == "combattant_1" and resultat == 0) or (
+        prefixe == "combattant_2" and resultat == 1
+    ):
         temp_dict[f"{combattant}_{nickname}_win_t"] += 1
-    elif (prefixe == "combattant_1" and resultat == 1) or (prefixe == "combattant_2" and resultat == 0):
+    elif (prefixe == "combattant_1" and resultat == 1) or (
+        prefixe == "combattant_2" and resultat == 0
+    ):
         temp_dict[f"{combattant}_{nickname}_losses_t"] += 1
 
 
-def _calcul_forme_combattant(temp_dict, cob, combattant, nickname, prefixe, resultat, index):
+def _calcul_forme_combattant(
+    temp_dict, cob, combattant, nickname, prefixe, resultat, index
+):
     """
     Sous fonction qui calcule la forme des combattants au travers des resultats des 3 derniers combats au temps t de chaque combattant
     """
     if f"{combattant}_{nickname}_forme" not in temp_dict:
         temp_dict[f"{combattant}_{nickname}_forme"] = []
 
-    cob.loc[index, f"{prefixe}_forme"] = sum(temp_dict[f"{combattant}_{nickname}_forme"])
+    cob.loc[index, f"{prefixe}_forme"] = sum(
+        temp_dict[f"{combattant}_{nickname}_forme"]
+    )
 
-    if (prefixe == "combattant_1" and resultat == 0) or (prefixe == "combattant_2" and resultat == 1):
+    if (prefixe == "combattant_1" and resultat == 0) or (
+        prefixe == "combattant_2" and resultat == 1
+    ):
         if len(temp_dict[f"{combattant}_{nickname}_forme"]) < 3:
             temp_dict[f"{combattant}_{nickname}_forme"].append(1)
         else:
-            temp_dict[f"{combattant}_{nickname}_forme"] = temp_dict[f"{combattant}_{nickname}_forme"][1:] + [1]
-    elif (prefixe == "combattant_1" and resultat == 1) or (prefixe == "combattant_2" and resultat == 0):
+            temp_dict[f"{combattant}_{nickname}_forme"] = temp_dict[
+                f"{combattant}_{nickname}_forme"
+            ][1:] + [1]
+    elif (prefixe == "combattant_1" and resultat == 1) or (
+        prefixe == "combattant_2" and resultat == 0
+    ):
         if len(temp_dict[f"{combattant}_{nickname}_forme"]) < 3:
             temp_dict[f"{combattant}_{nickname}_forme"].append(-1)
         else:
-            temp_dict[f"{combattant}_{nickname}_forme"] = temp_dict[f"{combattant}_{nickname}_forme"][1:] + [-1]
+            temp_dict[f"{combattant}_{nickname}_forme"] = temp_dict[
+                f"{combattant}_{nickname}_forme"
+            ][1:] + [-1]
 
 
-def _calcul_serie_victoires(temp_dict, cob, combattant, nickname, prefixe, resultat, index):
+def _calcul_serie_victoires(
+    temp_dict, cob, combattant, nickname, prefixe, resultat, index
+):
     """
     Sous fonction qui calcule la série de victoires des combattants au temps t, dès qu'une defaite est enregistrée la série est remise à 0
     """
     if f"{combattant}_{nickname}_serie" not in temp_dict:
         temp_dict[f"{combattant}_{nickname}_serie"] = []
 
-    cob.loc[index, f"{prefixe}_serie"] = sum(temp_dict[f"{combattant}_{nickname}_serie"])
+    cob.loc[index, f"{prefixe}_serie"] = sum(
+        temp_dict[f"{combattant}_{nickname}_serie"]
+    )
 
-    if (prefixe == "combattant_1" and resultat == 0) or (prefixe == "combattant_2" and resultat == 1):
+    if (prefixe == "combattant_1" and resultat == 0) or (
+        prefixe == "combattant_2" and resultat == 1
+    ):
         temp_dict[f"{combattant}_{nickname}_serie"].append(1)
-    elif (prefixe == "combattant_1" and resultat == 1) or (prefixe == "combattant_2" and resultat == 0):
+    elif (prefixe == "combattant_1" and resultat == 1) or (
+        prefixe == "combattant_2" and resultat == 0
+    ):
         temp_dict[f"{combattant}_{nickname}_serie"].clear()
 
 
@@ -321,6 +368,27 @@ def _format_last_stats(dico_last_stats: dict) -> pd.DataFrame:
     last_stats.columns = last_stats.columns.str.strip()
     last_stats = last_stats.drop(last_stats.columns[0], axis=1)
     return last_stats
+
+
+def _format_last_stats_nom_identique(
+    dico_last_stats_nom_identique: dict,
+) -> pd.DataFrame:
+    """
+    Fonction qui formate les dernières statistiques des combattants à nom identique
+    """
+    last_stats_nom_identique = pd.DataFrame(dico_last_stats_nom_identique).T
+    last_stats_nom_identique.reset_index(inplace=True)
+    last_stats_nom_identique.rename(columns={"index": "nickname"}, inplace=True)
+    last_stats_nom_identique.columns = last_stats_nom_identique.columns.str.strip()
+    return last_stats_nom_identique
+
+
+def supprimer_caracteres_speciaux(chaine):
+    chaine = unidecode(chaine)
+    chaine = re.sub(r"[^a-zA-Z0-9\s]", "", chaine)
+    chaine = chaine.title()
+    return chaine
+
 
 def _main_construct(
     combats: pd.DataFrame, caracteristiques: pd.DataFrame
@@ -345,9 +413,17 @@ def _main_construct(
     ) as file:
         dico_var = json.load(file)
 
-    combats, dico_last_stats = _assignement_stat_combattant(combats, dico_var)
-    combats = _difference_num_combats(combats)
-    last_stats = _format_last_stats(dico_last_stats)
+    combats, dico_last_stats, dico_last_stats_nom_identique = (
+        _assignement_stat_combattant(combats, dico_var)
+    )
+    last_stats, last_stats_nom_identique = (
+        _format_last_stats(dico_last_stats),
+        _format_last_stats_nom_identique(dico_last_stats_nom_identique),
+    )
+    caracteristiques["name"] = [
+        supprimer_caracteres_speciaux(nom) for nom in caracteristiques["name"]
+    ]
+    last_stats_nom_identique.to_csv("data/Data_stats_nom_identique.csv", index=False)
     return combats, caracteristiques.merge(last_stats, on="name", how="left")
 
 
@@ -357,49 +433,53 @@ def _derniere_difference(
     for nom in DataFighters["name"]:
         for c1, c2 in zip(DataCombats["combattant_1"], DataCombats["combattant_2"]):
             if nom == c1:
-                DataCombats.loc[DataCombats["combattant_1"] == nom, "combattant_1_la_taille"] = (
-                    DataFighters[DataFighters["name"] == nom]["la_taille"].values[0]
-                )
-                DataCombats.loc[DataCombats["combattant_1"] == nom, "combattant_1_poids"] = (
-                    DataFighters[DataFighters["name"] == nom]["poids"].values[0]
-                )
-                DataCombats.loc[DataCombats["combattant_1"] == nom, "combattant_1_reach"] = (
-                    DataFighters[DataFighters["name"] == nom]["reach"].values[0]
-                )
                 DataCombats.loc[
-                    DataCombats["combattant_1"] == nom, "combattant_1_portée_de_la_jambe"
+                    DataCombats["combattant_1"] == nom, "combattant_1_la_taille"
+                ] = DataFighters[DataFighters["name"] == nom]["la_taille"].values[0]
+                DataCombats.loc[
+                    DataCombats["combattant_1"] == nom, "combattant_1_poids"
+                ] = DataFighters[DataFighters["name"] == nom]["poids"].values[0]
+                DataCombats.loc[
+                    DataCombats["combattant_1"] == nom, "combattant_1_reach"
+                ] = DataFighters[DataFighters["name"] == nom]["reach"].values[0]
+                DataCombats.loc[
+                    DataCombats["combattant_1"] == nom,
+                    "combattant_1_portée_de_la_jambe",
                 ] = DataFighters[DataFighters["name"] == nom][
                     "portée_de_la_jambe"
-                ].values[
-                    0
-                ]
+                ].values[0]
             if nom == c2:
-                DataCombats.loc[DataCombats["combattant_2"] == nom, "combattant_2_la_taille"] = (
-                    DataFighters[DataFighters["name"] == nom]["la_taille"].values[0]
-                )
-                DataCombats.loc[DataCombats["combattant_2"] == nom, "combattant_2_poids"] = (
-                    DataFighters[DataFighters["name"] == nom]["poids"].values[0]
-                )
-                DataCombats.loc[DataCombats["combattant_2"] == nom, "combattant_2_reach"] = (
-                    DataFighters[DataFighters["name"] == nom]["reach"].values[0]
-                )
                 DataCombats.loc[
-                    DataCombats["combattant_2"] == nom, "combattant_2_portée_de_la_jambe"
+                    DataCombats["combattant_2"] == nom, "combattant_2_la_taille"
+                ] = DataFighters[DataFighters["name"] == nom]["la_taille"].values[0]
+                DataCombats.loc[
+                    DataCombats["combattant_2"] == nom, "combattant_2_poids"
+                ] = DataFighters[DataFighters["name"] == nom]["poids"].values[0]
+                DataCombats.loc[
+                    DataCombats["combattant_2"] == nom, "combattant_2_reach"
+                ] = DataFighters[DataFighters["name"] == nom]["reach"].values[0]
+                DataCombats.loc[
+                    DataCombats["combattant_2"] == nom,
+                    "combattant_2_portée_de_la_jambe",
                 ] = DataFighters[DataFighters["name"] == nom][
                     "portée_de_la_jambe"
-                ].values[
-                    0
-                ]
+                ].values[0]
 
     DataCombats["diff_la_taille"] = (
         DataCombats["combattant_1_la_taille"] - DataCombats["combattant_2_la_taille"]
     )
-    DataCombats["diff_poids"] = DataCombats["combattant_1_poids"] - DataCombats["combattant_2_poids"]
-    DataCombats["diff_reach"] = DataCombats["combattant_1_reach"] - DataCombats["combattant_2_reach"]
+    DataCombats["diff_poids"] = (
+        DataCombats["combattant_1_poids"] - DataCombats["combattant_2_poids"]
+    )
+    DataCombats["diff_reach"] = (
+        DataCombats["combattant_1_reach"] - DataCombats["combattant_2_reach"]
+    )
     DataCombats["diff_portée_de_la_jambe"] = (
-        DataCombats["combattant_1_portée_de_la_jambe"] - DataCombats["combattant_2_portée_de_la_jambe"]
+        DataCombats["combattant_1_portée_de_la_jambe"]
+        - DataCombats["combattant_2_portée_de_la_jambe"]
     )
     return DataCombats
+
 
 if __name__ == "__main__":
     caracteristiques = pd.read_csv("data/Data_ufc_fighters.csv")
