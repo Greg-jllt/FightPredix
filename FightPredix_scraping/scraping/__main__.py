@@ -66,7 +66,7 @@ def _join_arbitre(combats: pd.DataFrame, data_arbitres: pd.DataFrame) -> pl.Data
 def main():
     chrome_options = Options()
 
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless")
 
     main_driver = webdriver.Chrome(options=chrome_options)
 
@@ -91,13 +91,13 @@ def main():
     Data = pd.read_csv("Data/Data_ufc_complet.csv")
 
     logger.info("Lancement du scraping sur les combats")
-    # combats = Dataframe_combats(main_driver)
+    combats = Dataframe_combats(main_driver)
 
     # combats.to_csv("Data/Data_ufc_combats_simple.csv", index=False)
 
     main_driver.quit()
 
-    combats = pd.read_csv("Data/Data_ufc_combats_simple.csv")
+    # combats = pd.read_csv("Data/Data_ufc_combats_simple.csv")
 
     main_driver = webdriver.Chrome(options=chrome_options)
 

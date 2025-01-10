@@ -351,6 +351,55 @@ def _main_construct(
     return combats, caracteristiques.merge(last_stats, on="name", how="left")
 
 
+def _derniere_difference(
+    DataCombats: pd.DataFrame, DataFighters: pd.DataFrame
+) -> pd.DataFrame:
+    for nom in DataFighters["name"]:
+        for c1, c2 in zip(DataCombats["combattant_1"], DataCombats["combattant_2"]):
+            if nom == c1:
+                DataCombats.loc[DataCombats["combattant_1"] == nom, "combattant_1_la_taille"] = (
+                    DataFighters[DataFighters["name"] == nom]["la_taille"].values[0]
+                )
+                DataCombats.loc[DataCombats["combattant_1"] == nom, "combattant_1_poids"] = (
+                    DataFighters[DataFighters["name"] == nom]["poids"].values[0]
+                )
+                DataCombats.loc[DataCombats["combattant_1"] == nom, "combattant_1_reach"] = (
+                    DataFighters[DataFighters["name"] == nom]["reach"].values[0]
+                )
+                DataCombats.loc[
+                    DataCombats["combattant_1"] == nom, "combattant_1_portée_de_la_jambe"
+                ] = DataFighters[DataFighters["name"] == nom][
+                    "portée_de_la_jambe"
+                ].values[
+                    0
+                ]
+            if nom == c2:
+                DataCombats.loc[DataCombats["combattant_2"] == nom, "combattant_2_la_taille"] = (
+                    DataFighters[DataFighters["name"] == nom]["la_taille"].values[0]
+                )
+                DataCombats.loc[DataCombats["combattant_2"] == nom, "combattant_2_poids"] = (
+                    DataFighters[DataFighters["name"] == nom]["poids"].values[0]
+                )
+                DataCombats.loc[DataCombats["combattant_2"] == nom, "combattant_2_reach"] = (
+                    DataFighters[DataFighters["name"] == nom]["reach"].values[0]
+                )
+                DataCombats.loc[
+                    DataCombats["combattant_2"] == nom, "combattant_2_portée_de_la_jambe"
+                ] = DataFighters[DataFighters["name"] == nom][
+                    "portée_de_la_jambe"
+                ].values[
+                    0
+                ]
+
+    DataCombats["diff_la_taille"] = (
+        DataCombats["combattant_1_la_taille"] - DataCombats["combattant_2_la_taille"]
+    )
+    DataCombats["diff_poids"] = DataCombats["combattant_1_poids"] - DataCombats["combattant_2_poids"]
+    DataCombats["diff_reach"] = DataCombats["combattant_1_reach"] - DataCombats["combattant_2_reach"]
+    DataCombats["diff_portée_de_la_jambe"] = (
+        DataCombats["combattant_1_portée_de_la_jambe"] - DataCombats["combattant_2_portée_de_la_jambe"]
+    )
+    return DataCombats
 
 if __name__ == "__main__":
     caracteristiques = pd.read_csv("data/Data_ufc_fighters.csv")

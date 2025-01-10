@@ -10,7 +10,10 @@ from datetime import datetime
 from math import nan
 import pandas as pd
 import json
+from .outils import configure_logger
 
+date = datetime.now().strftime("%Y-%m-%d")
+logger = configure_logger(f"{date}_crawler_stats")
 
 def _sub_format_date(date, format_actuel, format_voulu):
     date_obj = datetime.strptime(date, format_actuel)
