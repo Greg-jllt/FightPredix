@@ -419,39 +419,6 @@ def supprimer_caracteres_speciaux(chaine):
     return chaine
 
 
-def _title_holder_creation(
-    DataCombats: pd.DataFrame, caracteristiques: pd.DataFrame
-) -> pd.DataFrame:
-    """
-    Fonction qui crée une colonne indiquant si le combattant est détenteur d'un titre
-    """
-    liste_combattants = list(
-        set(DataCombats["combattant_1"].tolist() + DataCombats["combattant_2"].tolist())
-    )
-
-    DataCombats["title_holder_1_"] = 0
-    DataCombats["title_holder_2_"] = 0
-
-    for nom in liste_combattants:
-        for nom_cara in caracteristiques["name"]:
-            if fuzz.ratio(nom.lower(), nom_cara.lower()) >= 90:
-                if not caracteristiques[caracteristiques["name"] == nom_cara][
-                    "title_holder"
-                ].empty:
-                    if caracteristiques[caracteristiques["name"] == nom_cara][
-                        "title_holder"
-                    ].values[0]:
-                        DataCombats.loc[
-                            DataCombats["combattant_1"] == nom, "title_holder_1_"
-                        ] = 1
-                        DataCombats.loc[
-                            DataCombats["combattant_2"] == nom, "title_holder_2_"
-                        ] = 1
-            break
-
-    return DataCombats
-
-
 def _assignement_stat_taille_etc(
     DataCombats: pd.DataFrame,
     caracteristiques: pd.DataFrame,
@@ -548,8 +515,8 @@ def _main_construct(
     )
     combats = _difference_num_combats(combats)
 
-    combats.to_csv("data/Data_ufc_combats_after_diff.csv", index=False)
-    caracteristiques.to_csv("data/Data_ufc_fighters_after_diff.csv", index=False)
+    # combats.to_csv("data/Data_ufc_combats_after_diff.csv", index=False)
+    # caracteristiques.to_csv("data/Data_ufc_fighters_after_diff.csv", index=False)
 
     # combats = pd.read_csv("data/Data_ufc_combats_after_diff.csv")
     # caracteristiques = pd.read_csv("data/Data_ufc_fighters_after_diff.csv")
@@ -568,7 +535,6 @@ def _main_construct(
     # last_stats_nom_identique = pd.read_csv("data/Data_stats_nom_identique.csv")
 
     combats = _derniere_difference(combats, caracteristiques)
-    combats = _title_holder_creation(combats, caracteristiques)
 
     return combats, caracteristiques.merge(last_stats, on="name", how="left")
 
