@@ -5,6 +5,7 @@ Développée par :
     - [Hugo Cochereau](https://github.com/hugocoche)
 """
 
+from rich.console import Console
 from rapidfuzz import fuzz
 from datetime import datetime
 from .lib_stats import _assignement_stat_combattant
@@ -20,9 +21,11 @@ def _difference_cat_combts(
 ) -> pd.DataFrame:
     lignes_a_ajouter = []
     cat_colonnes_caracteristiques = caracteristiques.select_dtypes(
-        include=["object"]
+        include=["object", "bool"]
     ).columns.tolist()
     cat_colonnes_caracteristiques.remove("name")
+
+    Console().print(f"Colonnes catégorielles : {cat_colonnes_caracteristiques}")
 
     for i, combat in combats.iterrows():
         combattant_1 = combat["combattant_1"]
@@ -361,16 +364,31 @@ def _calcul_serie_victoires(
         temp_dict[f"{combattant}_{nickname}_serie"].clear()
 
 
-def _format_last_stats(dico_last_stats: dict) -> pd.DataFrame:
+def _format_last_stats(
+    dico_last_stats: dict, caracteristiques: pd.DataFrame
+) -> pd.DataFrame:
     last_stats = pd.DataFrame(dico_last_stats).T
     last_stats.reset_index(inplace=True)
     last_stats.rename(columns={"index": "name"}, inplace=True)
     last_stats.columns = last_stats.columns.str.strip()
+
+    for nom_last_stats in last_stats["name"]:
+        for nom_caracteristiques in caracteristiques["name"]:
+            if (
+                nom_last_stats.lower() == nom_caracteristiques.lower()
+                or fuzz.ratio(nom_last_stats.lower(), nom_caracteristiques.lower())
+                >= 90
+            ):
+                last_stats.loc[last_stats["name"] == nom_last_stats, "name"] = (
+                    nom_caracteristiques
+                )
+                break
+
     return last_stats
 
 
 def _format_last_stats_nom_identique(
-    dico_last_stats_nom_identique: dict,
+    dico_last_stats_nom_identique: dict, caracteristiques: pd.DataFrame
 ) -> pd.DataFrame:
     """
     Fonction qui formate les dernières statistiques des combattants à nom identique
@@ -379,6 +397,15 @@ def _format_last_stats_nom_identique(
     last_stats_nom_identique.reset_index(inplace=True)
     last_stats_nom_identique.rename(columns={"index": "nickname"}, inplace=True)
     last_stats_nom_identique.columns = last_stats_nom_identique.columns.str.strip()
+
+    for nom_last_stats in last_stats_nom_identique["nickname"]:
+        for nom_caracteristiques in caracteristiques["NICKNAME"]:
+            if fuzz.ratio(nom_last_stats.lower(), nom_caracteristiques.lower()) >= 90:
+                last_stats_nom_identique.loc[
+                    last_stats_nom_identique["nickname"] == nom_last_stats, "nickname"
+                ] = nom_caracteristiques
+                break
+
     return last_stats_nom_identique
 
 
@@ -390,7 +417,7 @@ def supprimer_caracteres_speciaux(chaine):
 
 
 def _title_holder_creation(
-    DataCombats: pd.DataFrame, DataFighters: pd.DataFrame
+    DataCombats: pd.DataFrame, caracteristiques: pd.DataFrame
 ) -> pd.DataFrame:
     """
     Fonction qui crée une colonne indiquant si le combattant est détenteur d'un titre
@@ -399,18 +426,25 @@ def _title_holder_creation(
         set(DataCombats["combattant_1"].tolist() + DataCombats["combattant_2"].tolist())
     )
 
-    DataCombats["title_holder_1"] = 0
-    DataCombats["title_holder_2"] = 0
+    DataCombats["title_holder_1_"] = 0
+    DataCombats["title_holder_2_"] = 0
 
     for nom in liste_combattants:
-        if not DataFighters[DataFighters["name"] == nom]["title_holder"].empty:
-            if DataFighters[DataFighters["name"] == nom]["title_holder"].values[0]:
-                DataCombats.loc[
-                    DataCombats["combattant_1"] == nom, "title_holder_1"
-                ] = 1
-                DataCombats.loc[
-                    DataCombats["combattant_2"] == nom, "title_holder_2"
-                ] = 1
+        for nom_cara in caracteristiques["name"]:
+            if fuzz.ratio(nom.lower(), nom_cara.lower()) >= 90:
+                if not caracteristiques[caracteristiques["name"] == nom_cara][
+                    "title_holder"
+                ].empty:
+                    if caracteristiques[caracteristiques["name"] == nom_cara][
+                        "title_holder"
+                    ].values[0]:
+                        DataCombats.loc[
+                            DataCombats["combattant_1"] == nom, "title_holder_1_"
+                        ] = 1
+                        DataCombats.loc[
+                            DataCombats["combattant_2"] == nom, "title_holder_2_"
+                        ] = 1
+            break
 
     return DataCombats
 
@@ -442,60 +476,74 @@ def _main_construct(
         _assignement_stat_combattant(combats, dico_var)
     )
     combats = _difference_num_combats(combats)
+
+    combats.to_csv("data/Data_ufc_combats_after_diff.csv", index=False)
+
     last_stats, last_stats_nom_identique = (
-        _format_last_stats(dico_last_stats),
-        _format_last_stats_nom_identique(dico_last_stats_nom_identique),
+        _format_last_stats(dico_last_stats, caracteristiques),
+        _format_last_stats_nom_identique(
+            dico_last_stats_nom_identique, caracteristiques
+        ),
     )
-    caracteristiques["name"] = [
-        supprimer_caracteres_speciaux(nom) for nom in caracteristiques["name"]
-    ]
+
     last_stats_nom_identique.to_csv("data/Data_stats_nom_identique.csv", index=False)
     combats = _derniere_difference(combats, caracteristiques)
     combats = _title_holder_creation(combats, caracteristiques)
+
     return combats, caracteristiques.merge(last_stats, on="name", how="left")
 
 
-def _derniere_difference(
-    DataCombats: pd.DataFrame, DataFighters: pd.DataFrame
+def _assignement_stat_taille_etc(
+    DataCombats: pd.DataFrame,
+    caracteristiques: pd.DataFrame,
+    num: int,
+    nom_car: str,
+    nom_combat: str,
 ) -> pd.DataFrame:
-    for nom in DataFighters["name"]:
+    """
+    Fonction qui assigne les statistiques de taille, poids, reach et portée de la jambe des combattants
+    """
+
+    if num == 1:
+        liste_caracteristiques = [
+            "combattant_1_la_taille",
+            "combattant_1_poids",
+            "combattant_1_reach",
+            "combattant_1_portée_de_la_jambe",
+        ]
+    elif num == 2:
+        liste_caracteristiques = [
+            "combattant_2_la_taille",
+            "combattant_2_poids",
+            "combattant_2_reach",
+            "combattant_2_portée_de_la_jambe",
+        ]
+    else:
+        raise ValueError("Le numéro doit être 1 ou 2")
+
+    for car in liste_caracteristiques:
+        DataCombats.loc[DataCombats[f"combattant_{num}"] == nom_combat, car] = (
+            caracteristiques[caracteristiques["name"] == nom_car][
+                car.split(f"{num}_")[1]
+            ].values[0]
+        )
+
+    return DataCombats
+
+
+def _derniere_difference(
+    DataCombats: pd.DataFrame, caracteristiques: pd.DataFrame
+) -> pd.DataFrame:
+    for nom in caracteristiques["name"]:
         for c1, c2 in zip(DataCombats["combattant_1"], DataCombats["combattant_2"]):
-            if nom == c1:
-                DataCombats.loc[
-                    DataCombats["combattant_1"] == nom, "combattant_1_la_taille"
-                ] = DataFighters[DataFighters["name"] == nom]["la_taille"].values[0]
-                DataCombats.loc[
-                    DataCombats["combattant_1"] == nom, "combattant_1_poids"
-                ] = DataFighters[DataFighters["name"] == nom]["poids"].values[0]
-                DataCombats.loc[
-                    DataCombats["combattant_1"] == nom, "combattant_1_reach"
-                ] = DataFighters[DataFighters["name"] == nom]["reach"].values[0]
-                DataCombats.loc[
-                    DataCombats["combattant_1"] == nom,
-                    "combattant_1_portée_de_la_jambe",
-                ] = DataFighters[DataFighters["name"] == nom][
-                    "portée_de_la_jambe"
-                ].values[
-                    0
-                ]
-            if nom == c2:
-                DataCombats.loc[
-                    DataCombats["combattant_2"] == nom, "combattant_2_la_taille"
-                ] = DataFighters[DataFighters["name"] == nom]["la_taille"].values[0]
-                DataCombats.loc[
-                    DataCombats["combattant_2"] == nom, "combattant_2_poids"
-                ] = DataFighters[DataFighters["name"] == nom]["poids"].values[0]
-                DataCombats.loc[
-                    DataCombats["combattant_2"] == nom, "combattant_2_reach"
-                ] = DataFighters[DataFighters["name"] == nom]["reach"].values[0]
-                DataCombats.loc[
-                    DataCombats["combattant_2"] == nom,
-                    "combattant_2_portée_de_la_jambe",
-                ] = DataFighters[DataFighters["name"] == nom][
-                    "portée_de_la_jambe"
-                ].values[
-                    0
-                ]
+            if nom.lower() == c1.lower() or fuzz.ratio(c1.lower(), nom.lower()) >= 90:
+                DataCombats = _assignement_stat_taille_etc(
+                    DataCombats, caracteristiques, 1, nom, c1
+                )
+            if nom.lower() == c2.lower() or fuzz.ratio(c2.lower(), nom.lower()) >= 90:
+                DataCombats = _assignement_stat_taille_etc(
+                    DataCombats, caracteristiques, 2, nom, c2
+                )
 
     DataCombats["diff_la_taille"] = (
         DataCombats["combattant_1_la_taille"] - DataCombats["combattant_2_la_taille"]
