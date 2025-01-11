@@ -449,50 +449,6 @@ def _title_holder_creation(
     return DataCombats
 
 
-def _main_construct(
-    combats: pd.DataFrame, caracteristiques: pd.DataFrame
-) -> pd.DataFrame:
-    caracteristiques = _age_by_DOB(caracteristiques)
-
-    caracteristiques = _transformation_debut_octogone(caracteristiques)
-
-    caracteristiques.columns = [
-        _clean_column_nom(col) for col in caracteristiques.columns
-    ]
-
-    combats = _cleaning(combats)
-    combats = _difference_cat_combts(caracteristiques, combats)
-    combats = _age_temps_t(caracteristiques, combats)
-    combats = _calcul_statistique_generique(combats, _calcul_victoires_defaites)
-    combats = _calcul_statistique_generique(combats, _calcul_forme_combattant)
-    combats = _calcul_statistique_generique(combats, _calcul_serie_victoires)
-
-    with open(
-        "FightPredix_scraping/scraping/dico_formatage/dico_var.json", "r"
-    ) as file:
-        dico_var = json.load(file)
-
-    combats, dico_last_stats, dico_last_stats_nom_identique = (
-        _assignement_stat_combattant(combats, dico_var)
-    )
-    combats = _difference_num_combats(combats)
-
-    combats.to_csv("data/Data_ufc_combats_after_diff.csv", index=False)
-
-    last_stats, last_stats_nom_identique = (
-        _format_last_stats(dico_last_stats, caracteristiques),
-        _format_last_stats_nom_identique(
-            dico_last_stats_nom_identique, caracteristiques
-        ),
-    )
-
-    last_stats_nom_identique.to_csv("data/Data_stats_nom_identique.csv", index=False)
-    combats = _derniere_difference(combats, caracteristiques)
-    combats = _title_holder_creation(combats, caracteristiques)
-
-    return combats, caracteristiques.merge(last_stats, on="name", how="left")
-
-
 def _assignement_stat_taille_etc(
     DataCombats: pd.DataFrame,
     caracteristiques: pd.DataFrame,
@@ -559,6 +515,50 @@ def _derniere_difference(
         - DataCombats["combattant_2_portée_de_la_jambe"]
     )
     return DataCombats
+
+
+def _main_construct(
+    combats: pd.DataFrame, caracteristiques: pd.DataFrame
+) -> pd.DataFrame:
+    caracteristiques = _age_by_DOB(caracteristiques)
+
+    caracteristiques = _transformation_debut_octogone(caracteristiques)
+
+    caracteristiques.columns = [
+        _clean_column_nom(col) for col in caracteristiques.columns
+    ]
+
+    combats = _cleaning(combats)
+    combats = _difference_cat_combts(caracteristiques, combats)
+    combats = _age_temps_t(caracteristiques, combats)
+    combats = _calcul_statistique_generique(combats, _calcul_victoires_defaites)
+    combats = _calcul_statistique_generique(combats, _calcul_forme_combattant)
+    combats = _calcul_statistique_generique(combats, _calcul_serie_victoires)
+
+    with open(
+        "FightPredix_scraping/scraping/dico_formatage/dico_var.json", "r"
+    ) as file:
+        dico_var = json.load(file)
+
+    combats, dico_last_stats, dico_last_stats_nom_identique = (
+        _assignement_stat_combattant(combats, dico_var)
+    )
+    combats = _difference_num_combats(combats)
+
+    combats.to_csv("data/Data_ufc_combats_after_diff.csv", index=False)
+
+    last_stats, last_stats_nom_identique = (
+        _format_last_stats(dico_last_stats, caracteristiques),
+        _format_last_stats_nom_identique(
+            dico_last_stats_nom_identique, caracteristiques
+        ),
+    )
+
+    last_stats_nom_identique.to_csv("data/Data_stats_nom_identique.csv", index=False)
+    combats = _derniere_difference(combats, caracteristiques)
+    combats = _title_holder_creation(combats, caracteristiques)
+
+    return combats, caracteristiques.merge(last_stats, on="name", how="left")
 
 
 if __name__ == "__main__":
