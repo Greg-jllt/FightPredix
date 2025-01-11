@@ -399,7 +399,7 @@ def _format_last_stats_nom_identique(
     last_stats_nom_identique.columns = last_stats_nom_identique.columns.str.strip()
 
     for nom_last_stats in last_stats_nom_identique["nickname"]:
-        for nom_caracteristiques in caracteristiques["NICKNAME"]:
+        for nom_caracteristiques in caracteristiques["nickname"]:
             if fuzz.ratio(nom_last_stats.lower(), nom_caracteristiques.lower()) >= 90:
                 last_stats_nom_identique.loc[
                     last_stats_nom_identique["nickname"] == nom_last_stats, "nickname"
