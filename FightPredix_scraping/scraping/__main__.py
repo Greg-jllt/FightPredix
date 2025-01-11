@@ -16,8 +16,6 @@ from selenium import webdriver
 import polars as pl
 import pandas as pd
 import os
-from .lib_stats import _assignement_stat_combattant
-import json
 
 
 date = datetime.now().strftime("%Y-%m-%d")
