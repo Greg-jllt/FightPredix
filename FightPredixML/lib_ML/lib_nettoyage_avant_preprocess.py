@@ -373,5 +373,6 @@ def _main_nettoyage() -> pd.DataFrame:
 
     return Data_for_ml
 
+
 if __name__ == "__main__":
     _main_nettoyage()
