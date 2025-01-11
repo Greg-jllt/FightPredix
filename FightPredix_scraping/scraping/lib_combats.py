@@ -32,11 +32,11 @@ def _recolte_events(driver) -> list[str]:
         for event in driver.find_elements(
             By.CSS_SELECTOR, ".b-statistics__table-content"
         )[1:]
-        if int(
-            event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
-            .text.split(",")[-1]
-            .strip()
-        ) > 2023
+        # if int(
+        #     event.find_element(By.CSS_SELECTOR, "span.b-statistics__date")
+        #     .text.split(",")[-1]
+        #     .strip()
+        # ) > 2023
     ]
 
 
@@ -92,7 +92,7 @@ def _explore_events(
 
     driver.get(row_data_link)
     temp_dict = _couleur_combattant(driver, winner)
-    
+
     driver.find_element(By.CSS_SELECTOR, "div.b-fight-details__charts-col")
 
     elements_cbt_1 = driver.find_elements(
@@ -278,29 +278,6 @@ def _sub_fonction_listes(data: pl.DataFrame) -> tuple[list[Any], list[Any]]:
     return list_values1_to_return, list_values2_to_return
 
 
-def _sub_fonction_elements(
-    driver_elements: WebElement, dictio_total: dict, round_counter: int = 1
-) -> list:
-    """
-    Fonction pour récupérer les éléments des combats
-    """
-
-    liste_round = []
-    for element in driver_elements:
-        sub_soup = BeautifulSoup(element.get_attribute("outerHTML"), "html.parser")
-        lignes = sub_soup.select("tbody")
-
-        for ligne in lignes[1:]:
-            dictio_round = {}
-            for col, cellule in zip(dictio_total.keys(), ligne.select("td")):
-                dictio_round[f"{col}_round{round_counter}"] = cellule.text.strip()
-
-            liste_round.append(dictio_round)
-            round_counter += 1
-
-    return liste_round
-
-
 def _recup_donnes_total(driver: webdriver.Chrome, soup: BeautifulSoup) -> pl.DataFrame:
     """
     Fonction de recolte des statistiques totales des combats
@@ -315,15 +292,7 @@ def _recup_donnes_total(driver: webdriver.Chrome, soup: BeautifulSoup) -> pl.Dat
         )
     }
 
-    elements = driver.find_elements(
-        By.XPATH, "/html/body/section/div/div/section[3]/table"
-    )
-    liste_round = _sub_fonction_elements(elements, dictio_total)
-
     merge_dict = {**dictio_total}
-
-    for fight_round in liste_round:
-        merge_dict = {**merge_dict, **fight_round}
 
     data = pl.DataFrame(merge_dict)
 
@@ -355,15 +324,7 @@ def _recup_donnes_sig_str(driver: webdriver.Chrome, soup: BeautifulSoup) -> dict
         if index == 8:
             break
 
-    elements = driver.find_elements(
-        By.XPATH, "/html/body/section/div/div/section[5]/table"
-    )
-    liste_round_sig = _sub_fonction_elements(elements, dictio_sig_str_total)
-
     merge_dict_sig_str = {**dictio_sig_str_total}
-
-    for fight_round in liste_round_sig:
-        merge_dict_sig_str = {**merge_dict_sig_str, **fight_round}
 
     data = pl.DataFrame(merge_dict_sig_str)
 

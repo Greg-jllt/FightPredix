@@ -192,7 +192,7 @@ def _cleaning(data):
             )
 
             if ratio_bool.any():
-                Data[[f"{col}_réussi", f"{col}_total", f"{col}_ratio"]] = Data[
+                Data[[f"{col}_reussi", f"{col}_total", f"{col}_ratio"]] = Data[
                     col
                 ].apply(lambda x: pd.Series(_process_ratio(x)))
                 Data.drop(col, axis=1, inplace=True)
@@ -364,9 +364,8 @@ def _calcul_serie_victoires(
 def _format_last_stats(dico_last_stats: dict) -> pd.DataFrame:
     last_stats = pd.DataFrame(dico_last_stats).T
     last_stats.reset_index(inplace=True)
-    last_stats.rename(columns={"index": "NAME"}, inplace=True)
+    last_stats.rename(columns={"index": "name"}, inplace=True)
     last_stats.columns = last_stats.columns.str.strip()
-    last_stats = last_stats.drop(last_stats.columns[0], axis=1)
     return last_stats
 
 
@@ -388,6 +387,32 @@ def supprimer_caracteres_speciaux(chaine):
     chaine = re.sub(r"[^a-zA-Z0-9\s]", "", chaine)
     chaine = chaine.title()
     return chaine
+
+
+def _title_holder_creation(
+    DataCombats: pd.DataFrame, DataFighters: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Fonction qui crée une colonne indiquant si le combattant est détenteur d'un titre
+    """
+    liste_combattants = list(
+        set(DataCombats["combattant_1"].tolist() + DataCombats["combattant_2"].tolist())
+    )
+
+    DataCombats["title_holder_1"] = 0
+    DataCombats["title_holder_2"] = 0
+
+    for nom in liste_combattants:
+        if not DataFighters[DataFighters["name"] == nom]["title_holder"].empty:
+            if DataFighters[DataFighters["name"] == nom]["title_holder"].values[0]:
+                DataCombats.loc[
+                    DataCombats["combattant_1"] == nom, "title_holder_1"
+                ] = 1
+                DataCombats.loc[
+                    DataCombats["combattant_2"] == nom, "title_holder_2"
+                ] = 1
+
+    return DataCombats
 
 
 def _main_construct(
@@ -416,6 +441,7 @@ def _main_construct(
     combats, dico_last_stats, dico_last_stats_nom_identique = (
         _assignement_stat_combattant(combats, dico_var)
     )
+    combats = _difference_num_combats(combats)
     last_stats, last_stats_nom_identique = (
         _format_last_stats(dico_last_stats),
         _format_last_stats_nom_identique(dico_last_stats_nom_identique),
@@ -424,6 +450,8 @@ def _main_construct(
         supprimer_caracteres_speciaux(nom) for nom in caracteristiques["name"]
     ]
     last_stats_nom_identique.to_csv("data/Data_stats_nom_identique.csv", index=False)
+    combats = _derniere_difference(combats, caracteristiques)
+    combats = _title_holder_creation(combats, caracteristiques)
     return combats, caracteristiques.merge(last_stats, on="name", how="left")
 
 

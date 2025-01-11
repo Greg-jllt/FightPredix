@@ -48,7 +48,6 @@ def _calcul_stat_cumul(
         denominateur = 0
 
         moyennes_cumulatives: list[float] = []
-        stat_t_1: list[float] = []
         liste_num_du_combattant = []
 
         for num_row in range(len(data_combattant)):
@@ -62,11 +61,9 @@ def _calcul_stat_cumul(
             if pd.isna(pourcentage):
                 denominateur = denominateur
                 somme_cumulative = somme_cumulative
-                stat_t_1.append(nan)
             else:
                 denominateur = denominateur + 1
                 somme_cumulative += pourcentage
-                stat_t_1.append(pourcentage)
 
             if denominateur == 0:
                 moyennes_cumulatives.append(nan)
@@ -74,23 +71,20 @@ def _calcul_stat_cumul(
                 moyenne_cumulative = round(somme_cumulative / denominateur, 2)
                 moyennes_cumulatives.append(moyenne_cumulative)
 
-        for index, num_combattant, moyenne, stat_t in zip(
+        for (
+            index,
+            num_combattant,
+            moyenne,
+        ) in zip(
             data_combattant.index[1:],
             liste_num_du_combattant[1:],
             moyennes_cumulatives[:-1],
-            stat_t_1[:-1],
         ):
             data.loc[
-                index, f"moyenne_combattant_{num_combattant}{stat_sans_combattant}"
+                index, f"combattant_{num_combattant}{stat_sans_combattant}_moyenne"
             ] = moyenne
-            data.loc[
-                index, f"t_1_combattant_{num_combattant}{stat_sans_combattant}"
-            ] = stat_t
 
-        dico_last_combat[f"moyenne_combattant_{stat_sans_combattant}"] = (
-            moyennes_cumulatives[-1]
-        )
-        dico_last_combat[f"t_1_combattant_{stat_sans_combattant}"] = stat_t_1[-1]
+        dico_last_combat[f"{stat_sans_combattant}_moyenne"] = moyennes_cumulatives[-1]
 
     return data, dico_last_combat
 
@@ -121,8 +115,6 @@ def _assignement_stat_combattant(
         stat_sans_combattant = stat.split("combattant")[1]
         new_columns[f"combattant_1{stat_sans_combattant}_moyenne"] = nan
         new_columns[f"combattant_2{stat_sans_combattant}_moyenne"] = nan
-        new_columns[f"combattant_1{stat_sans_combattant}_t_1"] = nan
-        new_columns[f"combattant_2{stat_sans_combattant}_t_1"] = nan
 
     new_columns_df = pd.DataFrame(new_columns, index=data.index)
     data = pd.concat([data, new_columns_df], axis=1)
