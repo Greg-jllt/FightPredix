@@ -400,7 +400,10 @@ def _format_last_stats_nom_identique(
 
     for nom_last_stats in last_stats_nom_identique["nickname"]:
         for nom_caracteristiques in caracteristiques["nickname"]:
-            if fuzz.ratio(nom_last_stats.lower(), nom_caracteristiques.lower()) >= 90:
+            if (
+                fuzz.ratio(nom_last_stats.lower(), str(nom_caracteristiques).lower())
+                >= 90
+            ):
                 last_stats_nom_identique.loc[
                     last_stats_nom_identique["nickname"] == nom_last_stats, "nickname"
                 ] = nom_caracteristiques
@@ -546,6 +549,10 @@ def _main_construct(
     combats = _difference_num_combats(combats)
 
     combats.to_csv("data/Data_ufc_combats_after_diff.csv", index=False)
+    caracteristiques.to_csv("data/Data_ufc_fighters_after_diff.csv", index=False)
+
+    # combats = pd.read_csv("data/Data_ufc_combats_after_diff.csv")
+    # caracteristiques = pd.read_csv("data/Data_ufc_fighters_after_diff.csv")
 
     last_stats, last_stats_nom_identique = (
         _format_last_stats(dico_last_stats, caracteristiques),
@@ -554,7 +561,12 @@ def _main_construct(
         ),
     )
 
+    last_stats.to_csv("data/Data_stats_combattants.csv", index=False)
     last_stats_nom_identique.to_csv("data/Data_stats_nom_identique.csv", index=False)
+
+    # last_stats = pd.read_csv("data/Data_stats_combattants.csv")
+    # last_stats_nom_identique = pd.read_csv("data/Data_stats_nom_identique.csv")
+
     combats = _derniere_difference(combats, caracteristiques)
     combats = _title_holder_creation(combats, caracteristiques)
 
