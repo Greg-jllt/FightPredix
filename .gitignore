@@ -9,3 +9,9 @@
 *.csv
 
 Data/
+
+Model/
+
+*.pkl
+
+.venv/

@@ -12,12 +12,10 @@ from rapidfuzz import fuzz
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
-from rich.console import Console
 
 from .outils import configure_logger
 
 import re
-import os
 import json
 import pandas as pd
 import traceback

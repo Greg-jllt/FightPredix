@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "datetime>=5.5",
+    "joblib>=1.4.2",
     "miceforest>=6.0.3",
     "numpy>=2.2.1",
     "pandas>=2.2.3",

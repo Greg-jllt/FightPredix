@@ -353,6 +353,7 @@ def _main_nettoyage() -> pd.DataFrame:
     DataCombats = pd.read_csv("./Data/Data_final_combats_V.csv")
 
     DataCombats = _supprimer_combattants_problematiques(DataCombats)
+
     DataCombats = _garder_combats_apres_2014(DataCombats)
     DataCombats = replace_first_nan(DataCombats)
     DataCombats = _impute_dimension_variables(DataCombats)
