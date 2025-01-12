@@ -10,12 +10,12 @@ repos:
     rev: 7.0.0
     hooks:
     -   id: flake8
-        files: FightPredix_scraping/*
+        files: FightPredixML/*
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.0
     hooks:
     -   id: mypy
-        files: FightPredix_scraping/*
+        files: FightPredixML/*
 # -   repo: local
 #     hooks:
 #     -   id: run-pytest
@@ -28,4 +28,4 @@ repos:
     rev: 24.4.2
     hooks:
     -   id: black
-        files: FightPredix_scraping/*
+        files: FightPredixML/*

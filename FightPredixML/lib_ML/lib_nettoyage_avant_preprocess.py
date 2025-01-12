@@ -10,7 +10,7 @@ from datetime import datetime
 from sklearn.preprocessing import MinMaxScaler
 
 
-def _supprimer_combattants_problemaqtiques(DataCombats: pd.DataFrame) -> pd.DataFrame:
+def _supprimer_combattants_problematiques(DataCombats: pd.DataFrame) -> pd.DataFrame:
     """
     On supprime les combattants portant le même nom
     """
@@ -181,7 +181,7 @@ def _calcul_nb_mois_dernier_combat(combats: pd.DataFrame) -> pd.DataFrame:
     cob = combats.copy()
     cob = cob.sort_index(ascending=False)
 
-    temp_dict = {}
+    temp_dict: dict = {}
 
     def _sub_nb_mois_dernier_combat(combattant, nickname, prefixe):
         if f"{combattant}_{nickname}_date" not in temp_dict.keys():
@@ -336,14 +336,12 @@ def _liste_features() -> tuple[list[str], list[str], list[str]]:
     ]
 
     categorical_features = [
-        "title_holder_1",
-        "title_holder_2",
-        "style_de_combat_1",
-        "style_de_combat_2",
-        "country_of_residence_tapology_1",
-        "country_of_residence_tapology_2",
-        "country_of_birth_tapology_1",
-        "country_of_birth_tapology_2",
+        "combattant_1_style_de_combat",
+        "combattant_2_style_de_combat",
+        "combattant_1_country_of_residence_tapology",
+        "combattant_2_country_of_residence_tapology",
+        "combattant_1_country_of_birth_tapology",
+        "combattant_2_country_of_birth_tapology",
     ]
 
     output_feature = ["resultat", "poids_ml"]
@@ -354,7 +352,7 @@ def _liste_features() -> tuple[list[str], list[str], list[str]]:
 def _main_nettoyage() -> pd.DataFrame:
     DataCombats = pd.read_csv("./Data/Data_final_combats_V.csv")
 
-    DataCombats = _supprimer_combattants_problemaqtiques(DataCombats)
+    DataCombats = _supprimer_combattants_problematiques(DataCombats)
     DataCombats = _garder_combats_apres_2014(DataCombats)
     DataCombats = replace_first_nan(DataCombats)
     DataCombats = _impute_dimension_variables(DataCombats)
@@ -367,9 +365,18 @@ def _main_nettoyage() -> pd.DataFrame:
 
     numeric_features, categorical_features, output_feature = _liste_features()
 
-    Data_for_ml = DataCombats[numeric_features + categorical_features + output_feature]
+    DataCombats = DataCombats.rename(
+        columns={
+            "style_de_combat_1": "combattant_1_style_de_combat",
+            "style_de_combat_2": "combattant_2_style_de_combat",
+            "country_of_residence_tapology_1": "combattant_1_country_of_residence_tapology",
+            "country_of_residence_tapology_2": "combattant_2_country_of_residence_tapology",
+            "country_of_birth_tapology_1": "combattant_1_country_of_birth_tapology",
+            "country_of_birth_tapology_2": "combattant_2_country_of_birth_tapology",
+        }
+    )
 
-    Data_for_ml.to_csv("./Date/Data_final_combats_ml.csv", index=False)
+    Data_for_ml = DataCombats[numeric_features + categorical_features + output_feature]
 
     return Data_for_ml
 
