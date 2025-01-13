@@ -333,6 +333,9 @@ def _liste_features() -> tuple[list[str], list[str], list[str]]:
         "diff_reach",
         "diff_portée_de_la_jambe",
         "diff_nb_mois_dernier_combat",
+        "diff_DEC",
+        "diff_KO/TKO",
+        "diff_SUB",
     ]
 
     categorical_features = [
