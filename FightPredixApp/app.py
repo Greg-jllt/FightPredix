@@ -8,16 +8,11 @@ from PIL import Image
 import time
 
 from style import init_pages
-from FightPredixApp.lib_streamlit import _liste_features, _calcul_nb_mois_dernier_combat, _prediction_streamlit
+from lib_streamlit import _liste_features, _calcul_nb_mois_dernier_combat, _prediction_streamlit
 
 init_pages()
 
-@st.cache_resource
-def load_model():
-    return joblib.load("model.pkl")
- 
-if os.path.exists("model.pkl"):
-    model = load_model()
+
 
 # Gestion de l'état pour suivre la page courante
 if "current_page" not in st.session_state:
@@ -331,15 +326,12 @@ elif st.session_state.current_page == "predictions":
 
         num_features, cat_features, output_features = _liste_features()
 
-        predictions = []
-
         DataCombats.rename(columns={"diff_portÃ©e_de_la_jambe": "diff_portee_de_la_jambe"}, inplace=True)
         DataFighters.rename(columns={"portée_de_la_jambe": "portee_de_la_jambe", "âge": "age"}, inplace=True)  
 
         indice_nom1 = DataFighters[DataFighters["name"] == st.session_state["fighter_1"]].index[0]
         indice_nom2 = DataFighters[DataFighters["name"] == st.session_state["fighter_2"]].index[0]
 
-      
         resultats = _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, num_features, cat_features)
 
         def download_and_convert_image(url, filename):
@@ -423,7 +415,7 @@ elif st.session_state.current_page == "predictions":
                 showticklabels=False, 
                 showgrid=False        
             ),
-            height=600,
+            height=700,
             width=900,
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
@@ -435,7 +427,7 @@ elif st.session_state.current_page == "predictions":
             with st.spinner('Prediction en cours'):
                 time.sleep(6)
                 st.plotly_chart(fig)
-                st.write(f"Selon l'algorrithme, {st.session_state['fighter_1']} a une probabilité de vaincre {st.session_state['fighter_2']} de {round(values[0]*100)}%, la où {st.session_state['fighter_2']} a une probabilité de vaincre {st.session_state['fighter_1']} de {round(values[1]*100)}%.")
+                st.write(f"Selon l'algorithme, {st.session_state['fighter_1']} a une probabilité de vaincre {st.session_state['fighter_2']} de {round(values[0]*100)}%, la où {st.session_state['fighter_2']} a une probabilité de vaincre {st.session_state['fighter_1']} de {round(values[1]*100)}%.")
 
 
 else:

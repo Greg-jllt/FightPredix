@@ -186,28 +186,28 @@ def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, n
             
             nom1 = DataFighters.loc[num1, "name"]
             nom2 = DataFighters.loc[num2, "name"]
-
+            
             for c1, c2 in zip(DataCombats["combattant_1"], DataCombats["combattant_2"]):
 
                 if nom1.lower() == c1.lower():
                     Data_combattant_1 = pd.concat([Data_combattant_1, DataCombats[DataCombats["combattant_1"] == c1]])
-                elif fuzz.ratio(nom1.lower(), c1.lower()) >= 90:
+                elif fuzz.ratio(nom1.lower(), c1.lower()) >= 85:
                     Data_combattant_1 = pd.concat([Data_combattant_1, DataCombats[DataCombats["combattant_1"] == c1]])
                 
                 if nom1.lower() == c2.lower():
                     Data_combattant_1 = pd.concat([Data_combattant_1, DataCombats[DataCombats["combattant_2"] == c2]])
-                elif fuzz.ratio(nom1.lower(), c2.lower()) >= 90:
+                elif fuzz.ratio(nom1.lower(), c2.lower()) >= 85:
                     Data_combattant_1 = pd.concat([Data_combattant_1, DataCombats[DataCombats["combattant_2"] == c2]])
 
                 # Comparer avec le seizième combattant
                 if nom2.lower() == c1.lower():
                     Data_combattant_2 = pd.concat([Data_combattant_2, DataCombats[DataCombats["combattant_1"] == c1]])
-                elif fuzz.ratio(nom2.lower(), c1.lower()) >= 90:
+                elif fuzz.ratio(nom2.lower(), c1.lower()) >= 85:
                     Data_combattant_2 = pd.concat([Data_combattant_2, DataCombats[DataCombats["combattant_1"] == c1]])
                 
                 if nom2.lower() == c2.lower():
                     Data_combattant_2 = pd.concat([Data_combattant_2, DataCombats[DataCombats["combattant_2"] == c2]])
-                elif fuzz.ratio(nom2.lower(), c2.lower()) >= 90:
+                elif fuzz.ratio(nom2.lower(), c2.lower()) >= 85:
                     Data_combattant_2 = pd.concat([Data_combattant_2, DataCombats[DataCombats["combattant_2"] == c2]])
 
             Data_combattant_1.drop_duplicates(inplace=True)
@@ -308,10 +308,10 @@ def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, n
             
             import joblib
 
-            model = joblib.load("./modele/LogisticRegression.pkl")
+            model = joblib.load("./modele/SVM_model.pkl")
             
             predictions.append(model.predict_proba(combat[num_features + cat_features]))
 
-    results = ((predictions[1].flatten()[0] + predictions[0].flatten()[0])/2 , (predictions[1].flatten()[1] + predictions[0].flatten()[1])/2)
+    results = ((predictions[1].flatten()[1] + predictions[0].flatten()[0])/2 , (predictions[0].flatten()[1] + predictions[1].flatten()[0])/2)
 
     return results
