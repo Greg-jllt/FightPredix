@@ -36,19 +36,19 @@ cd ./FightPredix/FightPredix_scraping
 > Il vous faudra tout d'abord installer le package `uv` avec la commande `python -m pip install uv`.
 
 ```bash
-uv venv
+python -m uv venv
 ```
 
-4. Activer l'environnement virtuel avec la commande :
+4. Installer les dépendances avec la commande :
+
+```bash
+python -m uv sync
+```
+
+5. Activer l'environnement virtuel avec la commande :
 
 ```bash
 .venv\Scripts\activate
-```
-
-5. Installer les dépendances avec la commande :
-
-```bash
-uv sync
 ```
 
 6. Lorsque vous voyez `(FightPredix_scraping)` dans votre terminal, cela indique que vous êtes dans l'environnement virtuel.
@@ -66,17 +66,12 @@ cd ..
 python -m FightPredix_scraping.scraping
 ```
 
-1. Do this.
-2. Do that.
-3. Done.
-
 ## Features
 
 - Module entièrement documenté pour les interfaces publiques et privées.
 - Formatage du code avec `Black` pour respecter les normes de PEP 8.
 - Gestion des dépendances avec `uv`.
 - Vérification des types avec `Mypy`.
-- Développement d'une interface graphique avec `Streamlit`.
 - Tests unitaires et d'intégration avec `Pytest`, et couverture de tests avec `Pytest-cov`.
 
 ## Contributors

@@ -6,15 +6,18 @@ repos:
     -   id: end-of-file-fixer
     -   id: check-yaml
     -   id: check-added-large-files
+        args: ["--maxkb=1000"]
 -   repo: https://github.com/pycqa/flake8
     rev: 7.0.0
     hooks:
     -   id: flake8
+        files: ../FightPredix/*
         files: FightPredixML/*
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.0
     hooks:
     -   id: mypy
+        files: ../FightPredix/*
         files: FightPredixML/*
 # -   repo: local
 #     hooks:
@@ -28,4 +31,5 @@ repos:
     rev: 24.4.2
     hooks:
     -   id: black
-        files: FightPredixML/*
+        files: ../FightPredix_scraping/*
+        files: ../FightPredixML/*

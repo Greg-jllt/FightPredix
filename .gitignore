@@ -6,6 +6,12 @@
 
 *.log
 
+Data/
+
 *.csv
 
-Data/
+create_random_model/
+Data_final_fighters.csv
+
+FightPredixApp/img/cbt1.png
+FightPredixApp/img/cbt2.png
