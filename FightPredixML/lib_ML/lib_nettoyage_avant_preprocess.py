@@ -6,7 +6,6 @@ Librairie de nettoyage des données avant le preprocess
 import re
 import pandas as pd
 import miceforest as mf
-from datetime import datetime
 from sklearn.preprocessing import MinMaxScaler
 
 
@@ -173,64 +172,12 @@ def _impute_dimension_variables(DataCombats: pd.DataFrame) -> pd.DataFrame:
 
     return DataCombats
 
-
-def _calcul_nb_mois_dernier_combat(combats: pd.DataFrame) -> pd.DataFrame:
-    """
-    Fonction qui calcule les victoires des combattants au moment du combat
-    """
-    cob = combats.copy()
-    cob = cob.sort_index(ascending=False)
-
-    temp_dict: dict = {}
-
-    def _sub_nb_mois_dernier_combat(combattant, nickname, prefixe):
-        if f"{combattant}_{nickname}_date" not in temp_dict.keys():
-            temp_dict[f"{combattant}_{nickname}_date"] = []
-
-        temp_dict[f"{combattant}_{nickname}_date"].append(date)
-
-        if len(temp_dict[f"{combattant}_{nickname}_date"]) > 2:
-            temp_dict[f"{combattant}_{nickname}_date"].pop(0)
-
-        cob.loc[i, f"{prefixe}_nb_mois_dernier_combat"] = (
-            round(
-                (
-                    datetime.strptime(
-                        temp_dict[f"{combattant}_{nickname}_date"][1], "%Y-%m-%d"
-                    )
-                    - datetime.strptime(
-                        temp_dict[f"{combattant}_{nickname}_date"][0], "%Y-%m-%d"
-                    )
-                ).days
-                / 30
-            )
-            if len(temp_dict[f"{combattant}_{nickname}_date"]) == 2
-            else 0
-        )
-
-    for i, combat in cob.iterrows():
-        combattant_1, nickname_1 = combat["combattant_1"], combats["nickname_1"]
-        combattant_2, nickname_2 = combat["combattant_2"], combats["nickname_2"]
-        date = combat["date"]
-
-        nickname_1 = nickname_1 if isinstance(nickname_1, str) else "NO"
-        nickname_2 = nickname_2 if isinstance(nickname_2, str) else "NO"
-
-        _sub_nb_mois_dernier_combat(combattant_1, nickname_1, "combattant_1")
-        _sub_nb_mois_dernier_combat(combattant_2, nickname_2, "combattant_2")
-
-    cob = cob.sort_index(ascending=True)
-
-    return cob
-
-
 def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
     """
     Fonction de calcul de la différence entre les caractéristiques des combattants
     au sein de chaque combat.
     """
 
-    cols_to_drop = []
     colonnes_a_concat = {}
 
     num_colonnes_combats = combats.select_dtypes(include=["number"]).columns
@@ -245,16 +192,10 @@ def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
                 combats[f"combattant_1_{stat_type}"]
                 - combats[f"combattant_2_{stat_type}"]
             )
-            cols_to_drop.append(f"combattant_1_{stat_type}")
-            cols_to_drop.append(f"combattant_2_{stat_type}")
 
     df_numerique = pd.DataFrame(colonnes_a_concat, index=combats.index)
 
     resultat = pd.concat([combats.reset_index(drop=True), df_numerique], axis=1)
-
-    # if cols_to_drop:
-    #     Console().print(f"Colonnes à supprimer : {len(cols_to_drop)}")
-    #     resultat.drop(cols_to_drop, axis=1, inplace=True)
 
     return resultat
 
@@ -350,31 +291,18 @@ def _liste_features() -> tuple[list[str], list[str], list[str]]:
 
 
 def _main_nettoyage() -> pd.DataFrame:
-    DataCombats = pd.read_csv("./Data/Data_final_combats_V.csv")
+    DataCombats = pd.read_json("FightPredixAPP/Data/Data_final_combats.json")
 
     DataCombats = _supprimer_combattants_problematiques(DataCombats)
     DataCombats = _garder_combats_apres_2014(DataCombats)
-    DataCombats = replace_first_nan(DataCombats)
     DataCombats = _impute_dimension_variables(DataCombats)
-    DataCombats = _calcul_nb_mois_dernier_combat(DataCombats)
     DataCombats = _attribution_poids(DataCombats)
 
-    liste_diff = [col for col in DataCombats.columns if "diff" in col]
-    DataCombats.drop(columns=liste_diff, inplace=True)
+    # liste_diff = [col for col in DataCombats.columns if "diff" in col]
+    # DataCombats.drop(columns=liste_diff, inplace=True)
     DataCombats = _difference_num_combats(DataCombats)
 
     numeric_features, categorical_features, output_feature = _liste_features()
-
-    DataCombats = DataCombats.rename(
-        columns={
-            "style_de_combat_1": "combattant_1_style_de_combat",
-            "style_de_combat_2": "combattant_2_style_de_combat",
-            "country_of_residence_tapology_1": "combattant_1_country_of_residence_tapology",
-            "country_of_residence_tapology_2": "combattant_2_country_of_residence_tapology",
-            "country_of_birth_tapology_1": "combattant_1_country_of_birth_tapology",
-            "country_of_birth_tapology_2": "combattant_2_country_of_birth_tapology",
-        }
-    )
 
     Data_for_ml = DataCombats[numeric_features + categorical_features + output_feature]
 

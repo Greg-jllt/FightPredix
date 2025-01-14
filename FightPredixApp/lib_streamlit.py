@@ -2,7 +2,11 @@
 from datetime import datetime
 import pandas as pd
 from rapidfuzz import fuzz
+from PIL import Image
+
+import requests
 import re
+import os 
 
 
 def _liste_features() -> tuple[list[str], list[str], list[str]]:
@@ -98,21 +102,11 @@ def _calcul_nb_mois_dernier_combat(combats: pd.DataFrame) -> pd.DataFrame:
             temp_dict[f"{combattant}_{nickname}_date"].pop(0)
 
         cob.loc[i, f"{prefixe}_nb_mois_dernier_combat"] = (
-            round(
-                (
-                    datetime.strptime(
-                        temp_dict[f"{combattant}_{nickname}_date"][1], "%Y-%m-%d"
-                    )
-                    - datetime.strptime(
-                        temp_dict[f"{combattant}_{nickname}_date"][0], "%Y-%m-%d"
-                    )
-                ).days
-                / 30
-            )
+            round((temp_dict[f"{combattant}_{nickname}_date"][1] - temp_dict[f"{combattant}_{nickname}_date"][0]).days / 30)
             if len(temp_dict[f"{combattant}_{nickname}_date"]) == 2
             else 0
         )
-
+ 
     for i, combat in cob.iterrows():
         combattant_1, nickname_1 = combat["combattant_1"], combats["nickname_1"]
         combattant_2, nickname_2 = combat["combattant_2"], combats["nickname_2"]
@@ -312,6 +306,29 @@ def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, n
             
             predictions.append(model.predict_proba(combat[num_features + cat_features]))
 
-    results = ((predictions[1].flatten()[0] + predictions[0].flatten()[0])/2 , (predictions[1].flatten()[1] + predictions[0].flatten()[1])/2)
+    results = ((predictions[1].flatten()[1] + predictions[0].flatten()[0])/2 , (predictions[1].flatten()[0] + predictions[0].flatten()[1])/2)
 
     return results
+
+def _download_et_convert_image(url, filename):
+    if not os.path.exists('img'):
+        os.makedirs('img')
+
+    if url != "None":
+        with open(filename, 'wb') as handle:
+            response = requests.get(url, stream=True)
+            if not response.ok: 
+                print(response)
+                return None
+            for block in response.iter_content(1024):
+                if not block:
+                    break
+                handle.write(block)
+
+        if os.path.exists(filename):
+            im = Image.open(filename)
+            png_filename = filename.replace('.jpg', '.png')
+            im.save(png_filename)
+            os.remove(filename)
+            return png_filename
+    return None

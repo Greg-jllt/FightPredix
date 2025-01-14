@@ -3,21 +3,19 @@ import os
 import pandas as pd
 import plotly.graph_objects as go
 import joblib
-import requests
 from PIL import Image
-import time
 
 from style import init_pages
-from FightPredixApp.lib_streamlit import _liste_features, _calcul_nb_mois_dernier_combat, _prediction_streamlit
+from lib_streamlit import _liste_features, _calcul_nb_mois_dernier_combat, _prediction_streamlit, _download_et_convert_image
 
 init_pages()
 
 @st.cache_resource
-def load_model():
+def charger_model():
     return joblib.load("model.pkl")
  
 if os.path.exists("model.pkl"):
-    model = load_model()
+    model = charger_model()
 
 # Gestion de l'état pour suivre la page courante
 if "current_page" not in st.session_state:
@@ -35,9 +33,6 @@ def navbar():
     with col2:
         if st.button("Accueil", key="home"):
             st.session_state.current_page = "home"
-    # with col5:
-    #     if st.button("Contact", key="contact"):
-    #         st.session_state.current_page = "contact"
 
     with col3:
         if st.button("Combattants", key="combattants"):
@@ -130,14 +125,18 @@ elif st.session_state.current_page == "combattants":
     if "url_2" not in st.session_state:
         st.session_state["url_2"] = "None"
 
-    file_path = os.path.join("Data/Data_final_fighters_V.csv")
+    file_path = os.path.join("./Data/Data_final_fighters.json")
 
     a1,a2 = st.columns([0.5, 1])
 
     if os.path.exists(file_path):
+        st.session_state["DataFighters"] = pd.read_json(file_path)
+        st.session_state["DataCombats"] = pd.read_json("./Data/Data_final_combats.json")
 
-        df = pd.read_csv(file_path)
- 
+        st.write(type(st.session_state["DataCombats"]["date"][0]))
+
+        df= st.session_state["DataFighters"]
+
         df = df.dropna(subset=["actif"])
         df = df[df["actif"] == True]
 
@@ -181,7 +180,7 @@ elif st.session_state.current_page == "combattants":
                 with col2 :
                     # col2.markdown("<br><br><br><br><br>", unsafe_allow_html=True)  # Deux sauts de ligne HTML
                     if col2.button("", key="predict"):
-                        st.session_state["predictable"] = True
+                        st.session_state["predictable"] = True 
 
             with a2:
 
@@ -324,120 +323,94 @@ elif st.session_state.current_page == "predictions":
     if st.session_state["predictable"] == False:
         titre("Choisissez deux combattants différents.")
     else:
-        DataFighters = pd.read_csv("Data/Data_final_fighters_V.csv", encoding="utf-8")
-        DataCombats = pd.read_csv("Data/Data_final_combats_V.csv", encoding="utf-8")
+        if "DataFighters" in st.session_state and "DataCombats" in st.session_state:
+            DataFighters = st.session_state["DataFighters"]
+            DataCombats = st.session_state["DataCombats"]
 
-        DataCombats = _calcul_nb_mois_dernier_combat(DataCombats)
+            DataCombats = _calcul_nb_mois_dernier_combat(DataCombats)
 
-        num_features, cat_features, output_features = _liste_features()
+            num_features, cat_features, output_features = _liste_features()
 
-        predictions = []
+            predictions = []
 
-        DataCombats.rename(columns={"diff_portÃ©e_de_la_jambe": "diff_portee_de_la_jambe"}, inplace=True)
-        DataFighters.rename(columns={"portée_de_la_jambe": "portee_de_la_jambe", "âge": "age"}, inplace=True)  
+            DataCombats.rename(columns={"diff_portÃ©e_de_la_jambe": "diff_portee_de_la_jambe"}, inplace=True)
+            DataFighters.rename(columns={"portée_de_la_jambe": "portee_de_la_jambe", "âge": "age"}, inplace=True)  
 
-        indice_nom1 = DataFighters[DataFighters["name"] == st.session_state["fighter_1"]].index[0]
-        indice_nom2 = DataFighters[DataFighters["name"] == st.session_state["fighter_2"]].index[0]
+            indice_nom1 = DataFighters[DataFighters["name"] == st.session_state["fighter_1"]].index[0]
+            indice_nom2 = DataFighters[DataFighters["name"] == st.session_state["fighter_2"]].index[0]
 
-      
-        resultats = _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, num_features, cat_features)
-
-        def download_and_convert_image(url, filename):
-            if not os.path.exists('img'):
-                os.makedirs('img')
-
-            if url != "None":
-                with open(filename, 'wb') as handle:
-                    response = requests.get(url, stream=True)
-                    if not response.ok: 
-                        print(response)
-                        return None
-                    for block in response.iter_content(1024):
-                        if not block:
-                            break
-                        handle.write(block)
-
-                if os.path.exists(filename):
-                    im = Image.open(filename)
-                    png_filename = filename.replace('.jpg', '.png')
-                    im.save(png_filename)
-                    os.remove(filename)
-                    return png_filename
-            return None
-
-        image_path_1 = download_and_convert_image(st.session_state.get("url_1", "None"), 'img/cbt1.jpg')
-        image_path_2 = download_and_convert_image(st.session_state.get("url_2", "None"), 'img/cbt2 .jpg')
-
-        if image_path_1 is not None and image_path_2 is not None:
-            cbt1 = Image.open(image_path_1)
-            cbt2  = Image.open(image_path_2)
-
-        values = [resultats[0], resultats[1]]
-        labels = [st.session_state["fighter_1"], st.session_state["fighter_2"]]
-        imgs = [cbt1, cbt2]
-
-        fig = go.Figure()
-
-        fig.add_trace(go.Bar(x=labels, 
-                             y=values, 
-                             marker_color=['#00172B', '#00172B'],
-                             opacity=1))
-
-        fig.add_layout_image(
-                dict(
-                    source=cbt1,
-                    xref="x domain",
-                    yref="y domain",
-                    x=0.75-1/2,
-                    y=values[0]/2, 
-                    layer="above",
-                    xanchor="center",
-                    yanchor="bottom", 
-                    sizex=0.6,
-                    sizey=0.6,
-                )
-            )
         
-        fig.add_layout_image(
-                dict(
-                    source=cbt2,
-                    xref="x domain",
-                    yref="y domain",
-                    x=0.75,
-                    y=values[1]/2, 
-                    layer="above",
-                    xanchor="center",
-                    yanchor="bottom", 
-                    sizex=0.6,
-                    sizey=0.6,
+            resultats = _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, num_features, cat_features)
+
+            image_path_1 = _download_et_convert_image(st.session_state.get("url_1", "None"), 'img/cbt1.jpg')
+            image_path_2 = _download_et_convert_image(st.session_state.get("url_2", "None"), 'img/cbt2 .jpg')
+
+            if image_path_1 is not None and image_path_2 is not None:
+                cbt1 = Image.open(image_path_1)
+                cbt2  = Image.open(image_path_2)
+
+            values = [resultats[0], resultats[1]]
+            labels = [st.session_state["fighter_1"], st.session_state["fighter_2"]]
+            imgs = [cbt1, cbt2]
+
+            fig = go.Figure()
+
+            fig.add_trace(go.Bar(x=labels, 
+                                y=values, 
+                                marker_color=['#00172B', '#00172B'],
+                                opacity=1))
+
+            fig.add_layout_image(
+                    dict(
+                        source=cbt1,
+                        xref="x domain",
+                        yref="y domain",
+                        x=0.75-1/2,
+                        y=values[0]/2, 
+                        layer="above",
+                        xanchor="center",
+                        yanchor="bottom", 
+                        sizex=0.6,
+                        sizey=0.6,
+                    )
                 )
+            
+            fig.add_layout_image(
+                    dict(
+                        source=cbt2,
+                        xref="x domain",
+                        yref="y domain",
+                        x=0.75,
+                        y=values[1]/2, 
+                        layer="above",
+                        xanchor="center",
+                        yanchor="bottom", 
+                        sizex=0.6,
+                        sizey=0.6,
+                    )
+                )
+
+
+            fig.update_layout(
+                title="",
+                xaxis_title="",
+                yaxis=dict(
+                    title=' ', 
+                    range=[0, 2],
+                    showticklabels=False, 
+                    showgrid=False        
+                ),
+                height=600,
+                width=900,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                template="plotly_white"
             )
 
-
-        fig.update_layout(
-            title="",
-            xaxis_title="",
-            yaxis=dict(
-                title=' ', 
-                range=[0, 2],
-                showticklabels=False, 
-                showgrid=False        
-            ),
-            height=600,
-            width=900,
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)',
-            template="plotly_white"
-        )
-
-        _, cent_co,_ = st.columns([1,1, 1])
-        with cent_co:
-            with st.spinner('Prediction en cours'):
-                time.sleep(6)
+            _, cent_co,_ = st.columns([1,1, 1])
+            with cent_co:
                 st.plotly_chart(fig)
                 st.write(f"Selon l'algorrithme, {st.session_state['fighter_1']} a une probabilité de vaincre {st.session_state['fighter_2']} de {round(values[0]*100)}%, la où {st.session_state['fighter_2']} a une probabilité de vaincre {st.session_state['fighter_1']} de {round(values[1]*100)}%.")
-
-
 else:
         titre("Page non trouvée")
         st.write("La page demandée n'existe pas.")
