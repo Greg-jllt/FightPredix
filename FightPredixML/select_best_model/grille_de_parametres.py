@@ -1,6 +1,6 @@
 """Description:
 
-Ce fichier contient les grilles de paramètres pour les modèles de machine learning.
+Ce fichier contient les grilles de paramètres pour les modèles de machine learning : boosting, random forest, regression logistique, neural network et svm.
 """
 
 parametres_boosting = {
