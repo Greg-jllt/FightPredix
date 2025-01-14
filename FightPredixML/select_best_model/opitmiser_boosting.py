@@ -3,7 +3,7 @@
 Contient le pipeline et l'optimisation des hyperparamètres pour le modèle SVM
 """
 
-from git import Union
+from typing import Union
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.impute import KNNImputer, SimpleImputer

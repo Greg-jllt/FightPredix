@@ -1,4 +1,4 @@
-from git import Union
+from typing import Union
 import joblib
 from rich.console import Console
 from sklearn.pipeline import Pipeline

@@ -10,12 +10,10 @@
 
 *.json
 
-Data/
-
-Model/
-
 *.pkl
 
-.venv/
+Data/
 
 modele/
+
+.venv/

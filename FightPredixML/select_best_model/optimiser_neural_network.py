@@ -3,6 +3,7 @@
 Contient le pipeline et l'optimisation des hyperparamètres pour le modèle SVM
 """
 
+from typing import Union
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.impute import KNNImputer, SimpleImputer
@@ -14,7 +15,6 @@ from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 from joblib import parallel_backend
 from sklearn.decomposition import PCA
-from typing import Union
 
 
 def _pipeline_neural_network(
@@ -53,6 +53,7 @@ def _pipeline_neural_network(
                     [
                         (
                             "simple_imputer",
+                            # SimpleImputer(strategy='most_frequent'),
                             SimpleImputer(
                                 strategy="constant", fill_value="non-renseigné"
                             ),
@@ -77,6 +78,7 @@ def _pipeline_neural_network(
             ("neural_network", MLPClassifier(random_state=42)),
         ]
     )
+
     grid_search = GridSearchCV(
         pipe, param_grid, cv=5, n_jobs=-1, pre_dispatch="2*n_jobs"
     )
