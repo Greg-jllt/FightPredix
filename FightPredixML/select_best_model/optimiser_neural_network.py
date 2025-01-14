@@ -3,6 +3,7 @@
 Contient le pipeline et l'optimisation des hyperparamètres pour le modèle SVM
 """
 
+from typing import Union
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.impute import KNNImputer, SimpleImputer
@@ -23,7 +24,8 @@ def _pipeline_neural_network(
     variables_categorielles: list[str],
     variable_a_predire: str,
     variable_de_poids: str,
-) -> tuple[ColumnTransformer, Pipeline]:
+    param_grid: dict,
+) -> dict[str, Union[str, Pipeline, float]]:
     """
     Cette fonction crée un pipeline dans le but d'optimiser les hyperparamètres du modèle neural network
     """
@@ -38,9 +40,9 @@ def _pipeline_neural_network(
                             "Suppress_low_var",
                             VarianceThreshold(threshold=(0.9 * (1 - 0.9))),
                         ),
-                        ("imputer", KNNImputer()),
-                        ("scaler", StandardScaler()),
-                        ("pca", PCA(random_state=42)),
+                        ("knn_imputer", KNNImputer()),
+                        ("standard_scaler", StandardScaler()),
+                        ("PCA", PCA(random_state=42)),
                     ]
                 ),
                 variables_numeriques,
@@ -50,13 +52,13 @@ def _pipeline_neural_network(
                 Pipeline(
                     [
                         (
-                            "imputer",
+                            "simple_imputer",
                             # SimpleImputer(strategy='most_frequent'),
                             SimpleImputer(
                                 strategy="constant", fill_value="non-renseigné"
                             ),
                         ),
-                        ("onehot", OneHotEncoder(handle_unknown="ignore")),
+                        ("onehot_encoder", OneHotEncoder(handle_unknown="ignore")),
                     ]
                 ),
                 variables_categorielles,
@@ -68,27 +70,14 @@ def _pipeline_neural_network(
         steps=[
             ("preprocessor", preprocessor),
             (
-                "feature_selection",
+                "feature_selection_random_forest",
                 SelectFromModel(
                     estimator=RandomForestClassifier(n_estimators=200, random_state=42)
                 ),
             ),
-            ("classifier", MLPClassifier(random_state=42)),
+            ("neural_network", MLPClassifier(random_state=42)),
         ]
     )
-
-    param_grid = {
-        "feature_selection__threshold": [0.0001],
-        "feature_selection__estimator__max_features": [84],
-        "feature_selection__estimator__n_estimators": [200],
-        "preprocessor__num__imputer__n_neighbors": [5],
-        "classifier__hidden_layer_sizes": [(50,)],
-        "classifier__alpha": [5],
-        "classifier__early_stopping": [True],
-        "classifier__validation_fraction": [0.1],
-        "classifier__solver": ["adam"],
-        "classifier__activation": ["relu"],
-    }
 
     grid_search = GridSearchCV(
         pipe, param_grid, cv=5, n_jobs=-1, pre_dispatch="2*n_jobs"

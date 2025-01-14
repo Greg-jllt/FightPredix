@@ -3,6 +3,7 @@
 Contient le pipeline et l'optimisation des hyperparamètres pour le modèle SVM
 """
 
+from typing import Union
 from sklearn.model_selection import GridSearchCV
 from sklearn.impute import KNNImputer, SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
@@ -22,7 +23,8 @@ def _pipeline_random_forest(
     variables_categorielles: list[str],
     variable_a_predire: str,
     variable_de_poids: str,
-) -> tuple[ColumnTransformer, Pipeline]:
+    param_grid: dict,
+) -> dict[str, Union[str, Pipeline, float]]:
     """
     Cette fonction crée un pipeline dans le but d'optimiser les hyperparamètres du modèle Random Forest
     """
@@ -37,8 +39,8 @@ def _pipeline_random_forest(
                             "Suppress_low_var",
                             VarianceThreshold(threshold=(0.9 * (1 - 0.9))),
                         ),
-                        ("imputer", KNNImputer()),
-                        ("scaler", StandardScaler()),
+                        ("knn_imputer", KNNImputer()),
+                        ("standard_scaler", StandardScaler()),
                         ("PCA", PCA(random_state=42)),
                     ]
                 ),
@@ -49,12 +51,12 @@ def _pipeline_random_forest(
                 Pipeline(
                     [
                         (
-                            "imputer",
+                            "simple_imputer",
                             SimpleImputer(
                                 strategy="constant", fill_value="non-renseigné"
                             ),
                         ),
-                        ("onehot", OneHotEncoder(handle_unknown="ignore")),
+                        ("onehot_encoder", OneHotEncoder(handle_unknown="ignore")),
                     ]
                 ),
                 variables_categorielles,
@@ -66,24 +68,14 @@ def _pipeline_random_forest(
         steps=[
             ("preprocessor", preprocessor),
             (
-                "feature_selection",
+                "feature_selection_random_forest",
                 SelectFromModel(
                     estimator=RandomForestClassifier(n_estimators=400, random_state=42)
                 ),
             ),
-            ("classifier", RandomForestClassifier()),
+            ("random_forest", RandomForestClassifier()),
         ]
     )
-
-    param_grid = {
-        "feature_selection__threshold": [0.001],
-        "preprocessor__num__imputer__n_neighbors": [700],
-        "classifier__criterion": ["entropy"],
-        "classifier__n_estimators": [400],
-        "classifier__min_samples_split": [2],
-        "classifier__max_depth": [25],
-        "classifier__min_samples_leaf": [1],
-    }
 
     grid_search = GridSearchCV(
         pipe, param_grid, cv=5, n_jobs=-1, pre_dispatch="2*n_jobs"
@@ -92,7 +84,7 @@ def _pipeline_random_forest(
         grid_search.fit(
             X_train,
             y_train[variable_a_predire],
-            classifier__sample_weight=y_train[variable_de_poids],
+            random_forest__sample_weight=y_train[variable_de_poids],
         )
 
     return dict(

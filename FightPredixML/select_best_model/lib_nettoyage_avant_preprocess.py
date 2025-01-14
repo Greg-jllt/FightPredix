@@ -35,7 +35,6 @@ def _garder_combats_apres_2014(DataCombats: pd.DataFrame) -> pd.DataFrame:
     return DataCombats[DataCombats["date"] > "2014-01-01"]
 
 
-
 def _impute_dimension_variables(DataCombats: pd.DataFrame) -> pd.DataFrame:
     """
     On impute les valeurs manquantes des variables de dimension (taille, reach, poids, portée de la jambe)

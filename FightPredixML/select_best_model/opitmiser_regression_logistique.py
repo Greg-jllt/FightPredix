@@ -14,6 +14,7 @@ from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 from joblib import parallel_backend
 from sklearn.decomposition import PCA
+from typing import Union
 
 
 def _pipeline_regression_logistique(
@@ -23,7 +24,8 @@ def _pipeline_regression_logistique(
     variables_categorielles: list[str],
     variable_a_predire: str,
     variable_de_poids: str,
-) -> tuple[ColumnTransformer, Pipeline]:
+    param_grid: dict,
+) -> dict[str, Union[str, Pipeline, float]]:
     """
     Cette fonction crée un pipeline dans le but d'optimiser les résultats de la régression logistique
     """
@@ -38,8 +40,8 @@ def _pipeline_regression_logistique(
                             "Suppress_low_var",
                             VarianceThreshold(threshold=(0.9 * (1 - 0.9))),
                         ),
-                        ("imputer", KNNImputer()),
-                        ("scaler", StandardScaler()),
+                        ("knn_imputer", KNNImputer()),
+                        ("standard_scaler", StandardScaler()),
                         ("PCA", PCA(random_state=42)),
                     ]
                 ),
@@ -50,12 +52,12 @@ def _pipeline_regression_logistique(
                 Pipeline(
                     [
                         (
-                            "imputer",
+                            "simple_imputer",
                             SimpleImputer(
                                 strategy="constant", fill_value="non-renseigné"
                             ),
                         ),
-                        ("onehot", OneHotEncoder(handle_unknown="ignore")),
+                        ("onehot_encoder", OneHotEncoder(handle_unknown="ignore")),
                     ]
                 ),
                 variables_categorielles,
@@ -67,23 +69,14 @@ def _pipeline_regression_logistique(
         steps=[
             ("preprocessor", preprocessor),
             (
-                "feature_selection",
+                "feature_selection_random_forest",
                 SelectFromModel(
                     estimator=RandomForestClassifier(n_estimators=400, random_state=42)
                 ),
             ),
-            ("classifier", LogisticRegression()),
+            ("regression_logistique", LogisticRegression()),
         ]
     )
-
-    param_grid = {
-        "feature_selection__threshold": [0.001],
-        "preprocessor__num__imputer__n_neighbors": [700],
-        "classifier__penalty": ["l1", "l2"],
-        "classifier__C": [0.5],
-        "classifier__tol": [1e-2],
-        "classifier__solver": ["liblinear"],
-    }
 
     grid_search = GridSearchCV(
         pipe, param_grid, cv=5, n_jobs=-1, pre_dispatch="2*n_jobs"
@@ -92,7 +85,7 @@ def _pipeline_regression_logistique(
         grid_search.fit(
             X_train,
             y_train[variable_a_predire],
-            classifier__sample_weight=y_train[variable_de_poids],
+            regression_logistique__sample_weight=y_train[variable_de_poids],
         )
 
     return dict(

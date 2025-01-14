@@ -8,8 +8,14 @@
 
 *.csv
 
+*.json
+
+*.pkl
+
 Data/
 
 modele/
 
 .venv/
+
+modele/
