@@ -7,9 +7,12 @@ from selenium import webdriver
 
 import pandas as pd
 
-from .lib_constructeur import _main_constructeur
+from FightPredixConstructeur.lib_constructeur import _main_constructeur
 from FightPredixScraping.scraping.lib_ufc_stats import _ratrappage_manquants
 from FightPredixScraping.scraping.__main__ import main as _main_recolte
+from FightPredixConstructeur.lib_nettoyage_avant_preprocess import (
+    _main_nettoyage_avant_preprocess,
+)
 
 
 def _constructeur(
@@ -31,7 +34,7 @@ chrome_options.add_argument("--headless")
 main_driver = webdriver.Chrome(options=chrome_options)
 
 combats, Data = _constructeur(combats, Data, main_driver)
-
+combats = _main_nettoyage_avant_preprocess(combats)
 combats.to_json("Data/Data_ufc_combats_complet.json")
 main_driver.quit()
 

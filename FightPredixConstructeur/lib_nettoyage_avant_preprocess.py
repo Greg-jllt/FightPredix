@@ -34,55 +34,6 @@ def _garder_combats_apres_2014(DataCombats: pd.DataFrame) -> pd.DataFrame:
     return DataCombats[DataCombats["date"] > "2014-01-01"]
 
 
-def replace_first_nan(DataCombats: pd.DataFrame) -> pd.DataFrame:
-    combattants = set(
-        DataCombats["combattant_1"].tolist() + DataCombats["combattant_2"].tolist()
-    )
-    liste_combattants = list(combattants)
-
-    col_moyenne = [
-        col for col in DataCombats.columns if "moyenne" in col and "diff" not in col
-    ]
-
-    for nom in liste_combattants:
-        data_combattant = pd.concat(
-            [
-                DataCombats[DataCombats["combattant_1"] == nom][
-                    ["combattant_1", "combattant_2"] + col_moyenne
-                ],
-                DataCombats[DataCombats["combattant_2"] == nom][
-                    ["combattant_1", "combattant_2"] + col_moyenne
-                ],
-            ]
-        )
-
-        if data_combattant.shape[0] > 1:
-            data_combattant = data_combattant.sort_index(ascending=False)
-            data_combattant.reset_index(inplace=True)
-            index = data_combattant.loc[0, "index"]
-
-            if data_combattant.loc[0, "combattant_1"] == nom:
-                combattant_numero_remplace = "combattant_1"
-            else:
-                combattant_numero_remplace = "combattant_2"
-            col_a_remplacer = [
-                col for col in col_moyenne if combattant_numero_remplace in col
-            ]
-
-            if data_combattant.loc[1, "combattant_1"] == nom:
-                combattant_numero_remplacement = "combattant_1"
-            else:
-                combattant_numero_remplacement = "combattant_2"
-
-            for col in col_a_remplacer:
-                if pd.isna(data_combattant.loc[0, col]):
-                    stat_sans_combattant = col.split(combattant_numero_remplace)[1]
-                    DataCombats.loc[index, col] = data_combattant.loc[
-                        1, f"{combattant_numero_remplacement}{stat_sans_combattant}"
-                    ]
-    return DataCombats.reset_index(drop=True)
-
-
 def _impute_dimension_variables(DataCombats: pd.DataFrame) -> pd.DataFrame:
     """
     On impute les valeurs manquantes des variables de dimension (taille, reach, poids, portée de la jambe)
@@ -172,6 +123,7 @@ def _impute_dimension_variables(DataCombats: pd.DataFrame) -> pd.DataFrame:
 
     return DataCombats
 
+
 def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
     """
     Fonction de calcul de la différence entre les caractéristiques des combattants
@@ -224,59 +176,62 @@ def _liste_features() -> tuple[list[str], list[str], list[str]]:
     Renvoie des listes de variables utilisables pour le machine learning
     """
 
-    numeric_features = [
+    variables_numeriques = [
         "diff_age_t",
         "diff_win_t",
         "diff_losses_t",
         "diff_forme",
         "diff_serie",
-        "diff_Sig_str_total_reussi_moyenne",
-        "diff_Sig_str_total_total_moyenne",
-        "diff_Total_str_total_reussi_moyenne",
-        "diff_Total_str_total_total_moyenne",
-        "diff_Tdtotal_reussi_moyenne",
-        "diff_Tdtotal_total_moyenne",
-        "diff_Headsig_str_total_reussi_moyenne",
-        "diff_Headsig_str_total_total_moyenne",
-        "diff_Bodysig_str_total_reussi_moyenne",
-        "diff_Bodysig_str_total_total_moyenne",
-        "diff_Legsig_str_total_reussi_moyenne",
-        "diff_Legsig_str_total_total_moyenne",
-        "diff_Distancesig_str_total_reussi_moyenne",
-        "diff_Distancesig_str_total_total_moyenne",
-        "diff_Clinchsig_str_total_reussi_moyenne",
-        "diff_Clinchsig_str_total_total_moyenne",
-        "diff_Groundsig_str_total_reussi_moyenne",
-        "diff_Groundsig_str_total_total_moyenne",
+        "diff_sig_str_total_reussi_moyenne",
+        "diff_sig_str_total_total_moyenne",
+        "diff_total_str_total_reussi_moyenne",
+        "diff_total_str_total_total_moyenne",
+        "diff_tdtotal_reussi_moyenne",
+        "diff_tdtotal_total_moyenne",
+        "diff_headsig_str_total_reussi_moyenne",
+        "diff_headsig_str_total_total_moyenne",
+        "diff_bodysig_str_total_reussi_moyenne",
+        "diff_bodysig_str_total_total_moyenne",
+        "diff_legsig_str_total_reussi_moyenne",
+        "diff_legsig_str_total_total_moyenne",
+        "diff_distancesig_str_total_reussi_moyenne",
+        "diff_distancesig_str_total_total_moyenne",
+        "diff_clinchsig_str_total_reussi_moyenne",
+        "diff_clinchsig_str_total_total_moyenne",
+        "diff_groundsig_str_total_reussi_moyenne",
+        "diff_groundsig_str_total_total_moyenne",
         "diff_frappe_tete_moyenne",
         "diff_frappe_corps_moyenne",
         "diff_frappe_jambe_moyenne",
         "diff_frappe_distance_moyenne",
         "diff_frappe_clinch_moyenne",
         "diff_frappe_sol_moyenne",
-        "diff_KDtotal_moyenne",
-        "diff_Sig_str_total_ratio_moyenne",
-        "diff_Sig_str_percent_total_moyenne",
-        "diff_Total_str_total_ratio_moyenne",
-        "diff_Tdtotal_ratio_moyenne",
-        "diff_Td_percent_total_moyenne",
-        "diff_Sub_atttotal_moyenne",
-        "diff_Revtotal_moyenne",
-        "diff_Ctrltotal_moyenne",
-        "diff_Headsig_str_total_ratio_moyenne",
-        "diff_Bodysig_str_total_ratio_moyenne",
-        "diff_Legsig_str_total_ratio_moyenne",
-        "diff_Distancesig_str_total_ratio_moyenne",
-        "diff_Clinchsig_str_total_ratio_moyenne",
-        "diff_Groundsig_str_total_ratio_moyenne",
+        "diff_kdtotal_moyenne",
+        "diff_sig_str_total_ratio_moyenne",
+        "diff_sig_str_percent_total_moyenne",
+        "diff_total_str_total_ratio_moyenne",
+        "diff_tdtotal_ratio_moyenne",
+        "diff_td_percent_total_moyenne",
+        "diff_sub_atttotal_moyenne",
+        "diff_revtotal_moyenne",
+        "diff_ctrltotal_moyenne",
+        "diff_headsig_str_total_ratio_moyenne",
+        "diff_bodysig_str_total_ratio_moyenne",
+        "diff_legsig_str_total_ratio_moyenne",
+        "diff_distancesig_str_total_ratio_moyenne",
+        "diff_clinchsig_str_total_ratio_moyenne",
+        "diff_groundsig_str_total_ratio_moyenne",
         "diff_la_taille",
         "diff_poids",
         "diff_reach",
         "diff_portée_de_la_jambe",
         "diff_nb_mois_dernier_combat",
+        "diff_sub",
+        "diff_ko/tko",
+        "diff_dec"
     ]
 
-    categorical_features = [
+    variables_categorielles = [
         "combattant_1_style_de_combat",
         "combattant_2_style_de_combat",
         "combattant_1_country_of_residence_tapology",
@@ -285,29 +240,102 @@ def _liste_features() -> tuple[list[str], list[str], list[str]]:
         "combattant_2_country_of_birth_tapology",
     ]
 
-    output_feature = ["resultat", "poids_ml"]
+    variable_a_predire = "resultat"
 
-    return numeric_features, categorical_features, output_feature
+    variable_de_poids = "poids_ml"
+
+    return (
+        variables_numeriques,
+        variables_categorielles,
+        variable_a_predire,
+        variable_de_poids,
+    )
 
 
-def _main_nettoyage() -> pd.DataFrame:
-    DataCombats = pd.read_json("FightPredixAPP/Data/Data_final_combats.json")
+def _suppress_nan(
+    DataCombats: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.Series, str]:
+    """
+    Cette fonction effectue les derniers ajustements sur les données avant de les passer dans le modèle.
+    supprime les colonnes avec plus de 30% de valeurs manquantes
+    supprime les lignes avec plus de 40% de valeurs manquantes
+    """
+
+    DataCombats.dropna(thresh=0.65 * DataCombats.shape[1], inplace=True)
+    size = DataCombats.shape
+    nan_values = DataCombats.isna().sum()
+    nan_values = nan_values.sort_values(ascending=True) * 100 / size[0]
+    num_features, cat_features, output_features = _liste_features()
+    if (
+        len(
+            [
+                col
+                for col in DataCombats.columns
+                if nan_values[col] > 30 and col in num_features
+            ]
+        )
+        > 0
+    ):
+        num_features.remove(
+            *[
+                col
+                for col in DataCombats.columns
+                if nan_values[col] > 30 and col in num_features
+            ]
+        )
+
+    if (
+        len(
+            [
+                col
+                for col in DataCombats.columns
+                if nan_values[col] > 30 and col in cat_features
+            ]
+        )
+        > 0
+    ):
+        cat_features.remove(
+            *[
+                col
+                for col in DataCombats.columns
+                if nan_values[col] > 30 and col in cat_features
+            ]
+        )
+
+    return DataCombats
+
+
+def _main_nettoyage_avant_preprocess(DataCombats: pd.DataFrame) -> pd.DataFrame:
+    """
+    Cette fonction effectue les derniers ajustements sur les données avant de les passer dans le modèle.
+    """
 
     DataCombats = _supprimer_combattants_problematiques(DataCombats)
-    DataCombats = _garder_combats_apres_2014(DataCombats)
+    DataCombats = _garder_combats_apres_2014(DataCombats).reset_index(drop=True)
     DataCombats = _impute_dimension_variables(DataCombats)
     DataCombats = _attribution_poids(DataCombats)
 
-    # liste_diff = [col for col in DataCombats.columns if "diff" in col]
-    # DataCombats.drop(columns=liste_diff, inplace=True)
+    DataCombats.drop(
+        columns=[col for col in DataCombats.columns if "diff" in col], inplace=True
+    )
     DataCombats = _difference_num_combats(DataCombats)
 
-    numeric_features, categorical_features, output_feature = _liste_features()
+    (
+        variables_numeriques,
+        variables_categorielles,
+        variable_a_predire,
+        variable_de_poids,
+    ) = _liste_features()
 
-    Data_for_ml = DataCombats[numeric_features + categorical_features + output_feature]
-
-    return Data_for_ml
+    DataCombats = DataCombats[
+        variables_numeriques
+        + variables_categorielles
+        + variable_a_predire
+        + variable_de_poids
+    ]
+    DataCombats = _suppress_nan(DataCombats)
+    return DataCombats
 
 
 if __name__ == "__main__":
-    _main_nettoyage()
+    _main_nettoyage_avant_preprocess()

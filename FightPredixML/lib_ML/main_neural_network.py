@@ -3,8 +3,8 @@
 Optimisation des hyperparamètres du modèle SVM
 """
 
-from .lib_nettoyage_avant_preprocess import _main_nettoyage, _liste_features
-from .lib_process_avant_model import _main_process_avant_model
+from ...FightPredixConstructeur.lib_nettoyage_avant_preprocess import _main_nettoyage, _liste_features
+from ...FightPredixConstructeur.lib_process_avant_model import _main_process_avant_model
 from .lib_neural_network import _pipeline
 from rich.console import Console
 import joblib

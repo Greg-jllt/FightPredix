@@ -17,13 +17,14 @@ import numpy as np
 import re
 import pandas as pd
 
+
 def _ajout_cat_combts(
     caracteristiques: pd.DataFrame, combats: pd.DataFrame
 ) -> pd.DataFrame:
     """
     Fonction qui assigne les les varibales catégorielles de chaque combattant
     """
-    
+
     lignes_a_ajouter = []
     cat_colonnes_caracteristiques = caracteristiques.select_dtypes(
         include=["object", "bool"]
@@ -31,17 +32,22 @@ def _ajout_cat_combts(
     cat_colonnes_caracteristiques.remove("name")
 
     def _sub_fonction_differences_cat(
-        combattant: str, prefixe: str, caracteristiques: pd.DataFrame, lignes_a_ajouter: list
+        combattant: str,
+        prefixe: str,
+        caracteristiques: pd.DataFrame,
+        lignes_a_ajouter: list,
     ):
         stats_combattant = None
 
         for nom in caracteristiques["name"].values:
             if nom == combattant or fuzz.ratio(nom.lower(), combattant.lower()) >= 90:
-                stats_combattant = caracteristiques[caracteristiques["name"] == nom].iloc[0]
+                stats_combattant = caracteristiques[
+                    caracteristiques["name"] == nom
+                ].iloc[0]
                 break
 
         if stats_combattant is not None:
-            nouvelle_ligne = {"index": i} 
+            nouvelle_ligne = {"index": i}
 
             for col in cat_colonnes_caracteristiques:
                 nouvelle_ligne[f"{prefixe}_{col}"] = stats_combattant[col]
@@ -52,8 +58,12 @@ def _ajout_cat_combts(
         combattant_1 = combat["combattant_1"]
         combattant_2 = combat["combattant_2"]
 
-        _sub_fonction_differences_cat(combattant_1, "combattant_1", caracteristiques, lignes_a_ajouter)
-        _sub_fonction_differences_cat(combattant_2, "combattant_2", caracteristiques, lignes_a_ajouter)
+        _sub_fonction_differences_cat(
+            combattant_1, "combattant_1", caracteristiques, lignes_a_ajouter
+        )
+        _sub_fonction_differences_cat(
+            combattant_2, "combattant_2", caracteristiques, lignes_a_ajouter
+        )
 
     df_categoriel = (
         pd.DataFrame(lignes_a_ajouter).set_index("index")
@@ -64,7 +74,6 @@ def _ajout_cat_combts(
     resultat = pd.concat([combats.reset_index(drop=True), df_categoriel], axis=1)
 
     return resultat
-
 
 
 def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
@@ -92,7 +101,7 @@ def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
 
     df_numerique = pd.DataFrame(colonnes_a_concat, index=combats.index)
 
-    if cols_to_drop :
+    if cols_to_drop:
         combats.drop(columns=cols_to_drop, inplace=True, axis=1)
 
     resultat = pd.concat([combats.reset_index(drop=True), df_numerique], axis=1)
@@ -100,7 +109,7 @@ def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
     return resultat
 
 
-def _age_by_DOB(Data : pd.DataFrame):
+def _age_by_DOB(Data: pd.DataFrame):
     """
     Fonction qui calcule l'age des combattants en fonction de leur date de naissance
     """
@@ -174,7 +183,7 @@ def _process_ratio(valeur):
         return num, denom, ratio
 
 
-def _cleaning(data:pd.DataFrame)->pd.DataFrame:
+def _cleaning(data: pd.DataFrame) -> pd.DataFrame:
     """
     Fonction qui nettoie les données
     """
@@ -347,14 +356,20 @@ def _calcul_nb_mois_dernier_combat(
         temp_dict[f"{combattant}_{nickname}_date"].pop(0)
 
     cob.loc[index, f"{prefixe}_nb_mois_dernier_combat"] = (
-        round((temp_dict[f"{combattant}_{nickname}_date"][1] - temp_dict[f"{combattant}_{nickname}_date"][0]).days / 30)
+        round(
+            (
+                temp_dict[f"{combattant}_{nickname}_date"][1]
+                - temp_dict[f"{combattant}_{nickname}_date"][0]
+            ).days
+            / 30
+        )
         if len(temp_dict[f"{combattant}_{nickname}_date"]) == 2
         else 0
     )
 
 
 def _calcul_statistique_generique(
-    combats: pd.DataFrame, calculs_par_combattant : function, date : bool = False
+    combats: pd.DataFrame, calculs_par_combattant: function, date: bool = False
 ) -> pd.DataFrame:
     """
     Fonction générique pour calculer des statistiques des combattants à partir des combats.
@@ -365,11 +380,17 @@ def _calcul_statistique_generique(
     temp_dict: dict = {}
 
     for i, combat in cob.iterrows():
-        combattant_1, nickname_1 = combat["combattant_1"], combat["combattant_1_nickname"]
-        combattant_2, nickname_2 = combat["combattant_2"], combat["combattant_2_nickname"]
-        if date == False :
+        combattant_1, nickname_1 = (
+            combat["combattant_1"],
+            combat["combattant_1_nickname"],
+        )
+        combattant_2, nickname_2 = (
+            combat["combattant_2"],
+            combat["combattant_2_nickname"],
+        )
+        if date == False:
             resultat = combat["resultat"]
-        else :
+        else:
             resultat = combat["date"]
 
         nickname_1 = nickname_1 if isinstance(nickname_1, str) else "NO"
@@ -471,9 +492,9 @@ def _assignement_stat_taille_etc(
 
     for car in liste_caracteristiques:
         DataCombats.loc[DataCombats[f"combattant_{num}"] == nom_combat, car] = (
-            caracteristiques[caracteristiques["name"] == nom_car][
-                car.split(f"{num}_")[1]
-            ].values[0]
+            caracteristiques[
+                caracteristiques["name"] == nom_car
+            ][car.split(f"{num}_")[1]].values[0]
         )
 
     return DataCombats
@@ -523,10 +544,20 @@ def _main_constructeur(
     combats = _cleaning(data=combats)
     combats = _ajout_cat_combts(caracteristiques=caracteristiques, combats=combats)
     combats = _age_temps_t(caracteristiques=caracteristiques, combats=combats)
-    combats = _calcul_statistique_generique(combats=combats, calculs_par_combattant=_calcul_victoires_defaites)
-    combats = _calcul_statistique_generique(combats=combats, calculs_par_combattant=_calcul_forme_combattant)
-    combats = _calcul_statistique_generique(combats=combats, calculs_par_combattant=_calcul_serie_victoires)
-    combats = _calcul_statistique_generique(combats=combats, calculs_par_combattant=_calcul_nb_mois_dernier_combat, date=True)
+    combats = _calcul_statistique_generique(
+        combats=combats, calculs_par_combattant=_calcul_victoires_defaites
+    )
+    combats = _calcul_statistique_generique(
+        combats=combats, calculs_par_combattant=_calcul_forme_combattant
+    )
+    combats = _calcul_statistique_generique(
+        combats=combats, calculs_par_combattant=_calcul_serie_victoires
+    )
+    combats = _calcul_statistique_generique(
+        combats=combats,
+        calculs_par_combattant=_calcul_nb_mois_dernier_combat,
+        date=True,
+    )
 
     with open(
         "FightPredix_scraping/scraping/dico_formatage/dico_var.json", "r"
@@ -539,13 +570,18 @@ def _main_constructeur(
     combats = _difference_num_combats(combats)
 
     last_stats, last_stats_nom_identique = (
-        _format_last_stats(dico_last_stats=dico_last_stats,caracteristiques=caracteristiques),
+        _format_last_stats(
+            dico_last_stats=dico_last_stats, caracteristiques=caracteristiques
+        ),
         _format_last_stats_nom_identique(
-            dico_last_stats_nom_identique=dico_last_stats_nom_identique, caracteristiques=caracteristiques
+            dico_last_stats_nom_identique=dico_last_stats_nom_identique,
+            caracteristiques=caracteristiques,
         ),
     )
 
-    last_stats.to_json("Data/Data_stats_combattants.json", orient="columns", index=False)
+    last_stats.to_json(
+        "Data/Data_stats_combattants.json", orient="columns", index=False
+    )
     last_stats_nom_identique.to_json("Data/Data_stats_nom_identique.json", index=False)
 
     combats = _derniere_difference(combats, caracteristiques)
