@@ -23,7 +23,7 @@ sauvegarder_les_modeles = True
 if __name__ == "__main__":
     console = Console()
 
-    data = pd.read_json("FightPredixML/DataML/Data_final_combats.json")
+    data = pd.read_json("FightPredixAPP/DataApp/Data_final_combats.json")
     (
         variables_numeriques,
         variables_categorielles,
