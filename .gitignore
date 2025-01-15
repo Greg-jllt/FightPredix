@@ -2,18 +2,12 @@
 
 *.pycache
 
-.coverage
+*.pyc
 
 *.log
-
-*.csv
 
 *.json
 
 *.pkl
-
-Data/
-
-modele/
 
 .venv/
