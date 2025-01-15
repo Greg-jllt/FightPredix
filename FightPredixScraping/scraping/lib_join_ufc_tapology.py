@@ -7,11 +7,10 @@ Développée par :
 """
 
 import polars as pl
-import subprocess
 import logging
 
-from lib_nettoyage_tapology import _main_nettoyage_tapology
-from lib_scraping_tapology import _main_scraping_tapology
+from .lib_nettoyage_tapology import _main_nettoyage_tapology
+from .lib_scraping_tapology import _main_scraping_tapology
 
 
 def _main_tapology():

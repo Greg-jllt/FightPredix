@@ -211,7 +211,7 @@ def _cleaning(data:pd.DataFrame)->pd.DataFrame:
     return Data
 
 
-def _sub_fonction_age(Data, combattant, date_combat_annee, ajd):
+def _sub_fonction_age(Data : pd.DataFrame, combattant : str, date_combat_annee : str, ajd : datetime)->int:
     """
     Sous fonction qui calcule l'age des combattants au moment du combat
     """
@@ -251,7 +251,7 @@ def _age_temps_t(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -> pd.Da
 
 
 def _calcul_victoires_defaites(
-    temp_dict, cob, combattant, nickname, prefixe, resultat, index
+    temp_dict : dict, cob : pd.DataFrame, combattant : pd.Series, nickname : pd.Series, prefixe : str, resultat : pd.Series, index : int
 ):
     """
     Sous fonction qui calcule les victoires et les défaites des combattants au temps t
@@ -277,7 +277,7 @@ def _calcul_victoires_defaites(
 
 
 def _calcul_forme_combattant(
-    temp_dict, cob, combattant, nickname, prefixe, resultat, index
+   temp_dict : dict, cob : pd.DataFrame, combattant : pd.Series, nickname : pd.Series, prefixe : str, resultat : pd.Series, index : int
 ):
     """
     Sous fonction qui calcule la forme des combattants au travers des resultats des 3 derniers combats au temps t de chaque combattant
@@ -310,7 +310,7 @@ def _calcul_forme_combattant(
 
 
 def _calcul_serie_victoires(
-    temp_dict, cob, combattant, nickname, prefixe, resultat, index
+    temp_dict : dict, cob : pd.DataFrame, combattant : pd.Series, nickname : pd.Series, prefixe : str, resultat : pd.Series, index : int
 ):
     """
     Sous fonction qui calcule la série de victoires des combattants au temps t, dès qu'une defaite est enregistrée la série est remise à 0
@@ -333,7 +333,7 @@ def _calcul_serie_victoires(
 
 
 def _calcul_nb_mois_dernier_combat(
-    temp_dict, cob, combattant, nickname, prefixe, date, index
+    temp_dict : dict, cob : pd.DataFrame, combattant : pd.Series, nickname : pd.Series, prefixe : str, date : pd.Series, index : int
 ):
     """
     Sous fonction qui calcule le nombre de mois entre le combat actuel d'un combattant et le précedent
@@ -354,7 +354,7 @@ def _calcul_nb_mois_dernier_combat(
 
 
 def _calcul_statistique_generique(
-    combats: pd.DataFrame, calculs_par_combattant : function, date : bool = False
+    combats: pd.DataFrame, calculs_par_combattant, date : bool = False
 ) -> pd.DataFrame:
     """
     Fonction générique pour calculer des statistiques des combattants à partir des combats.

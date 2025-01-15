@@ -26,7 +26,8 @@ def navbar():
 
     col1 = st.columns(1)[0]
     with col1:
-        st.image("./img/logo_readme.png", width=100)
+        image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'img', 'logo_readme.png')
+        st.image(image_path, width=100)
 
     col2, col3, col4 = st.columns(3, gap="small")
 
@@ -81,7 +82,8 @@ if st.session_state.current_page == "home":
     _, cent_co,_ = st.columns([1.5,1, 1])
 
     with cent_co:
-        st.image(os.path.join("img", "logo.png"), width=350)
+        image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'img', 'logo.png')
+        st.image(image_path, width=350)
 
     titre("Bienvenue sur FightPredix !")
     st.write("FightPredix est une application développé avec python dans le but d'essayer de prédire les résultats des combats de L'UFC.")
@@ -125,198 +127,197 @@ elif st.session_state.current_page == "combattants":
     if "url_2" not in st.session_state:
         st.session_state["url_2"] = "None"
 
-    file_path = os.path.join("./Data/Data_final_fighters.json")
+
+    fighters_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Data", "Data_final_fighters.json")
+    fights_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Data", "Data_final_combats.json")
 
     a1,a2 = st.columns([0.5, 1])
 
-    if os.path.exists(file_path):
-        st.session_state["DataFighters"] = pd.read_json(file_path)
-        st.session_state["DataCombats"] = pd.read_json("./Data/Data_final_combats.json")
+    # if os.path.exists(file_path):
+    st.session_state["DataFighters"] = pd.read_json(fighters_path)
+    st.session_state["DataCombats"] = pd.read_json(fights_path)
 
-        st.write(type(st.session_state["DataCombats"]["date"][0]))
+    df= st.session_state["DataFighters"]
 
-        df= st.session_state["DataFighters"]
+    df = df.dropna(subset=["actif"])
+    df = df[df["actif"] == True]
 
-        df = df.dropna(subset=["actif"])
-        df = df[df["actif"] == True]
+    with a1:
 
-        with a1:
+        division = st.selectbox("Catégorie", list(df["division"].unique()))
 
-            division = st.selectbox("Catégorie", list(df["division"].unique()))
+        df = df[df["division"] == division]
 
-            df = df[df["division"] == division]
+        col1, col2, col3 = st.columns([1.5, 0.5, 1.5])
 
-            col1, col2, col3 = st.columns([1.5, 0.5, 1.5])
+        options = list(df["name"])
+        options.insert(0, "None")
 
-            options = list(df["name"])
-            options.insert(0, "None")
+        with col1:
+            st.session_state["fighter_1"] = st.selectbox("Combattant 1", options)
+            fighter_1 = st.session_state["fighter_1"]
+            if fighter_1 != "None":
+                st.session_state["url_1"] = df.loc[df['name'] == fighter_1, 'img_cbt'].iloc[0]
+                if st.session_state["url_1"] == "NO":
+                    st.session_state["url_1"] = os.path.join("img", "fighter.png")
+                col1.image(st.session_state["url_1"], width=300)
 
-            with col1:
-                st.session_state["fighter_1"] = st.selectbox("Combattant 1", options)
-                fighter_1 = st.session_state["fighter_1"]
-                if fighter_1 != "None":
-                    st.session_state["url_1"] = df.loc[df['name'] == fighter_1, 'img_cbt'].iloc[0]
-                    if st.session_state["url_1"] == "NO":
-                        st.session_state["url_1"] = os.path.join("img", "fighter.png")
-                    col1.image(st.session_state["url_1"], width=300)
-
-            with col2:
-                col2.markdown('<div class="vs-text">VS</div>', unsafe_allow_html=True)
+        with col2:
+            col2.markdown('<div class="vs-text">VS</div>', unsafe_allow_html=True)
 
 
-            with col3:
-                st.session_state["fighter_2"] = col3.selectbox("Combattant 2", options)
-                fighter_2 = st.session_state["fighter_2"]
-                if fighter_2 != "None":
-                    st.session_state["url_2"] = df.loc[df['name'] == fighter_2, 'img_cbt'].iloc[0]
-                    if st.session_state["url_2"] == "NO":
-                        st.session_state["url_2"] = os.path.join("img", "fighter.png")
-                    col3.image(st.session_state["url_2"], width=300)
+        with col3:
+            st.session_state["fighter_2"] = col3.selectbox("Combattant 2", options)
+            fighter_2 = st.session_state["fighter_2"]
+            if fighter_2 != "None":
+                st.session_state["url_2"] = df.loc[df['name'] == fighter_2, 'img_cbt'].iloc[0]
+                if st.session_state["url_2"] == "NO":
+                    st.session_state["url_2"] = os.path.join("img", "fighter.png")
+                col3.image(st.session_state["url_2"], width=300)
 
-            if fighter_1 == "None" or fighter_2 == "None" or fighter_1 == fighter_2:
-                titre("Choisissez deux combattants différents.")
-                st.session_state["predictable"] = False
-            else :
-                with col2 :
-                    # col2.markdown("<br><br><br><br><br>", unsafe_allow_html=True)  # Deux sauts de ligne HTML
-                    if col2.button("", key="predict"):
-                        st.session_state["predictable"] = True 
+        if fighter_1 == "None" or fighter_2 == "None" or fighter_1 == fighter_2:
+            titre("Choisissez deux combattants différents.")
+            st.session_state["predictable"] = False
+        else :
+            with col2 :
+                if col2.button("", key="predict"):
+                    st.session_state["predictable"] = True 
 
-            with a2:
+        with a2:
 
-                df_filtre = df[["name",'précision_saisissante','précision_de_takedown','sig_str_défense','défense_de_démolition']]
+            df_filtre = df[["name",'précision_saisissante','précision_de_takedown','sig_str_défense','défense_de_démolition']]
 
-                df_filtre.rename(columns={
-                    'précision_saisissante': 'strike acccuracy',
-                    'précision_de_takedown': 'takedown accuracy',
-                    'sig_str_défense': 'strike defense',
-                    'défense_de_démolition': ' takedown defense'
-                })
+            df_filtre.rename(columns={
+                'précision_saisissante': 'strike acccuracy',
+                'précision_de_takedown': 'takedown accuracy',
+                'sig_str_défense': 'strike defense',
+                'défense_de_démolition': ' takedown defense'
+            })
 
-                categories =['strike acccuracy', 'takedown accuracy', 'strike defense', ' takedown defense']
+            categories =['strike acccuracy', 'takedown accuracy', 'strike defense', ' takedown defense']
 
-                fig_1 = go.Figure()
-                for name in [fighter_1, fighter_2]:
-                    if name != "None":
-                        person_data = df_filtre[df_filtre['name'] == name].iloc[0, 1:].tolist()
-                    else :
-                        person_data = [0, 0, 0, 0]
-                    fig_1.add_trace(go.Scatterpolar(
-                        r=person_data,
-                        theta=categories + [categories[0]],
-                        fill='toself',
+            fig_1 = go.Figure()
+            for name in [fighter_1, fighter_2]:
+                if name != "None":
+                    person_data = df_filtre[df_filtre['name'] == name].iloc[0, 1:].tolist()
+                else :
+                    person_data = [0, 0, 0, 0]
+                fig_1.add_trace(go.Scatterpolar(
+                    r=person_data,
+                    theta=categories + [categories[0]],
+                    fill='toself',
+                    name=name
+                ))
+
+            fig_1.update_layout(
+                polar=dict(
+                    radialaxis=dict(
+                        visible=True,
+                        range=[0, 1]
+                    )
+                ),
+                showlegend=True,
+                height=500,
+                width=700,
+                plot_bgcolor='rgba(0,0,0,0)', 
+                paper_bgcolor='rgba(0,0,0,0)',
+                annotations=[
+                    dict(
+                        x=1.20,
+                        y=0,
+                        xref="paper",
+                        yref="paper",
+                        text="strike accuracy: Le pourcentage de coups réussis.",
+                        showarrow=False,
+                        font=dict(size=12),
+                        align="center"
+                    ),
+                    dict(
+                        x=1.20,
+                        y=-0.05,
+                        xref="paper",
+                        yref="paper",
+                        text="takedown accuracy: Le pourcentage de takedown réussies.",
+                        showarrow=False,
+                        font=dict(size=12),
+                        align="center"
+                    ),
+                    dict(
+                        x=1.20,
+                        y=-0.10,
+                        xref="paper",
+                        yref="paper",
+                        text="strike defense: Le pourcentage de coups bloqués.",
+                        showarrow=False,
+                        font=dict(size=12),
+                        align="center"
+                    ),
+                    dict(
+                        x=1.20,
+                        y=-0.15,
+                        xref="paper",
+                        yref="paper",
+                        text="takedown defense: Le pourcentage de takedown bloqués.",
+                        showarrow=False,
+                        font=dict(size=12),
+                        align="center"
+                    ),
+                    dict(
+                        x=0,
+                        y=-0.2,
+                        xref="paper",
+                        yref="paper",
+                        text="NB : Des données peuvent ne pas être disponibles.",
+                        showarrow=False,
+                        font=dict(size=12),
+                        align="center"
+                    )
+                ]
+            )
+
+            fig_2 = go.Figure()
+
+            for name in [fighter_1, fighter_2]:
+                if name != "None":
+                    person_data = df[(df['name'] == name) ][["sig_str_head", "sig_str_body", "sig_str_leg"]].iloc[0].tolist()
+                    fig_2.add_trace(go.Bar(
+                        x=["frappe tête", "frappe corp", "frappe jambes"],
+                        y=person_data,
                         name=name
                     ))
 
-                fig_1.update_layout(
-                    polar=dict(
-                        radialaxis=dict(
-                            visible=True,
-                            range=[0, 1]
-                        )
-                    ),
-                    showlegend=True,
-                    height=500,
-                    width=700,
-                    plot_bgcolor='rgba(0,0,0,0)', 
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    annotations=[
-                        dict(
-                            x=1.20,
-                            y=0,
-                            xref="paper",
-                            yref="paper",
-                            text="strike accuracy: Le pourcentage de coups réussis.",
-                            showarrow=False,
-                            font=dict(size=12),
-                            align="center"
-                        ),
-                        dict(
-                            x=1.20,
-                            y=-0.05,
-                            xref="paper",
-                            yref="paper",
-                            text="takedown accuracy: Le pourcentage de takedown réussies.",
-                            showarrow=False,
-                            font=dict(size=12),
-                            align="center"
-                        ),
-                        dict(
-                            x=1.20,
-                            y=-0.10,
-                            xref="paper",
-                            yref="paper",
-                            text="strike defense: Le pourcentage de coups bloqués.",
-                            showarrow=False,
-                            font=dict(size=12),
-                            align="center"
-                        ),
-                        dict(
-                            x=1.20,
-                            y=-0.15,
-                            xref="paper",
-                            yref="paper",
-                            text="takedown defense: Le pourcentage de takedown bloqués.",
-                            showarrow=False,
-                            font=dict(size=12),
-                            align="center"
-                        ),
-                        dict(
-                            x=0,
-                            y=-0.2,
-                            xref="paper",
-                            yref="paper",
-                            text="NB : Des données peuvent ne pas être disponibles.",
-                            showarrow=False,
-                            font=dict(size=12),
-                            align="center"
-                        )
-                    ]
-                )
+            fig_2.update_layout(
+                barmode='group',
+                height=500,
+                width=700,
+                plot_bgcolor='rgba(0,0,0,0)', 
+                paper_bgcolor='rgba(0,0,0,0)',
+                annotations=[
+                    dict(
+                        x=0.5,
+                        y=-0.2,
+                        xref="paper",
+                        yref="paper",
+                        text="NB : Des données peuvent ne pas être disponibles.",
+                        showarrow=False,
+                        font=dict(size=12),
+                        align="center"
+                    )
+                ]
+            )
 
-                fig_2 = go.Figure()
+            e1, e2 = st.columns([1, 1])
 
-                for name in [fighter_1, fighter_2]:
-                    if name != "None":
-                        person_data = df[(df['name'] == name) ][["sig_str_head", "sig_str_body", "sig_str_leg"]].iloc[0].tolist()
-                        fig_2.add_trace(go.Bar(
-                            x=["frappe tête", "frappe corp", "frappe jambes"],
-                            y=person_data,
-                            name=name
-                        ))
+            with e1:
+                st.plotly_chart(fig_1, use_container_width=True)
 
-                fig_2.update_layout(
-                    barmode='group',
-                    height=500,
-                    width=700,
-                    plot_bgcolor='rgba(0,0,0,0)', 
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    annotations=[
-                        dict(
-                            x=0.5,
-                            y=-0.2,
-                            xref="paper",
-                            yref="paper",
-                            text="NB : Des données peuvent ne pas être disponibles.",
-                            showarrow=False,
-                            font=dict(size=12),
-                            align="center"
-                        )
-                    ]
-                )
+            with e2:
+                st.plotly_chart(fig_2, use_container_width=True)
 
-                e1, e2 = st.columns([1, 1])
-
-                with e1:
-                    st.plotly_chart(fig_1, use_container_width=True)
-
-                with e2:
-                    st.plotly_chart(fig_2, use_container_width=True)
-
-                data = df.loc[(df["name"] == fighter_1) | (df["name"] == fighter_2), ["name", "poids", "âge","win","losses", "draws", "ko_tko", "sub", "dec"]] #"LA TAILLE"
-                data.set_index("name", inplace=True)
-                data = data.round(1)
-                st.table(data.style.format("{:.0f}"))
+            data = df.loc[(df["name"] == fighter_1) | (df["name"] == fighter_2), ["name", "poids", "âge","win","losses", "draws", "ko_tko", "sub", "dec"]] #"LA TAILLE"
+            data.set_index("name", inplace=True)
+            data = data.round(1)
+            st.table(data.style.format("{:.0f}"))
 
 elif st.session_state.current_page == "predictions":
     # page_predictions()
@@ -411,6 +412,3 @@ elif st.session_state.current_page == "predictions":
             with cent_co:
                 st.plotly_chart(fig)
                 st.write(f"Selon l'algorrithme, {st.session_state['fighter_1']} a une probabilité de vaincre {st.session_state['fighter_2']} de {round(values[0]*100)}%, la où {st.session_state['fighter_2']} a une probabilité de vaincre {st.session_state['fighter_1']} de {round(values[1]*100)}%.")
-else:
-        titre("Page non trouvée")
-        st.write("La page demandée n'existe pas.")

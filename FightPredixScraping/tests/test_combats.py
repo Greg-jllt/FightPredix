@@ -8,10 +8,8 @@ from selenium.webdriver.common.by import By
 from scraping.lib_combats import (
     _recolte_events,
     _couleur_combattant,
-    _explore_events,
     _get_combattant_data,
     _recup_donnes_total,
-    _sub_fonction_elements,
     _sub_fonction_listes,
 )
 import polars as pl
@@ -108,18 +106,18 @@ def test_sub_fonction_listes():
     )
 
 
-def test_sub_fonction_elements(driver_ufc_stats_combats):
-    """
-    Test de la fonction sub_fonction_elements
-    """
-    driver_ufc_stats_combats.get(
-        "http://www.ufcstats.com/fight-details/e761c5009c09b295"
-    )
-    elements = driver_ufc_stats_combats.find_elements(
-        By.XPATH, "/html/body/section/div/div/section[3]/table"
-    )
-    dico = dict()
-    assert len(_sub_fonction_elements(elements, dico)) == 2
+# def test_sub_fonction_elements(driver_ufc_stats_combats):
+#     """
+#     Test de la fonction sub_fonction_elements
+#     """
+#     driver_ufc_stats_combats.get(
+#         "http://www.ufcstats.com/fight-details/e761c5009c09b295"
+#     )
+#     elements = driver_ufc_stats_combats.find_elements(
+#         By.XPATH, "/html/body/section/div/div/section[3]/table"
+#     )
+#     dico = dict()
+#     assert len(_sub_fonction_elements(elements, dico)) == 2
 
 
 def test_recup_donnes_totales(driver_ufc_stats_combats):

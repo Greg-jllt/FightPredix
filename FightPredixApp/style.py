@@ -1,10 +1,13 @@
 import streamlit as st
 import base64
+import os
 
 
 # Fonction pour convertir une image en Base64
 def get_base64_of_bin_file(bin_file):
-    with open(bin_file, "rb") as f:
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    full_path = os.path.join(base_path, bin_file)
+    with open(full_path, "rb") as f:
         data = f.read()
     return base64.b64encode(data).decode()
 

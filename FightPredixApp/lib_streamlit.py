@@ -301,8 +301,8 @@ def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, n
                 }, inplace=True)
             
             import joblib
-
-            model = joblib.load("./modele/LogisticRegression.pkl")
+            modele_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modele", "LogisticRegression.pkl")
+            model = joblib.load(modele_path)
             
             predictions.append(model.predict_proba(combat[num_features + cat_features]))
 

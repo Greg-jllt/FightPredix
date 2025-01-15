@@ -6,20 +6,21 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 from FightPredixConstructeur.lib_constructeur import (
-    _difference_combats,
+    _difference_num_combats,
     _age_by_DOB,
     _transformation_debut_octogone,
-    clean_column_nom,
+    _nettoyage_nom_colonne,
     _process_valeur,
     _process_ratio,
     _cleaning,
     _sub_fonction_age,
     _age_temps_t,
-    _win_losses_temps_t,
+    _calcul_statistique_generique,
+    _calcul_victoires_defaites,
 )
 
 
-def test_difference_combats():
+def test_difference_num_combats():
     """
     Test de la fonction _difference_combats
     """
@@ -46,7 +47,7 @@ def test_difference_combats():
         }
     )
 
-    combats = _difference_combats(caracteristiques, combats)
+    combats = _difference_num_combats(caracteristiques, combats)
 
     assert combats["diff_age"].tolist() == [5, -5]
     assert combats["diff_height"].tolist() == [10, -10]
@@ -89,9 +90,9 @@ def test_clean_column_nom():
     """
     Test de la fonction clean_column_nom
     """
-    assert clean_column_nom("John Doe") == "john_doe"
-    assert clean_column_nom("John Doe 2") == "john_doe_2"
-    assert clean_column_nom("John Doe 2!") == "john_doe_2_"
+    assert _nettoyage_nom_colonne("John Doe") == "john_doe"
+    assert _nettoyage_nom_colonne("John Doe 2") == "john_doe_2"
+    assert _nettoyage_nom_colonne("John Doe 2!") == "john_doe_2_"
 
 
 def test_process_valeur():
@@ -191,7 +192,7 @@ def test_win_losses_temps_t():
         }
     )
 
-    combats = _win_losses_temps_t(data, combats)
+    combats = _calcul_victoires_defaites(data, combats)
 
 
     assert combats["combattant_1_win_t"].tolist() == [9, 20]
