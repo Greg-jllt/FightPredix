@@ -1,10 +1,13 @@
 import streamlit as st
+import os
 import base64
 
 
 # Fonction pour convertir une image en Base64
 def get_base64_of_bin_file(bin_file):
-    with open(bin_file, "rb") as f:
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    full_path = os.path.join(base_path, bin_file)
+    with open(full_path, "rb") as f:
         data = f.read()
     return base64.b64encode(data).decode()
 
@@ -123,7 +126,7 @@ def custom_navbar():
         .st-key-predict > div:nth-child(1) > button:nth-child(1) {{
             background-image: linear-gradient(rgba(0, 23, 43, 1), rgba(0, 23, 43, 1));
             display: flex;
-            align-items: center;
+            align-items: center; 
             justify-content: center;
             gap: 0px; /* Espacement entre l'image et le texte */
             padding: 5px 0px; /* Espacement interne en fonction de la largeur de l'écran */
@@ -138,8 +141,8 @@ def custom_navbar():
             width: 2.5vw; /* Largeur de l'image relative à la largeur du bouton */
             height: 2vw; /* Ajuste la hauteur automatiquement pour garder les proportions */
             background-image: url("data:image/png;base64,{get_base64_of_bin_file('./img/logo.png')}");
-            background-size: contain;
-            background-repeat: no-repeat;
+            background-size: contain; 
+            background-repeat: no-repeat; 
         }}
 
         /* Media query pour les petits écrans */
@@ -340,8 +343,7 @@ def bouton_prediction():
 
     image_base64 = get_base64_image("img/logo.png")
 
-    st.markdown(
-        f"""
+    st.markdown(f"""
     <style>
     .custom-button {{
         display: inline-flex;
@@ -366,9 +368,7 @@ def bouton_prediction():
     <a class="custom-button" onclick="document.location.reload()">
         <img src="data:image/png;base64,{image_base64}" alt="Icon">
     </a>
-    """,
-        unsafe_allow_html=True,
-    )
+    """, unsafe_allow_html=True)
 
 
 def init_pages():
