@@ -10,7 +10,6 @@ from collections import Counter
 from selenium.webdriver.common.by import By
 from rapidfuzz import fuzz
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from datetime import datetime
 
 from FightPredixBack.outils import configure_logger
@@ -24,7 +23,7 @@ date = datetime.now().strftime("%Y-%m-%d")
 logger = configure_logger(f"{date}_crawler_UFC_stats")
 
 
-def _temp_dict_ufc_stats(cplt_name: str, nickname: str, rows) -> dict:
+def _temp_dict_ufc_stats(cplt_name: str, nickname: str, rows: list) -> dict:
     """
     Fonction qui récolte les noms des combattants et leur ratio de similarité avec le nom complet,
 
@@ -53,7 +52,7 @@ def _temp_dict_ufc_stats(cplt_name: str, nickname: str, rows) -> dict:
     }
 
 
-def _surnom_egaux(nickname, surnom):
+def _surnom_egaux(nickname: str, surnom: str):
     """
     Vérifie si le surnom trouvé correspond au surnom donné, en tenant compte de la possibilité
     que le surnom soit modifié ou manquant pour un même combattant.
@@ -78,7 +77,6 @@ def _accès_cbt_page(temp_dict: dict, driver: webdriver.Chrome) -> None:
     rows = driver.find_elements(By.CSS_SELECTOR, "tr.b-statistics__table-row")
 
     for row in rows[2:]:
-
         cells = row.find_elements(By.XPATH, "./td")
         prenom_cell = cells[0].text.strip() if len(cells) > 0 else ""
         nom_cell = cells[1].text.strip() if len(cells) > 1 else ""
@@ -102,12 +100,12 @@ def _recolte_ufc_stats(driver: webdriver.Chrome) -> dict:
     liste_items = driver.find_elements(By.CSS_SELECTOR, "li.b-list__box-list-item")
 
     return {
-        item.find_element(By.CSS_SELECTOR, "i.b-list__box-item-title")
-        .text.strip(): item.text.replace(
+        item.find_element(
+            By.CSS_SELECTOR, "i.b-list__box-item-title"
+        ).text.strip(): item.text.replace(
             item.find_element(By.CSS_SELECTOR, "i.b-list__box-item-title").text.strip(),
             "",
-        )
-        .strip()
+        ).strip()
         for item in liste_items
         if item.text.strip()
     }
@@ -287,7 +285,6 @@ def _integration_metriques(
 
     try:
         if cplt_name in data["NAME"].values:
-
             combattant_row = data[data["NAME"] == cplt_name].index[0]
 
             for key, value in dictio.items():
@@ -317,7 +314,6 @@ def _integration_metriques(
 
 
 def _compte_victoires_defaites_cbt(driver: webdriver.Chrome) -> Counter:
-
     counter = Counter(
         res.text.strip().upper()
         for res in driver.find_elements(By.CSS_SELECTOR, "i.b-flag__text")
@@ -399,7 +395,10 @@ def _traiter_combattants(
             continue
 
     if manqué:
-        with open("Data/combattants_erreurs.json", "w") as f:
+        with open(
+            "FightPredixBack/FightPredixScraping/temp_data/combattants_erreurs.json",
+            "w",
+        ) as f:
             json.dump(manqué, f, ensure_ascii=False, indent=4)
 
     return data
@@ -441,24 +440,3 @@ def _ratrappage_manquants(
     logger.info(f"Combattants manquants : {noms_manquants}")
 
     return _traiter_combattants(data, driver, noms_manquants, nicknames)
-
-
-if __name__ == "__main__":
-
-    chrome_options = Options()
-
-    chrome_options.add_argument("--headless")
-
-    driver = webdriver.Chrome(options=chrome_options)
-
-    Data = pd.read_json("Data/Data_ufc_fighters.json")
-
-    Data2 = _cherche_combattant_UFC_stats(data=Data, driver=driver)
-
-    Data2.to_json("Data/Data_ufc_fighters_V2.json", index=False)
-
-    # fichier = "Data/Data_ufc_combat_complet_actuel.csv"
-    # if os.path.exists(fichier):
-    #     Data_manquant = pd.read_csv(fichier)
-
-    #     Data3 = _ratrappage_manquants(combats=Data_manquant, data=Data, driver=driver)

@@ -169,11 +169,3 @@ def _page_principal_UFC(
         return pd.concat([Data, pd.DataFrame(result)], ignore_index=True)
 
     return _page_principal_sub(main_driver)
-
-
-if __name__ == "__main__":
-    main_driver = webdriver.Chrome()
-
-    data = _page_principal_UFC(main_driver)
-
-    data.to_json("FightPredixAPP/Data/Data_ufc_fighters.json", orient="records")

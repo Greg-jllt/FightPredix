@@ -10,8 +10,6 @@ from datetime import datetime
 from math import nan
 
 import pandas as pd
-import json
-
 from FightPredixBack.outils import configure_logger
 
 date = datetime.now().strftime("%Y-%m-%d")
@@ -108,7 +106,8 @@ def _assignement_stat_combattant(
     """
     Fonction qui permet d'assigner les statistiques des combattants dans le dataframe.
     """
-    _format_date(data)
+
+    data["date"] = pd.to_datetime(data["date"].apply(lambda x: str(x).split(" ")[0].strip()), format="%Y-%m-%d")
 
     new_columns: dict[str, float] = dict()
     dico_last_combat = dict()
@@ -154,20 +153,3 @@ def _assignement_stat_combattant(
                 dico_last_combat_nom_identique[f"{nickname}"] = dico
 
     return data, dico_last_combat, dico_last_combat_nom_identique
-
-
-if __name__ == "__main__":
-    with open("dico_var.json", "r") as file:
-        dico_var = json.load(file)
-
-    data = pd.read_csv("data/Data_ufc_combat_complet_actuel_clean.csv")
-
-    data, dico_last_stat, dico_last_stats_nom_identiques = _assignement_stat_combattant(
-        data, dico_var
-    )
-
-    data.to_json(
-        "data/Data_ufc_combat_complet_actuel_clean.json", orient="columns", index=False
-    )
-    with open("data/dico_last_stat.json", "w") as file:
-        json.dump(dico_last_stat, file)

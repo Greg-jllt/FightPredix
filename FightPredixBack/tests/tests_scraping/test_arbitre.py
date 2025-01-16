@@ -1,16 +1,13 @@
 """Module de test pour la librairie de scraping des données de l'arbitrage"""
 
-from scraping.lib_arbitre import _requete_arbitre, _creer_liste_arbitres
-import os
-import sys
-import polars as pl
+from FightPredixBack.FightPredixScraping.scraping.lib_arbitre import (
+    _requete_arbitre,
+    _creer_liste_arbitres,
+)
 import pytest
 from bs4 import BeautifulSoup
-from selenium.webdriver.common.by import By
 
-from .fixtures import driver
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from .fixtures import driver  # noqa F401
 
 
 @pytest.fixture
@@ -19,7 +16,7 @@ def url_arbitre():
 
 
 @pytest.fixture
-def soup_arbitres(driver, url_arbitre):
+def soup_arbitres(driver, url_arbitre):  # noqa F811
     """
     Fonction qui permet de récupérer la page d'un arbitre
     """
@@ -28,7 +25,7 @@ def soup_arbitres(driver, url_arbitre):
     return BeautifulSoup(driver.page_source, "html.parser")
 
 
-def test_requete_arbitre(driver, url_arbitre):
+def test_requete_arbitre(driver, url_arbitre):  # noqa F811
     """
     On vérifie que la fonction _requete_arbitre renvoie bien une page
     """

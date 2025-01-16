@@ -4,10 +4,10 @@ Module de test pour la librairie lib_combats.py
 
 import time
 from selenium.webdriver.common.by import By
-from scraping.lib_combats import (
+from FightPredixBack.FightPredixScraping.scraping.lib_combats import (
     _recolte_events,
     _couleur_combattant,
-    _explore_events,
+    _recolte_stat_combat,
     _get_combattant_data,
     _recup_donnes_total,
     _sub_fonction_listes,
@@ -16,10 +16,10 @@ import polars as pl
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
-from .fixtures import driver_ufc_stats_combats
+from .fixtures import driver_ufc_stats_combats  # noqa F401
 
 
-def test_recolte_events(driver_ufc_stats_combats):
+def test_recolte_events(driver_ufc_stats_combats):  # noqa F811
     """
     Test de la fonction recolte_events
     """
@@ -30,7 +30,7 @@ def test_recolte_events(driver_ufc_stats_combats):
     assert "http://www.ufcstats.com/event-details/02fc8f50f56eb307" in liste_events
 
 
-def test_couleur_combattant(driver_ufc_stats_combats):
+def test_couleur_combattant(driver_ufc_stats_combats):  # noqa F811
     """
     Test de la fonction couleur_combattant
     """
@@ -43,7 +43,7 @@ def test_couleur_combattant(driver_ufc_stats_combats):
     assert "blue" in color_dict["looser_color"]
 
 
-def test_get_combattant_data(driver_ufc_stats_combats):
+def test_get_combattant_data(driver_ufc_stats_combats):  # noqa F811
     """
     Test de la fonction get_combattant_data
     """
@@ -115,3 +115,65 @@ def test_recup_donnes_totales():
 
     assert isinstance(_recup_donnes_total(soup), pl.DataFrame)
     assert _recup_donnes_total(soup).shape == (2, 10)
+
+
+def test_recolte_stat_combat(driver_ufc_stats_combats):  # noqa F811
+    """
+    Test de la fonction recolte_stat_combat
+    """
+
+    driver_ufc_stats_combats.get(
+        "http://www.ufcstats.com/fight-details/e761c5009c09b295"
+    )
+    res = _recolte_stat_combat(
+        lien_combat="http://www.ufcstats.com/fight-details/e761c5009c09b295",
+        driver=driver_ufc_stats_combats,
+        combattant_1="Alexandre Pantoja",
+    )
+    assert res.shape == (1, 44)
+    assert res.columns.tolist() == [
+        "nom_combat",
+        "classe_combat",
+        "Round",
+        "Time",
+        "Time format",
+        "Referee",
+        "combattant_1_Fightertotal",
+        "combattant_1_KDtotal",
+        "combattant_1_Sig. str.total",
+        "combattant_1_Sig. str. %total",
+        "combattant_1_Total str.total",
+        "combattant_1_Tdtotal",
+        "combattant_1_Td %total",
+        "combattant_1_Sub. atttotal",
+        "combattant_1_Rev.total",
+        "combattant_1_Ctrltotal",
+        "combattant_1_Fightersig_str_total",
+        "combattant_1_Sig. strsig_str_total",
+        "combattant_1_Sig. str. %sig_str_total",
+        "combattant_1_Headsig_str_total",
+        "combattant_1_Bodysig_str_total",
+        "combattant_1_Legsig_str_total",
+        "combattant_1_Distancesig_str_total",
+        "combattant_1_Clinchsig_str_total",
+        "combattant_1_Groundsig_str_total",
+        "combattant_2_Fightertotal",
+        "combattant_2_KDtotal",
+        "combattant_2_Sig. str.total",
+        "combattant_2_Sig. str. %total",
+        "combattant_2_Total str.total",
+        "combattant_2_Tdtotal",
+        "combattant_2_Td %total",
+        "combattant_2_Sub. atttotal",
+        "combattant_2_Rev.total",
+        "combattant_2_Ctrltotal",
+        "combattant_2_Fightersig_str_total",
+        "combattant_2_Sig. strsig_str_total",
+        "combattant_2_Sig. str. %sig_str_total",
+        "combattant_2_Headsig_str_total",
+        "combattant_2_Bodysig_str_total",
+        "combattant_2_Legsig_str_total",
+        "combattant_2_Distancesig_str_total",
+        "combattant_2_Clinchsig_str_total",
+        "combattant_2_Groundsig_str_total",
+    ]

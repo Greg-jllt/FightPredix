@@ -359,9 +359,9 @@ def _recolte_stat_combat(
 
     general_data = pl.DataFrame(dictio)
 
-    Totals = _recup_donnes_total(driver, soup)
+    Totals = _recup_donnes_total(soup)
 
-    Totals_sig_str = _recup_donnes_sig_str(driver, soup)
+    Totals_sig_str = _recup_donnes_sig_str(soup)
 
     if combattant_1 == Totals["Fightertotal"][0]:
         ligne1_total = Totals[0].rename(
@@ -413,17 +413,3 @@ def _main_combat_recolte(driver: webdriver.Chrome) -> pd.DataFrame:
     res = _acces_events(liste_events, driver)
 
     return res
-
-
-if __name__ == "__main__":
-    options = webdriver.ChromeOptions()
-
-    options.add_argument("--headless")
-
-    driver = webdriver.Chrome(options=options)
-
-    data = _main_combat_recolte(driver)
-
-    data.to_json("Data/Data_ufc_stats_combats.json", index=False)
-
-    driver.quit()

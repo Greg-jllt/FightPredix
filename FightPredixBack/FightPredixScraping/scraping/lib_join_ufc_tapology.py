@@ -19,18 +19,9 @@ def _main_tapology():
     _main_scraping_tapology()
     _main_nettoyage_tapology()
 
-    data_ufc = pl.read_json("Data/Data_ufc_fighters.json")
-    data_tapology = pl.read_json("Data/clean_tapology.json")
+    data_ufc = pl.read_json("FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json")
+    data_tapology = pl.read_json("FightPredixBack/FightPredixScraping/temp_data/clean_tapology.json")
 
     data_join = data_ufc.join(data_tapology, on="NAME", how="left").unique()
 
     return data_join
-
-
-if __name__ == "__main__":
-
-    data_join = _main_tapology()
-
-    data_join.to_pandas().to_json(
-        "Data/Data_jointes_ufc_tapology.json", orient="columns", index=False
-    )

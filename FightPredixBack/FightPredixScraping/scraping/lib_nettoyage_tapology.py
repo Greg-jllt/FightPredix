@@ -185,11 +185,11 @@ def _birth_country(data_tapology: pl.DataFrame) -> pl.DataFrame:
 
 def _main_nettoyage_tapology():
     logger.info("Récupération des données")
-    with open("Data/final_tapology.json", "r") as f:
+    with open("FightPredixBack/FightPredixScraping/temp_data/final_tapology.json", "r") as f:
         data_tapology = pl.DataFrame(json.load(f))
 
     with open(
-        "FightPredixScraping/scraping/dico_formatage/dico_correction.json", "r"
+        "FightPredixBack/FightPredixScraping/scraping/dico_formatage/dico_correction.json", "r"
     ) as f:
         dico_correction = json.load(f)
 
@@ -244,8 +244,4 @@ def _main_nettoyage_tapology():
     data_tapology = data_tapology.with_columns(
         pl.Series("NAME", [nom.upper() for nom in data_tapology["NAME"].to_list()])
     )
-    data_tapology.to_pandas().to_json("Data/clean_tapology.json")
-
-
-if __name__ == "__main__":
-    ...
+    data_tapology.to_pandas().to_json("FightPredixBack/FightPredixScraping/temp_data/clean_tapology.json")

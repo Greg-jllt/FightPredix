@@ -248,9 +248,7 @@ def _age_temps_t(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -> pd.Da
     """
     Combats = combats.copy()
     for i, combat in Combats.iterrows():
-        date_combat_annee = pd.to_datetime(
-            datetime.strptime(combat["date"], "%B %d, %Y")
-        ).year
+        date_combat_annee = datetime.strptime(str(combat["date"]).split(" ")[0].strip(), "%Y-%m-%d").year
         ajd = datetime.now()
         combattant_1 = combat["combattant_1"]
         combattant_2 = combat["combattant_2"]
@@ -590,7 +588,7 @@ def _main_constructeur(
     )
 
     with open(
-        "FightPredix_scraping/scraping/dico_formatage/dico_var.json", "r"
+        "FightPredixBack/FightPredixConstructeur/dico_formatage/dico_var.json", "r"
     ) as file:
         dico_var = json.load(file)
 
@@ -610,22 +608,10 @@ def _main_constructeur(
     )
 
     last_stats.to_json(
-        "Data/Data_stats_combattants.json", orient="columns", index=False
+        "FightPredixBack/FightPredixConstructeur/temp_data/Data_stats_combattants.json", orient="columns", index=False
     )
-    last_stats_nom_identique.to_json("Data/Data_stats_nom_identique.json", index=False)
+    last_stats_nom_identique.to_json("FightPredixBack/FightPredixConstructeur/temp_data/Data_stats_nom_identique.json", index=False)
 
     combats = _derniere_difference(combats, caracteristiques)
 
     return combats, caracteristiques.merge(last_stats, on="name", how="left")
-
-
-if __name__ == "__main__":
-    caracteristiques = pd.read_csv("data/Data_ufc_fighters.csv")
-    combats = pd.read_csv("data/Data_ufc_stats_combats.csv")
-
-    caracteristiques = _main_constructeur(
-        combats=combats, caracteristiques=caracteristiques
-    )
-
-    caracteristiques.to_csv("data/Data_jointes_complet_actuel.csv", index=False)
-    combats.to_csv("data/Data_ufc_combats_cplt.csv", index=False)
