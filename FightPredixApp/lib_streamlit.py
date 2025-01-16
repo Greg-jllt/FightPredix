@@ -155,6 +155,44 @@ def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
 
     return resultat
 
+def _sub_fonction_cherche_metrique(nom, c1, c2, Data_combattant, DataCombats):
+    if nom.lower() == c1.lower() or fuzz.ratio(nom.lower(), c1.lower()) >= 90:
+        Data_combattant = pd.concat([Data_combattant, DataCombats[DataCombats["combattant_1"] == c1]])
+    
+    if nom.lower() == c2.lower() or fuzz.ratio(nom.lower(), c2.lower()) >= 90:
+        Data_combattant = pd.concat([Data_combattant, DataCombats[DataCombats["combattant_2"] == c2]])
+    
+    return Data_combattant
+
+
+def _sub_fonction_assignation_metrique(nom, Data_combattant , combat):
+
+    if "combattant_1_forme" not in combat.columns:
+        combat["combattant_1_forme"] = None
+    if "combattant_1_serie" not in combat.columns:
+        combat["combattant_1_serie"] = None
+    if "combattant_1_nb_mois_dernier_combat" not in combat.columns:
+        combat["combattant_1_nb_mois_dernier_combat"] = None
+    if "combattant_2_forme" not in combat.columns:
+        combat["combattant_2_forme"] = None
+    if "combattant_2_serie" not in combat.columns:
+        combat["combattant_2_serie"] = None
+    if "combattant_2_nb_mois_dernier_combat" not in combat.columns:
+        combat["combattant_2_nb_mois_dernier_combat"] = None
+
+
+
+    if nom.lower() == Data_combattant["combattant_1"].iloc[0].lower() or fuzz.ratio(nom.lower(), Data_combattant["combattant_1"].iloc[0].lower()) >= 90 :
+        combat.loc[0, "combattant_1_forme"] = Data_combattant["combattant_1_forme"].iloc[0]
+        combat.loc[0, "combattant_1_serie"] = Data_combattant["combattant_1_serie"].iloc[0]
+        combat.loc[0, "combattant_1_nb_mois_dernier_combat"] = Data_combattant["combattant_1_nb_mois_dernier_combat"].iloc[0]
+    elif nom.lower() == Data_combattant["combattant_2"].iloc[0].lower() or fuzz.ratio(nom.lower(), Data_combattant["combattant_2"].iloc[0].lower()) >= 90:
+        combat.loc[0, "combattant_2_forme"] = Data_combattant["combattant_2_forme"].iloc[0]
+        combat.loc[0, "combattant_2_serie"] = Data_combattant["combattant_2_serie"].iloc[0]
+        combat.loc[0, "combattant_2_nb_mois_dernier_combat"] = Data_combattant["combattant_1_nb_mois_dernier_combat"].iloc[0]
+
+    return combat
+
 
 def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, num_features, cat_features) :
     predictions = []
@@ -181,6 +219,10 @@ def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, n
             nom2 = DataFighters.loc[num2, "name"]
 
             for c1, c2 in zip(DataCombats["combattant_1"], DataCombats["combattant_2"]):
+                
+
+                # Data_combattant_1 = _sub_fonction_cherche_metrique(nom1, c1, c2, Data_combattant_1, DataCombats=DataCombats)
+                # Data_combattant_2 = _sub_fonction_cherche_metrique(nom2, c1, c2, Data_combattant_2, DataCombats=DataCombats)
 
                 if nom1.lower() == c1.lower():
                     Data_combattant_1 = pd.concat([Data_combattant_1, DataCombats[DataCombats["combattant_1"] == c1]])
@@ -202,11 +244,19 @@ def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, n
                     Data_combattant_2 = pd.concat([Data_combattant_2, DataCombats[DataCombats["combattant_2"] == c2]])
                 elif fuzz.ratio(nom2.lower(), c2.lower()) >= 90:
                     Data_combattant_2 = pd.concat([Data_combattant_2, DataCombats[DataCombats["combattant_2"] == c2]])
+                    
 
             Data_combattant_1.drop_duplicates(inplace=True)
             Data_combattant_1.sort_index(inplace=True)
+
             Data_combattant_2.drop_duplicates(inplace=True)
             Data_combattant_2.sort_index(inplace=True)
+
+            print(Data_combattant_1)
+
+            # combat = _sub_fonction_assignation_metrique(nom1, Data_combattant_1, combat)
+            # print(combat)
+            # combat = _sub_fonction_assignation_metrique(nom2, Data_combattant_2, combat)
 
 
             if nom1.lower() == Data_combattant_1["combattant_1"].iloc[0].lower() or nom1.lower() == Data_combattant_1["combattant_2"].iloc[0].lower():
@@ -300,7 +350,7 @@ def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, n
                 }, inplace=True)
             
             import joblib
-            modele_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modele", "LogisticRegression.pkl")
+            modele_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ModelApp", "best_model.pkl")
             model = joblib.load(modele_path)
             
             predictions.append(model.predict_proba(combat[num_features + cat_features]))
