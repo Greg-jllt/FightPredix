@@ -3,20 +3,20 @@ import joblib
 from rich.console import Console
 from sklearn.pipeline import Pipeline
 import pandas as pd
-from FightPredixBack.FightPredixML.select_best_model.optimiser_svm import _pipeline_svm
-from FightPredixBack.FightPredixML.select_best_model.opitmiser_regression_logistique import (
+from FightPredixBack.FightPredixML.optimiser_svm import _pipeline_svm
+from FightPredixBack.FightPredixML.opitmiser_regression_logistique import (
     _pipeline_regression_logistique,
 )
-from FightPredixBack.FightPredixML.select_best_model.opitmiser_random_forest import (
+from FightPredixBack.FightPredixML.opitmiser_random_forest import (
     _pipeline_random_forest,
 )
-from FightPredixBack.FightPredixML.select_best_model.optimiser_neural_network import (
+from FightPredixBack.FightPredixML.optimiser_neural_network import (
     _pipeline_neural_network,
 )
-from FightPredixBack.FightPredixML.select_best_model.opitmiser_boosting import (
+from FightPredixBack.FightPredixML.opitmiser_boosting import (
     _pipeline_boosting,
 )
-from FightPredixBack.FightPredixML.select_best_model.grille_de_parametres import (
+from FightPredixBack.FightPredixML.grille_de_parametres import (
     parametres_boosting,
     parametres_random_forest,
     parametres_regression_logistique,

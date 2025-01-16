@@ -3,7 +3,7 @@
 Module de test de de la librairie prepare_sample
 """
 
-from FightPredixML.select_best_model.preparer_echantillons import (
+from FightPredixBack.FightPredixML.preparer_echantillons import (
     _creer_x_y,
     _symetrisation_resultat_du_combat,
     _symetrisation_explicative,

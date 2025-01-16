@@ -1,6 +1,6 @@
 """Module de test pour la librairie de scraping des données de l'arbitrage"""
 
-from FightPredixScraping.lib_arbitre import _requete_arbitre, _creer_liste_arbitres
+from FightPredixBack.FightPredixScraping.lib_arbitre import _requete_arbitre, _creer_liste_arbitres
 import os
 import sys
 import polars as pl

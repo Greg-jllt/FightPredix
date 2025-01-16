@@ -1,6 +1,6 @@
 """Module de test pour la librairie lib_ufc_stats.py"""
 
-from FightPredixScraping.lib_ufc_stats import (
+from FightPredixBack.FightPredixScraping.lib_ufc_stats import (
     _recolte_ufc_stats,
     _recolte_victoires,
     _collecteur_finish,

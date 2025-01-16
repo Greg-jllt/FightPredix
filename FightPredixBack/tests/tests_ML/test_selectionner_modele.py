@@ -3,7 +3,7 @@
 Module de test pour la librairie selectionner_modele
 """
 
-from select_best_model.selectionner_modele import (
+from FightPredixBack.FightPredixML.selectionner_modele import (
     _comparer_score_entrainement,
     _tester_surapprentissage,
     _selectionner_meilleurs_modeles,

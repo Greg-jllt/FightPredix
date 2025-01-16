@@ -9,7 +9,7 @@ def test_app():
     """
     Test de l'accès à l'application
     """
-    app = AppTest.from_file("../app.py", default_timeout=15)
+    app = AppTest.from_file("..FightPredixApp/app.py", default_timeout=15)
 
     app.run() # Lancement de l'application
 

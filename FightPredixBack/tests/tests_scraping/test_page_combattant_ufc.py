@@ -1,6 +1,6 @@
 """Module de test les fonctions de lib_page_combattant_ufc.py"""
 
-from FightPredixScraping.lib_page_combattant_ufc import (
+from FightPredixBack.FightPredixScraping.lib_page_combattant_ufc import (
     _infos_principal_combattant,
     _combattant_actif,
     _bio_combattant,
