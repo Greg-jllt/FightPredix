@@ -165,33 +165,20 @@ def _sub_fonction_cherche_metrique(nom, c1, c2, Data_combattant, DataCombats):
     return Data_combattant
 
 
-def _sub_fonction_assignation_metrique(nom, Data_combattant , combat):
-
-    if "combattant_1_forme" not in combat.columns:
-        combat["combattant_1_forme"] = None
-    if "combattant_1_serie" not in combat.columns:
-        combat["combattant_1_serie"] = None
-    if "combattant_1_nb_mois_dernier_combat" not in combat.columns:
-        combat["combattant_1_nb_mois_dernier_combat"] = None
-    if "combattant_2_forme" not in combat.columns:
-        combat["combattant_2_forme"] = None
-    if "combattant_2_serie" not in combat.columns:
-        combat["combattant_2_serie"] = None
-    if "combattant_2_nb_mois_dernier_combat" not in combat.columns:
-        combat["combattant_2_nb_mois_dernier_combat"] = None
-
-
-
-    if nom.lower() == Data_combattant["combattant_1"].iloc[0].lower() or fuzz.ratio(nom.lower(), Data_combattant["combattant_1"].iloc[0].lower()) >= 90 :
-        combat.loc[0, "combattant_1_forme"] = Data_combattant["combattant_1_forme"].iloc[0]
-        combat.loc[0, "combattant_1_serie"] = Data_combattant["combattant_1_serie"].iloc[0]
-        combat.loc[0, "combattant_1_nb_mois_dernier_combat"] = Data_combattant["combattant_1_nb_mois_dernier_combat"].iloc[0]
-    elif nom.lower() == Data_combattant["combattant_2"].iloc[0].lower() or fuzz.ratio(nom.lower(), Data_combattant["combattant_2"].iloc[0].lower()) >= 90:
-        combat.loc[0, "combattant_2_forme"] = Data_combattant["combattant_2_forme"].iloc[0]
-        combat.loc[0, "combattant_2_serie"] = Data_combattant["combattant_2_serie"].iloc[0]
-        combat.loc[0, "combattant_2_nb_mois_dernier_combat"] = Data_combattant["combattant_1_nb_mois_dernier_combat"].iloc[0]
-
-    return combat
+def _obtenir_statistiques_combattant(nom, data_combattant):
+    """
+    Cherche et retourne les statistiques d'un combattant dans un DataFrame.
+    """
+    for suffixe in ["1", "2"]:
+        if f"combattant_{suffixe}" in data_combattant.columns and (nom.lower() == data_combattant[f"combattant_{suffixe}"].iloc[0].lower() or \
+           fuzz.ratio(nom.lower(), data_combattant[f"combattant_{suffixe}"].iloc[0].lower()) >= 90):
+            return (
+                data_combattant[f"combattant_{suffixe}_forme"].iloc[0],
+                data_combattant[f"combattant_{suffixe}_serie"].iloc[0],
+                data_combattant[f"combattant_{suffixe}_nb_mois_dernier_combat"].iloc[0],
+            )
+    print(nom)
+    return None, None, None
 
 
 def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, num_features, cat_features) :
@@ -208,6 +195,7 @@ def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, n
                 "combattant_2" + str(col) if "moyenne" in col else "combattant_2_" + str(col)
                 for col in Combattant_2.columns
             ]
+
             Combattant_1["join_key"] = "1"
             Combattant_2["join_key"] = "1"
             
@@ -221,67 +209,20 @@ def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, n
             for c1, c2 in zip(DataCombats["combattant_1"], DataCombats["combattant_2"]):
                 
 
-                # Data_combattant_1 = _sub_fonction_cherche_metrique(nom1, c1, c2, Data_combattant_1, DataCombats=DataCombats)
-                # Data_combattant_2 = _sub_fonction_cherche_metrique(nom2, c1, c2, Data_combattant_2, DataCombats=DataCombats)
+                Data_combattant_1 = _sub_fonction_cherche_metrique(nom1, c1, c2, Data_combattant_1, DataCombats=DataCombats)
+                Data_combattant_2 = _sub_fonction_cherche_metrique(nom2, c1, c2, Data_combattant_2, DataCombats=DataCombats)
 
-                if nom1.lower() == c1.lower():
-                    Data_combattant_1 = pd.concat([Data_combattant_1, DataCombats[DataCombats["combattant_1"] == c1]])
-                elif fuzz.ratio(nom1.lower(), c1.lower()) >= 90:
-                    Data_combattant_1 = pd.concat([Data_combattant_1, DataCombats[DataCombats["combattant_1"] == c1]])
-                
-                if nom1.lower() == c2.lower():
-                    Data_combattant_1 = pd.concat([Data_combattant_1, DataCombats[DataCombats["combattant_2"] == c2]])
-                elif fuzz.ratio(nom1.lower(), c2.lower()) >= 90:
-                    Data_combattant_1 = pd.concat([Data_combattant_1, DataCombats[DataCombats["combattant_2"] == c2]])
+                if Data_combattant_1.shape[0] > 0 and Data_combattant_2.shape[0] > 0:
+                    break                    
 
-                # Comparer avec le seizième combattant
-                if nom2.lower() == c1.lower():
-                    Data_combattant_2 = pd.concat([Data_combattant_2, DataCombats[DataCombats["combattant_1"] == c1]])
-                elif fuzz.ratio(nom2.lower(), c1.lower()) >= 90:
-                    Data_combattant_2 = pd.concat([Data_combattant_2, DataCombats[DataCombats["combattant_1"] == c1]])
-                
-                if nom2.lower() == c2.lower():
-                    Data_combattant_2 = pd.concat([Data_combattant_2, DataCombats[DataCombats["combattant_2"] == c2]])
-                elif fuzz.ratio(nom2.lower(), c2.lower()) >= 90:
-                    Data_combattant_2 = pd.concat([Data_combattant_2, DataCombats[DataCombats["combattant_2"] == c2]])
-                    
-
-            Data_combattant_1.drop_duplicates(inplace=True)
-            Data_combattant_1.sort_index(inplace=True)
-
-            Data_combattant_2.drop_duplicates(inplace=True)
-            Data_combattant_2.sort_index(inplace=True)
-
-            print(Data_combattant_1)
-
-            # combat = _sub_fonction_assignation_metrique(nom1, Data_combattant_1, combat)
-            # print(combat)
-            # combat = _sub_fonction_assignation_metrique(nom2, Data_combattant_2, combat)
-
-
-            if nom1.lower() == Data_combattant_1["combattant_1"].iloc[0].lower() or nom1.lower() == Data_combattant_1["combattant_2"].iloc[0].lower():
-                combattant_1_forme = Data_combattant_1["combattant_1_forme"].iloc[0]
-                combattant_1_serie = Data_combattant_1["combattant_1_serie"].iloc[0]
-                combattant_1_nb_mois = Data_combattant_1["combattant_1_nb_mois_dernier_combat"].iloc[0]
-            elif fuzz.ratio(nom1.lower(), Data_combattant_1["combattant_1"].iloc[0].lower()) >= 90 or fuzz.ratio(nom1.lower(), Data_combattant_1["combattant_2"].iloc[0].lower()) >= 90:
-                combattant_1_forme = Data_combattant_1["combattant_2_forme"].iloc[0]
-                combattant_1_serie = Data_combattant_1["combattant_2_serie"].iloc[0]
-                combattant_1_nb_mois = Data_combattant_1["combattant_2_nb_mois_dernier_combat"].iloc[0]
-                
-            if nom2.lower() == Data_combattant_2["combattant_1"].iloc[0].lower() or nom2.lower() == Data_combattant_2["combattant_2"].iloc[0].lower():
-                combattant_2_forme = Data_combattant_2["combattant_1_forme"].iloc[0]
-                combattant_2_serie = Data_combattant_2["combattant_1_serie"].iloc[0]
-                combattant_2_nb_mois = Data_combattant_2["combattant_1_nb_mois_dernier_combat"].iloc[0]
-            elif fuzz.ratio(nom2.lower(), Data_combattant_2["combattant_1"].iloc[0].lower()) >= 90 or fuzz.ratio(nom2.lower(), Data_combattant_2["combattant_2"].iloc[0].lower()) >= 90:
-                combattant_2_forme = Data_combattant_2["combattant_2_forme"].iloc[0]
-                combattant_2_serie = Data_combattant_2["combattant_2_serie"].iloc[0]
-                combattant_2_nb_mois = Data_combattant_2["combattant_2_nb_mois_dernier_combat"].iloc[0]
-                
+            combattant_1_forme, combattant_1_serie, combattant_1_nb_mois = _obtenir_statistiques_combattant(nom1, Data_combattant_1)
+            combattant_2_forme, combattant_2_serie, combattant_2_nb_mois = _obtenir_statistiques_combattant(nom2, Data_combattant_2)
+            
             combat.loc[0, "combattant_1_forme"] = combattant_1_forme
             combat.loc[0, "combattant_1_serie"] = combattant_1_serie
+            combat.loc[0, "combattant_1_nb_mois_dernier_combat"] = combattant_1_nb_mois
             combat.loc[0, "combattant_2_forme"] = combattant_2_forme
             combat.loc[0, "combattant_2_serie"] = combattant_2_serie
-            combat.loc[0, "combattant_1_nb_mois_dernier_combat"] = combattant_1_nb_mois
             combat.loc[0, "combattant_2_nb_mois_dernier_combat"] = combattant_2_nb_mois
             
             var_moyenne = [col for col in combat.columns if "moyenne" in col]

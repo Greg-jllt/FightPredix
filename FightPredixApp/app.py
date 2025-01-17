@@ -344,12 +344,13 @@ elif st.session_state.current_page == "predictions":
 
             indice_nom1 = DataFighters[DataFighters["name"] == st.session_state["fighter_1"]].index[0]
             indice_nom2 = DataFighters[DataFighters["name"] == st.session_state["fighter_2"]].index[0]
+            print(indice_nom1, indice_nom2)
 
         
             resultats = _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, num_features, cat_features)
 
-            image_path_1 = _download_et_convert_image(st.session_state.get("url_1", "None"), 'img/cbt1.jpg')
-            image_path_2 = _download_et_convert_image(st.session_state.get("url_2", "None"), 'img/cbt2.jpg')
+            image_path_1 = _download_et_convert_image(st.session_state.get("url_1", "None"), 'FightPredixApp/img/cbt1.jpg')
+            image_path_2 = _download_et_convert_image(st.session_state.get("url_2", "None"), 'FightPredixApp/img/cbt2.jpg')
 
             if image_path_1 is not None and image_path_2 is not None:
                 cbt1 = Image.open(image_path_1)
