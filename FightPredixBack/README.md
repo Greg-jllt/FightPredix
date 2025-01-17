@@ -1,12 +1,42 @@
-# Package de scraping de l'application FightPredix
+# FightPredixBack
 
 <p align="center">
-  <img src="FightPredixApp/img/logo_readme.png" alt="Logo de mon projet" width="200" height="200">
+  <img src="../FightPredixApp/img/logo_readme.png" alt="Logo de mon projet" width="200" height="200">
 </p>
+
+## Description
+
+Bienvenue dans `FightPredixBack`. Ce module regroupe l'ensemble des outils et des bibliothèques utilisés pour construire les données nécessaires à `FightPredix`. Il se divise en trois parties distinctes :
+
+1. **FightPredixScraping**
+   Cette section du module contient les scripts utilisés pour récupérer des données provenant de **quatre** sites différents :
+   - [UFC.com](https://www.ufc.com/) : Le site officiel de l'UFC, fournissant des informations complètes sur les événements, les combattants et les statistiques.
+   - [UFC stats](http://www.ufcstats.com/statistics/events/completed) : Une base de données exhaustive des statistiques des combats de l'UFC.
+   - [UFC fans](https://www.ufc-fr.com/) : Un site communautaire pour les fans de l'UFC, offrant des analyses et des discussions sur les combats.
+   - [Tapology](https://www.tapology.com/) : Un site de référence pour les classements et les statistiques des combattants de MMA.
+
+   Pour plus d'informations sur cette partie du module, veuillez consulter le [README de FightPredixScraping](./FightPredixScraping/README.md).
+
+2. **FightPredixConstructeur**
+   Cette section du module est dédiée à la construction des variables à partir des données récupérées. Elle permet de transformer les données brutes en un format exploitable pour les analyses et les modèles prédictifs.
+
+   Pour plus d'informations sur cette partie du module, veuillez consulter le [README de FightPredixConstructeur](./FightPredixConstructeur/README.md).
+
+3. **FightPredixML**
+   Cette section du module utilise la base de données finale pour construire les modèles prédictifs les plus performants possibles parmi les algorithmes suivants :
+   - `GradientBoostingClassifier` : Un modèle de boosting qui combine plusieurs arbres de décision pour améliorer la précision des prédictions.
+   - `LogisticClassifier` : Un modèle de régression logistique utilisé pour les tâches de classification binaire.
+   - `RandomForestClassifier` : Un ensemble d'arbres de décision qui améliore la précision et réduit le surapprentissage.
+   - `MLPClassifier` : Un perceptron multicouche, un type de réseau de neurones artificiels utilisé pour les tâches de classification.
+   - `SVC` : Un classificateur à vecteurs de support, efficace pour les tâches de classification avec des marges maximales.
+
+   Pour plus d'informations sur cette partie du module, veuillez consulter le [README de FightPredixML](./FightPredixML/README.md).
+
+Nous espérons que ce module vous sera utile pour vos analyses et prédictions dans le domaine des combats de l'UFC. N'hésitez pas à consulter les documentations spécifiques de chaque partie pour des informations détaillées et des exemples d'utilisation.
 
 ## Requirement
 
-- python3.10
+- python3.13
 
 ## Installation
 
@@ -25,10 +55,10 @@ Dans le cas contraire, suivez ces étapes :
 git clone https://github.com/Greg-jllt/FightPredix.git
 ```
 
-2. Ouvrir un terminal dans le répertoire scraping du package avec la commande :
+2. Ouvrir un terminal dans le répertoire `FightPredixBack` du package avec la commande :
 
 ```bash
-cd ./FightPredix/FightPredix_scraping
+cd ./FightPredixBack
 ```
 
 3. Créer un environnement virtuel:
@@ -51,20 +81,26 @@ python -m uv sync
 .venv\Scripts\activate
 ```
 
-6. Lorsque vous voyez `(FightPredix_scraping)` dans votre terminal, cela indique que vous êtes dans l'environnement virtuel.
+6. Lorsque vous voyez `(fightpredixback)` dans votre terminal, cela indique que vous êtes dans l'environnement virtuel.
 Cela signifie que toutes les commandes Python que vous exécutez fonctionneront dans cet environnement et auront accès aux dépendances installées.
 
-7. Repositonnez-vous au répertoire racine
+7. Repositionnez-vous à la racine du projet
 
 ```bash
 cd ..
 ```
 
-8. Exécutez le scraping avec
+8. Lancez les différents modules dans l'ordre suivant :
 
 ```bash
-python -m FightPredix_scraping.scraping
+python -m FightPredixBack.FightPredixScraping
+python -m FightPredixBack.FightPredixConstructeur
+python -m FightPredixBack.FightPredixML
 ```
+
+Pour une visualisation du processus :
+
+
 
 ## Features
 
@@ -72,7 +108,7 @@ python -m FightPredix_scraping.scraping
 - Formatage du code avec `Black` pour respecter les normes de PEP 8.
 - Gestion des dépendances avec `uv`.
 - Vérification des types avec `Mypy`.
-- Tests unitaires et d'intégration avec `Pytest`, et couverture de tests avec `Pytest-cov`.
+- Tests unitaires avec `pytest` et couverture de test avec `pytest-cov`
 
 ## Contributors
 

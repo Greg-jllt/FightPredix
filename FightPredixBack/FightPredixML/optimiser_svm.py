@@ -15,6 +15,11 @@ from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 from joblib import parallel_backend
 from sklearn.decomposition import PCA
+from datetime import datetime
+from FightPredixBack.outils import configure_logger
+
+date = datetime.now().strftime("%Y-%m-%d")
+logger = configure_logger(f"{date}_optimisation_svm")
 
 
 def _pipeline_svm(
@@ -24,7 +29,11 @@ def _pipeline_svm(
     variables_categorielles: list[str],
     variable_a_predire: str,
     variable_de_poids: str,
+    cv: int,
     param_grid: dict,
+    n_jobs: int,
+    random_state: int,
+    verbose: int,
 ) -> dict[str, Union[str, Pipeline, float]]:
     """
     Cette fonction créer un pipeline dans le but d'optimiser les hyperparamètres du modèle SVM
@@ -38,11 +47,11 @@ def _pipeline_svm(
                     [
                         (
                             "Suppress_low_var",
-                            VarianceThreshold(threshold=(0.9 * (1 - 0.9))),
+                            VarianceThreshold(),
                         ),
                         ("knn_imputer", KNNImputer()),
                         ("standard_scaler", StandardScaler()),
-                        ("PCA", PCA(random_state=42)),
+                        ("PCA", PCA(random_state=random_state)),
                     ]
                 ),
                 variables_numeriques,
@@ -70,14 +79,16 @@ def _pipeline_svm(
             ("preprocessor", preprocessor),
             (
                 "feature_selection_random_forest",
-                SelectFromModel(estimator=RandomForestClassifier(random_state=42)),
+                SelectFromModel(
+                    estimator=RandomForestClassifier(random_state=random_state, verbose=verbose)
+                ),
             ),
-            ("svm", SVC(class_weight="balanced", random_state=42)),
+            ("svm", SVC(class_weight="balanced", random_state=random_state, verbose=verbose)),
         ]
     )
 
     grid_search = GridSearchCV(
-        pipe, param_grid, cv=5, n_jobs=-1, pre_dispatch="2*n_jobs"
+        pipe, param_grid, cv=cv, n_jobs=n_jobs, pre_dispatch="2*n_jobs"
     )
 
     with parallel_backend("loky"):
@@ -86,7 +97,10 @@ def _pipeline_svm(
             y_train[variable_a_predire],
             svm__sample_weight=y_train[variable_de_poids],
         )
-
+    logger.info(
+        f"Meilleurs hyperparamètres pour le modèle SVM : {grid_search.best_params_}"
+    )
+    logger.info(f"Meilleur score pour le modèle SVM : {grid_search.best_score_}")
     return dict(
         nom="SVM Classifier",
         modele=grid_search.best_estimator_,

@@ -4,7 +4,7 @@ Module de test pour la librairie lib_combats.py
 
 import time
 from selenium.webdriver.common.by import By
-from FightPredixBack.FightPredixScraping.scraping.lib_combats import (
+from FightPredixBack.FightPredixScraping.lib_combats import (
     _recolte_events,
     _couleur_combattant,
     _recolte_stat_combat,

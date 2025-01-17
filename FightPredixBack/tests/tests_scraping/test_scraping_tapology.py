@@ -1,7 +1,7 @@
 """Module de test pour la librairie lib_tapology.py"""
 
 import pytest
-from FightPredixBack.FightPredixScraping.scraping.lib_scraping_tapology import (
+from FightPredixBack.FightPredixScraping.lib_scraping_tapology import (
     _connect_vpn,
     _disconnect_vpn,
     _recherche_nom,

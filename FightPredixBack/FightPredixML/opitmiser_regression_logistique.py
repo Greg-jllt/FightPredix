@@ -15,6 +15,12 @@ import pandas as pd
 from joblib import parallel_backend
 from sklearn.decomposition import PCA
 from typing import Union
+from datetime import datetime
+from FightPredixBack.outils import configure_logger
+
+date = datetime.now().strftime("%Y-%m-%d")
+logger = configure_logger(f"{date}_crawler_optimisation_regression_logistique")
+
 
 
 def _pipeline_regression_logistique(
@@ -24,7 +30,11 @@ def _pipeline_regression_logistique(
     variables_categorielles: list[str],
     variable_a_predire: str,
     variable_de_poids: str,
+    cv: int,
     param_grid: dict,
+    n_jobs: int,
+    random_state: int,
+    verbose: int,
 ) -> dict[str, Union[str, Pipeline, float]]:
     """
     Cette fonction crée un pipeline dans le but d'optimiser les résultats de la régression logistique
@@ -38,11 +48,11 @@ def _pipeline_regression_logistique(
                     [
                         (
                             "Suppress_low_var",
-                            VarianceThreshold(threshold=(0.9 * (1 - 0.9))),
+                            VarianceThreshold(),
                         ),
                         ("knn_imputer", KNNImputer()),
                         ("standard_scaler", StandardScaler()),
-                        ("PCA", PCA(random_state=42)),
+                        ("PCA", PCA(random_state=random_state)),
                     ]
                 ),
                 variables_numeriques,
@@ -71,15 +81,15 @@ def _pipeline_regression_logistique(
             (
                 "feature_selection_random_forest",
                 SelectFromModel(
-                    estimator=RandomForestClassifier(n_estimators=400, random_state=42)
+                    estimator=RandomForestClassifier(random_state=random_state, verbose=verbose)
                 ),
             ),
-            ("regression_logistique", LogisticRegression()),
+            ("regression_logistique", LogisticRegression(verbose=verbose, random_state=random_state)),
         ]
     )
 
     grid_search = GridSearchCV(
-        pipe, param_grid, cv=5, n_jobs=-1, pre_dispatch="2*n_jobs"
+        pipe, param_grid, cv=cv, n_jobs=n_jobs, pre_dispatch="2*n_jobs"
     )
     with parallel_backend("loky"):
         grid_search.fit(
@@ -87,7 +97,12 @@ def _pipeline_regression_logistique(
             y_train[variable_a_predire],
             regression_logistique__sample_weight=y_train[variable_de_poids],
         )
-
+    logger.info(
+        f"Meilleurs hyperparamètres pour la régression logistique : {grid_search.best_params_}"
+    )
+    logger.info(
+        f"Meilleurs scores d'entrainement pour le modèle régression logistique : {grid_search.best_score_}"
+    )
     return dict(
         nom="Régression logistique",
         modele=grid_search.best_estimator_,

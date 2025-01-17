@@ -196,8 +196,9 @@ def _cleaning(data: pd.DataFrame) -> pd.DataFrame:
         if re.match(r"(combattant_1_Fighter|combattant_2_Fighter)", col):
             Data.drop(col, axis=1, inplace=True)
             continue
-
+        breakpoint()
         if Data[col].dtype == "O":
+
             ratio_bool = Data[col].apply(
                 lambda x: bool(re.match(r"^(\d+)\s+of\s+(\d+)$", str(x)))
             )
@@ -608,7 +609,7 @@ def _main_constructeur(
     )
 
     last_stats.to_json(
-        "FightPredixBack/FightPredixConstructeur/temp_data/Data_stats_combattants.json", orient="columns", index=False
+        "FightPredixBack/FightPredixConstructeur/temp_data/Data_stats_combattants.json",  index=False
     )
     last_stats_nom_identique.to_json("FightPredixBack/FightPredixConstructeur/temp_data/Data_stats_nom_identique.json", index=False)
 

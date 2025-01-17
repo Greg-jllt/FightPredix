@@ -5,7 +5,7 @@ Module de test pour le nettoyage des données de Tapology
 import polars as pl
 import numpy as np
 
-from FightPredixBack.FightPredixScraping.scraping.lib_nettoyage_tapology import (
+from FightPredixBack.FightPredixScraping.lib_nettoyage_tapology import (
     _create_streaks_variables,
     _reformat_date,
     _create_last_fight_variables,

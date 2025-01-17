@@ -1,7 +1,7 @@
 """Module de test pour la librairie lib_front_page.py"""
 
 import pandas as pd
-from FightPredixBack.FightPredixScraping.scraping.lib_front_page_ufc import (
+from FightPredixBack.FightPredixScraping.lib_front_page_ufc import (
     _recolte_pages_combattants,
     _deja_present,
     _click_chargement_plus,

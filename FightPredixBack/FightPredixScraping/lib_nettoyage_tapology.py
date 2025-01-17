@@ -189,7 +189,7 @@ def _main_nettoyage_tapology():
         data_tapology = pl.DataFrame(json.load(f))
 
     with open(
-        "FightPredixBack/FightPredixScraping/scraping/dico_formatage/dico_correction.json", "r"
+        "FightPredixBack/FightPredixScraping/dico_formatage/dico_correction.json", "r"
     ) as f:
         dico_correction = json.load(f)
 

@@ -50,7 +50,7 @@ def _calcul_stat_cumul(
         moyennes_cumulatives: list[float] = []
         liste_num_du_combattant = []
 
-        for num_row, _ in enumerate(data_combattant):
+        for num_row in range(data_combattant.shape[0]):
             if data_combattant.iloc[num_row]["combattant_1"] == nom:
                 pourcentage = data_combattant.iloc[num_row][f"{dico_var[stat][0]}"]
                 liste_num_du_combattant.append(1)
