@@ -1,79 +1,46 @@
 # FightPredixML
 
 <p align="center">
-  <img src="FightPredixApp/img/logo_readme.png" alt="Logo de mon projet" width="200" height="200">
+  <img src="../../FightPredixApp/img/logo_readme.png" alt="Logo de mon projet" width="200" height="200">
 </p>
 
-## Requirement
+## Informations Générales
 
-- python3.13
+- `scikit-learn` est le package principal utilisé pour les modèles de machine learning.
 
-## Installation
+- La préparation des échantillons de test et d'entraînement se trouve dans la librairie `preparer_echantillons.py`. Vous y trouverez des techniques de symétrisation des données pour gérer la non-linéarité des modèles.
+- Les grilles de paramètres utilisées pour l'optimisation des modèles sont disponibles dans la librairie `grille_de_parametres.py`.
+- Nous avons fixé le seuil de surapprentissage à 0.05 (différence entre le score sur l'échantillon d'entraînement et le score sur l'échantillon de test). Vous pouvez modifier ce seuil dans `__main__.py`.
 
-```bash
-python -m pip install git+https://github.com/Greg-jllt/FightPredix.git
-```
+- **À lire attentivement** : La procédure d'optimisation utilise tous les cœurs de votre machine moins un. Pensez à ajuster le paramètre `n_jobs` dans `__main__.py` si cela ne vous convient pas.
 
-## Utilisation
+- Le nombre de plis utilisés pour la validation croisée est de 5. Vous pouvez modifier ce paramètre dans `__main__.py`.
 
-> Si vous avez déjà installé le package, vous n'avez pas besoin d'initialiser un environnement virtuel pour l'utiliser.
-Dans le cas contraire, suivez ces étapes :
+- Les librairies `optimiser_{modele}.py` contiennent les pipelines utilisés pour l'optimisation de chaque modèle.
+- La librairie `lib_optimisation.py` regroupe l'ensemble des processus d'optimisation et sauvegarde les meilleurs modèles dans le sous-dossier **modele**.
+- La librairie `selectionner_modele.py` contient le processus de sélection du meilleur modèle. Nous éliminons les modèles surajustés puis choisissons le modèle ayant le meilleur score d'entraînement parmi les modèles restants.
+- Nous avons utilisé la **précision globale** comme méthode de scoring car cette application a pour objectif de prédire au mieux les probabilités de victoire de chaque combattant
 
-1. **Cloner le package** avec la commande :
+## Pistes d'Amélioration
 
-```bash
-git clone https://github.com/Greg-jllt/FightPredix.git
-```
+- Ajouter de nouveaux modèles au processus d'optimisation.
+- Améliorer l'adaptabilité du code pour gérer un plus grand nombre de modèles. Nous avons privilégié la lisibilité du code, mais l'ajout de nombreux modèles pourrait le rendre inutilement volumineux.
+- Améliorer la gestion des erreurs dans le script actuel.
 
-2. Ouvrir un terminal dans le répertoire `FightPredixBack` du package avec la commande :
 
-```bash
-cd ./FightPredixBack
-```
+## Prérequis
 
-3. Créer un environnement virtuel:
+- Python 3.13
 
-> Il vous faudra tout d'abord installer le package `uv` avec la commande `python -m pip install uv`.
-
-```bash
-python -m uv venv
-```
-
-4. Installer les dépendances avec la commande :
-
-```bash
-python -m uv sync
-```
-
-5. Activer l'environnement virtuel avec la commande :
-
-```bash
-.venv\Scripts\activate
-```
-
-6. Lorsque vous voyez `(fightpredixback)` dans votre terminal, cela indique que vous êtes dans l'environnement virtuel.
-Cela signifie que toutes les commandes Python que vous exécutez fonctionneront dans cet environnement et auront accès aux dépendances installées.
-
-7. Repositionnez-vous à la racine du projet
-
-```bash
-cd ..
-```
-
-8. Lancez l'optimisation des modèles avec:
-
-```bash
-python -m FightPredixBack.FightPredixML
-```
-
-## Features
+## Fonctionnalités
 
 - Module entièrement documenté pour les interfaces publiques et privées.
 - Formatage du code avec `Black` pour respecter les normes de PEP 8.
 - Gestion des dépendances avec `uv`.
 - Vérification des types avec `Mypy`.
+- Tests unitaires et d'intégration avec `Pytest`, et couverture de tests avec `Pytest-cov`.
 
-## Contributors
+## Contributeurs
 
 - [Gregory Jaillet](https://github.com/Greg-jllt)
 - [Hugo Cochereau](https://github.com/hugocoche)

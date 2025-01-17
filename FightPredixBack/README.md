@@ -34,7 +34,7 @@ Bienvenue dans `FightPredixBack`. Ce module regroupe l'ensemble des outils et de
 
 Nous espérons que ce module vous sera utile pour vos analyses et prédictions dans le domaine des combats de l'UFC. N'hésitez pas à consulter les documentations spécifiques de chaque partie pour des informations détaillées et des exemples d'utilisation.
 
-## Requirement
+## Prérequis
 
 - python3.13
 
@@ -45,6 +45,8 @@ python -m pip install git+https://github.com/Greg-jllt/FightPredix.git
 ```
 
 ## Utilisation
+
+##### [Cliquez ici pour voir la Vidéo de démonstration](../assets/presentation_fightpredixback.mp4)
 
 > Si vous avez déjà installé le package, vous n'avez pas besoin d'initialiser un environnement virtuel pour l'utiliser.
 Dans le cas contraire, suivez ces étapes :
@@ -58,7 +60,7 @@ git clone https://github.com/Greg-jllt/FightPredix.git
 2. Ouvrir un terminal dans le répertoire `FightPredixBack` du package avec la commande :
 
 ```bash
-cd ./FightPredixBack
+cd ./FightPredix/FightPredixBack
 ```
 
 3. Créer un environnement virtuel:
@@ -81,7 +83,7 @@ python -m uv sync
 .venv\Scripts\activate
 ```
 
-6. Lorsque vous voyez `(fightpredixback)` dans votre terminal, cela indique que vous êtes dans l'environnement virtuel.
+6. Lorsque vous voyez `(FightPredixBack)` dans votre terminal, cela indique que vous êtes dans l'environnement virtuel.
 Cela signifie que toutes les commandes Python que vous exécutez fonctionneront dans cet environnement et auront accès aux dépendances installées.
 
 7. Repositionnez-vous à la racine du projet
@@ -89,6 +91,12 @@ Cela signifie que toutes les commandes Python que vous exécutez fonctionneront 
 ```bash
 cd ..
 ```
+
+**ATTENTION** :
+
+- **L'étape suivante ne vous est actuellement pas nécessaire puisque la base de données est déjà construite**
+- **Lancer et terminer ce processus conduira à l'écrasement de la base de données actuelle. Vous aurez tout de même la possibilité de récupérer l'ancienne base en reclonant le projet**
+- **Ce processus peut-être assez couteux en temps et en calcul.**
 
 8. Lancez les différents modules dans l'ordre suivant :
 
@@ -100,9 +108,7 @@ python -m FightPredixBack.FightPredixML
 
 Pour une visualisation du processus :
 
-
-
-## Features
+## Fonctionnalités
 
 - Module entièrement documenté pour les interfaces publiques et privées.
 - Formatage du code avec `Black` pour respecter les normes de PEP 8.
@@ -110,7 +116,7 @@ Pour une visualisation du processus :
 - Vérification des types avec `Mypy`.
 - Tests unitaires avec `pytest` et couverture de test avec `pytest-cov`
 
-## Contributors
+## Contributeurs
 
 - [Gregory Jaillet](https://github.com/Greg-jllt)
 - [Hugo Cochereau](https://github.com/hugocoche)

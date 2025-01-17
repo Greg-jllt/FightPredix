@@ -53,38 +53,37 @@ def _join_arbitre(combats: pd.DataFrame, data_arbitres: pd.DataFrame) -> pl.Data
 
 
 def main():
-
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     main_driver = webdriver.Chrome(options=chrome_options)
 
-    # logger.info("Lancement du scraping sur UFC.com")
-    # Data = Dataframe_caracteristiques(main_driver)
+    logger.info("Lancement du scraping sur UFC.com")
+    Data = Dataframe_caracteristiques(main_driver)
 
-    # Data.to_json(
-    #     "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json",
-    #     index=False,
-    # )
-    # main_driver.quit()
+    Data.to_json(
+        "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json",
+        index=False,
+    )
+    main_driver.quit()
 
-    # main_driver = webdriver.Chrome(options=chrome_options)
-    # # Data = pd.read_json("FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json")
+    main_driver = webdriver.Chrome(options=chrome_options)
+    # Data = pd.read_json("FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json")
 
-    # logger.info("Lancement du scraping sur UFC stats")
-    # Data = Dataframe_caracteristiques_ufc_stats(Data, main_driver)
+    logger.info("Lancement du scraping sur UFC stats")
+    Data = Dataframe_caracteristiques_ufc_stats(Data, main_driver)
 
-    # Data.to_json(
-    #     "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json",
-    #     index=False,
-    # )
+    Data.to_json(
+        "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json",
+        index=False,
+    )
 
-    # logger.info("Lancement du scraping sur tapology et création des données jointes")
+    logger.info("Lancement du scraping sur tapology et création des données jointes")
 
-    # Data = _main_tapology()
-    # Data.to_pandas().to_json(
-    #     "FightPredixBack/Data/Data_ufc_combattant_complet.json",
-    #     index=False,
-    # )
+    Data = _main_tapology()
+    Data.to_pandas().to_json(
+        "FightPredixBack/Data/Data_ufc_combattant_complet.json",
+        index=False,
+    )
 
     logger.info("Lancement du scraping sur les combats")
     combats = Dataframe_combats(main_driver)
@@ -108,20 +107,20 @@ def main():
     )
     main_driver.quit()
 
-    # logger.info("Suppression des fichiers temporaires")
-    # for file_path in [
-    #     "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json",
-    #     "FightPredixBack/FightPredixScraping/temp_data/Data_jointes_ufc_tapology.json",
-    #     "FightPredixBack/FightPredixScraping/temp_data/final_tapology.json"
-    #     "FightPredixBack/FightPredixScraping/temp_data/data_tapology.json",
-    #     "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_combats_simple.json",
-    #     "FightPredixBack/FightPredixScraping/temp_data/clean_tapology.json",
-    # ]:
-    #     if os.path.exists(file_path):
-    #         os.remove(file_path)
-    #         print(f"Le fichier {file_path} a été supprimé avec succès.")
-    #     else:
-    #         print(f"Le fichier {file_path} n'existe pas.")
+    logger.info("Suppression des fichiers temporaires")
+    for file_path in [
+        "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json",
+        "FightPredixBack/FightPredixScraping/temp_data/Data_jointes_ufc_tapology.json",
+        "FightPredixBack/FightPredixScraping/temp_data/final_tapology.json"
+        "FightPredixBack/FightPredixScraping/temp_data/data_tapology.json",
+        "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_combats_simple.json",
+        "FightPredixBack/FightPredixScraping/temp_data/clean_tapology.json",
+    ]:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            print(f"Le fichier {file_path} a été supprimé avec succès.")
+        else:
+            print(f"Le fichier {file_path} n'existe pas.")
 
 
 if __name__ == "__main__":
