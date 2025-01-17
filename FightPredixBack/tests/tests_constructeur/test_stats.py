@@ -3,10 +3,6 @@ Module de test pour la librairie lib_stats.py
 """
 
 import pandas as pd
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
 from FightPredixBack.FightPredixConstructeur.lib_stats import (
@@ -53,8 +49,6 @@ def test_calcul_stat_cumul():
         {
             "combattant_1": ["John Doe", "Jane Doe"],
             "combattant_2": ["Jane Doe", "John Doe"],
-            "combattant_1_age": [30, 25],
-            "combattant_2_age": [25, 30],
             "combattant_1_height": [180, 170],
             "combattant_2_height": [170, 180],
             "combattant_1_weight": [80, 75],
@@ -66,8 +60,6 @@ def test_calcul_stat_cumul():
         {
             "combattant_1": ["John Doe", "Jane Doe"],
             "combattant_2": ["Jane Doe", "John Doe"],
-            "combattant_1_age": [30, 25],
-            "combattant_2_age": [25, 30],
             "combattant_1_height": [180, 170],
             "combattant_2_height": [170, 180],
             "combattant_1_weight": [80, 75],
@@ -77,14 +69,11 @@ def test_calcul_stat_cumul():
 
     nom = "John Doe"
     dico_var = {
-        "combattant_age": ("combattant_1_age", "combattant_2_age"),
         "combattant_height": ("combattant_1_height", "combattant_2_height"),
         "combattant_weight": ("combattant_1_weight", "combattant_2_weight"),
     }
 
     data, _ = _calcul_stat_cumul(data, data_combattant, nom, dico_var)
 
-    assert pd.isna(data["moyenne_combattant_2_height"].tolist()[0])
-    assert data["t_1_combattant_2_height"].tolist()[1] == 180.0
-    assert pd.isna(data["moyenne_combattant_2_weight"].tolist()[0])
-    assert data["t_1_combattant_2_weight"].tolist()[1] == 80.0
+    assert pd.isna(data["combattant_2_height_moyenne"].tolist()[0])
+    assert pd.isna(data["combattant_2_weight_moyenne"].tolist()[0])

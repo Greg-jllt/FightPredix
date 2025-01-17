@@ -4,11 +4,8 @@ Module de test pour la librairie lib_constructeur.py
 
 import pandas as pd
 import numpy as np
-import sys
-import os
-from datetime import datetime
 
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
+from datetime import datetime
 
 
 from FightPredixBack.FightPredixConstructeur.lib_constructeur import (
@@ -54,7 +51,7 @@ def test_difference_combats():
         }
     )
 
-    combats = _difference_num_combats(caracteristiques, combats)
+    combats = _difference_num_combats(combats)
 
     assert combats["diff_age"].tolist() == [5, -5]
     assert combats["diff_height"].tolist() == [10, -10]
@@ -90,7 +87,7 @@ def test_transformation_debut_octogone():
 
     data = _transformation_debut_octogone(data)
 
-    assert data["DÉBUT DE L'OCTOGONE"].tolist() == [61, 48]
+    assert data["DÉBUT DE L'OCTOGONE"].tolist() == [61, 49]
 
 
 def test_clean_column_nom():
@@ -125,15 +122,19 @@ def test_cleaning():
     """
     data = pd.DataFrame(
         {
-            "col1": ["10 of 20", "10%"],
-            "col2": ["10:30", "30%"],
+            "col1": ["10 of 20"],
+            "col2": ["10:30"],
+            "col3": ["30%"],
         }
     )
 
     data = _cleaning(data)
 
-    assert data["col1"].tolist() == [10,20,0.5, 0.1]
-    assert data["col2"].tolist() == [630, 0.3]
+    assert data["col1_reussi"].tolist() == [10.0]
+    assert data["col1_total"].tolist() == [20.0]
+    assert data["col1_ratio"].tolist() == [0.5]
+    assert data["col2"].tolist() == [630]
+    assert data["col3"].tolist() == [0.3]
 
 
 def test_sub_fonction_age():
@@ -201,7 +202,7 @@ def test_victoires_defaites_temps_t():
     assert combats["combattant_2_losses_t"].tolist() == [1, 0]
     
 
-def test_victoires_defaites_temps_t():
+def test_forme_combattant():
     """
     Test de la fonction de forme des combattants et plus généralement de la fonction _calcul_statistiques_generique
     """

@@ -31,7 +31,6 @@ def _format_date(data: pd.DataFrame):
 
     data["date"] = new_dates
 
-
 def _calcul_stat_cumul(
     data: pd.DataFrame,
     data_combattant: pd.DataFrame,
@@ -52,7 +51,7 @@ def _calcul_stat_cumul(
         moyennes_cumulatives: list[float] = []
         liste_num_du_combattant = []
 
-        for num_row, _ in enumerate(data_combattant):
+        for num_row in range(data_combattant.shape[0]):
             if data_combattant.iloc[num_row]["combattant_1"] == nom:
                 pourcentage = data_combattant.iloc[num_row][f"{dico_var[stat][0]}"]
                 liste_num_du_combattant.append(1)
@@ -72,7 +71,7 @@ def _calcul_stat_cumul(
             else:
                 moyenne_cumulative = round(somme_cumulative / denominateur, 2)
                 moyennes_cumulatives.append(moyenne_cumulative)
-
+                
         for (
             index,
             num_combattant,
@@ -82,6 +81,7 @@ def _calcul_stat_cumul(
             liste_num_du_combattant[1:],
             moyennes_cumulatives[:-1],
         ):
+            print(index, num_combattant, moyenne)
             data.loc[
                 index, f"combattant_{num_combattant}_{stat_sans_combattant}_moyenne"
             ] = moyenne
