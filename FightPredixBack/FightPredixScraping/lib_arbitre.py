@@ -78,8 +78,3 @@ def _main_arbitre() -> pl.DataFrame:
     soup = _requete_arbitre(driver, url)
     liste_arbitres = _creer_liste_arbitres(soup)
     return pl.DataFrame(liste_arbitres)
-
-
-if __name__ == "__main__":
-
-    _main_arbitre()

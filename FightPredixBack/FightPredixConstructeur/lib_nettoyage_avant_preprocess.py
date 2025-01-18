@@ -340,7 +340,3 @@ def _main_nettoyage_avant_preprocess(DataCombats: pd.DataFrame) -> pd.DataFrame:
         inplace=True,
     )
     return DataCombats
-
-
-if __name__ == "__main__":
-    _main_nettoyage_avant_preprocess()

@@ -53,7 +53,6 @@ def _join_arbitre(combats: pd.DataFrame, data_arbitres: pd.DataFrame) -> pl.Data
 
 
 def main():
-
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     main_driver = webdriver.Chrome(options=chrome_options)
@@ -63,7 +62,6 @@ def main():
 
     Data.to_json(
         "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json",
-        orient="columns",
         index=False,
     )
     main_driver.quit()
@@ -76,7 +74,6 @@ def main():
 
     Data.to_json(
         "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json",
-        orient="columns",
         index=False,
     )
 
@@ -85,17 +82,15 @@ def main():
     Data = _main_tapology()
     Data.to_pandas().to_json(
         "FightPredixBack/Data/Data_ufc_combattant_complet.json",
-        orient="columns",
         index=False,
     )
 
     logger.info("Lancement du scraping sur les combats")
     combats = Dataframe_combats(main_driver)
 
+    breakpoint()
     combats.to_json(
         "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_combats_simple.json",
-        orient="columns",
-        index=False,
     )
     main_driver.quit()
 
@@ -106,10 +101,9 @@ def main():
     data_arbitres = _main_arbitre().to_pandas()
     combats = _join_arbitre(combats, data_arbitres).to_pandas()
 
+    breakpoint()
     combats.to_json(
         "FightPredixBack/Data/Data_ufc_combats_complet.json",
-        orient="columns",
-        index=False,
     )
     main_driver.quit()
 

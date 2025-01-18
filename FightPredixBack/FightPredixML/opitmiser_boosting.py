@@ -24,7 +24,11 @@ def _pipeline_boosting(
     variables_categorielles: list[str],
     variable_a_predire: str,
     variable_de_poids: str,
+    cv: int,
     param_grid: dict,
+    n_jobs: int,
+    random_state: int,
+    verbose: int,
 ) -> dict[str, Union[str, Pipeline, float]]:
     """
     Cette fonction créer un pipeline dans le but d'optimiser les hyperparamètres du modèle boosting
@@ -36,13 +40,10 @@ def _pipeline_boosting(
                 "num",
                 Pipeline(
                     [
-                        (
-                            "Suppress_low_var",
-                            VarianceThreshold(threshold=(0.9 * (1 - 0.9))),
-                        ),
+                        ("Suppress_low_var", VarianceThreshold()),
                         ("knn_imputer", KNNImputer()),
                         ("standard_scaler", StandardScaler()),
-                        ("PCA", PCA(random_state=42)),
+                        ("PCA", PCA(random_state=random_state)),
                     ]
                 ),
                 variables_numeriques,
@@ -53,7 +54,6 @@ def _pipeline_boosting(
                     [
                         (
                             "simple_imputer",
-                            # SimpleImputer(strategy='most_frequent'),
                             SimpleImputer(
                                 strategy="constant", fill_value="non-renseigné"
                             ),
@@ -72,15 +72,21 @@ def _pipeline_boosting(
             (
                 "feature_selection_random_forest",
                 SelectFromModel(
-                    estimator=RandomForestClassifier(n_estimators=400, random_state=42)
+                    estimator=RandomForestClassifier(
+                        random_state=random_state, verbose=verbose
+                    )
                 ),
             ),
-            ("boosting", GradientBoostingClassifier()),
+            (
+                "boosting",
+                GradientBoostingClassifier(verbose=verbose, random_state=random_state),
+            ),
         ]
     )
     grid_search = GridSearchCV(
-        pipe, param_grid, cv=5, n_jobs=-1, pre_dispatch="2*n_jobs"
+        pipe, param_grid, cv=cv, n_jobs=n_jobs, pre_dispatch="2*n_jobs"
     )
+
     with parallel_backend("loky"):
         grid_search.fit(
             X_train,

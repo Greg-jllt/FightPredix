@@ -5,18 +5,13 @@ from FightPredixBack.FightPredixScraping.lib_ufc_stats import (
     _recolte_victoires,
     _collecteur_finish,
     _traitement_metriques,
-    _vic_draws_losses_autres_parcours,
+    _convertisseur_taille,
 )
 import numpy as np
-from .fixtures import driver_ufc_stats as driver
-import os
-import numpy as np
-import sys
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from .fixtures import driver_ufc_stats as driver  # noqa F401
 
 
-def test_recolte_ufc_stats(driver):
+def test_recolte_ufc_stats(driver):  # noqa F811
     """
     Teste la fonction _recolte_ufc_stats
     """
@@ -40,7 +35,7 @@ def test_recolte_ufc_stats(driver):
     assert stats["Sub. Avg.:"] == "0.5"
 
 
-def test_recolte_victoires(driver):
+def test_recolte_victoires(driver):  # noqa F811
     """
     Teste la fonction _recolte_victoires
     """
@@ -53,7 +48,7 @@ def test_recolte_victoires(driver):
     assert resultats[2] == 0
 
 
-def test_collecteur_finish(driver):
+def test_collecteur_finish(driver):  # noqa F811
     """
     Teste la fonction _collecteur_finish
     """
@@ -66,8 +61,7 @@ def test_collecteur_finish(driver):
     assert finishes["DEC"] == 10
 
 
-def test_traitement_metriques(driver):
-
+def test_traitement_metriques(driver):  # noqa F811
     win_draw_loss = np.array([22, 1, 0])
     dict_res = {
         "KO/TKO": 6,
@@ -95,3 +89,35 @@ def test_traitement_metriques(driver):
     }
     driver.implicitly_wait(50)
     assert _traitement_metriques(driver, win_draw_loss) == dict_res
+
+
+def test_convertisseur_taille():
+    """
+    Teste la fonction _convertisseur_taille
+    """
+
+    assert _convertisseur_taille("6' 4\"") == 76
+    assert _convertisseur_taille("5' 6\"") == 66
+    assert _convertisseur_taille("5' 0\"") == 60
+    assert _convertisseur_taille("6' 0\"") == 72
+    assert _convertisseur_taille("5' 8\"") == 68
+    assert _convertisseur_taille("5' 10\"") == 70
+    assert _convertisseur_taille("5' 11\"") == 71
+    assert _convertisseur_taille("6' 1\"") == 73
+    assert _convertisseur_taille("6' 2\"") == 74
+    assert _convertisseur_taille("6' 3\"") == 75
+    assert _convertisseur_taille("6' 5\"") == 77
+    assert _convertisseur_taille("6' 6\"") == 78
+    assert _convertisseur_taille("6' 7\"") == 79
+    assert _convertisseur_taille("6' 8\"") == 80
+    assert _convertisseur_taille("6' 9\"") == 81
+    assert _convertisseur_taille("6' 10\"") == 82
+    assert _convertisseur_taille("6' 11\"") == 83
+    assert _convertisseur_taille("7' 0\"") == 84
+    assert _convertisseur_taille("7' 1\"") == 85
+    assert _convertisseur_taille("7' 2\"") == 86
+    assert _convertisseur_taille("7' 3\"") == 87
+    assert _convertisseur_taille("7' 4\"") == 88
+    assert _convertisseur_taille("7' 5\"") == 89
+    assert _convertisseur_taille("7' 6\"") == 90
+    assert _convertisseur_taille("7' 7\"") == 91

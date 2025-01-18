@@ -12,24 +12,20 @@ from FightPredixBack.FightPredixScraping.lib_scraping_tapology import (
 from selenium.webdriver.chrome.options import Options
 import json
 import polars as pl
-from .fixtures import driver
-import os
-import sys
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from .fixtures import driver  # noqa F401
 
 
 @pytest.fixture
 def df():
     with open(
-        "./FightPredixScraping/tests/data_test/data_tapology_test.json", "r"
+        "FightPredixBack/tests/tests_scraping/data_test/data_tapology_test.json", "r"
     ) as f:
         df = json.load(f)
     return pl.DataFrame(df)
 
 
 @pytest.fixture
-def driver_tapology(driver):
+def driver_tapology(driver): # noqa F811
     driver.get("https://www.tapology.com")
 
     def finalizer():
@@ -105,7 +101,7 @@ def test_scraper_combattant(df, driver_tapology):
     """
 
     with open(
-        "./FightPredixScraping/tests/data_test/data_tapology_test.json", "r"
+        "FightPredixBack/tests/tests_scraping/data_test/data_tapology_test.json", "r"
     ) as f:
         liste_dictio = json.load(f)
 

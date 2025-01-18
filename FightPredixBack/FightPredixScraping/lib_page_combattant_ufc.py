@@ -282,24 +282,3 @@ def _extraire_info_combattant(driver: webdriver.Chrome) -> defaultdict | None:
     else:
         return None
     return dictio
-
-
-# if __name__ == "__main__":
-
-#     import pandas as pd
-
-#     console = Console()
-
-#     driver = webdriver.Chrome()
-
-#     url = "https://www.ufc.com/athlete/hamdy-abdelwahab"
-
-#     driver.get(url)
-
-#     dictio = _extraire_info_combattant(driver)
-
-#     data = pd.DataFrame([dictio])
-
-#     console.print(data.loc[data["NAME"]=="HAMDY ABDELWAHAB",["WIN","LOSSES","DRAWS"]].values[0])
-
-#     driver.quit()

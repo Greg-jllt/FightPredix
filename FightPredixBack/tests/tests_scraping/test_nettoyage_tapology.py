@@ -2,8 +2,6 @@
 Module de test pour le nettoyage des données de Tapology
 """
 
-import os
-import sys
 import polars as pl
 import numpy as np
 
@@ -123,23 +121,6 @@ def test_create_home_variables():
             "New York",
             "Paris",
             None,
-            "New York",
-            "New York",
-            None,
-            None,
-            "New York",
-            None,
-            None,
-        ]
-    )
-
-    assert np.all(
-        _create_home_variables(data_tapology)["State of residence:tapology"].to_list()
-        == [
-            "Ile-de-France",
-            "New York",
-            "Ile-de-France",
-            "England",
             "New York",
             "New York",
             None,

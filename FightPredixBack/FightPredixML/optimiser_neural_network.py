@@ -15,6 +15,11 @@ from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 from joblib import parallel_backend
 from sklearn.decomposition import PCA
+from datetime import datetime
+from FightPredixBack.outils import configure_logger
+
+date = datetime.now().strftime("%Y-%m-%d")
+logger = configure_logger(f"{date}_optimisation_neural_network")
 
 
 def _pipeline_neural_network(
@@ -24,7 +29,11 @@ def _pipeline_neural_network(
     variables_categorielles: list[str],
     variable_a_predire: str,
     variable_de_poids: str,
+    cv: int,
     param_grid: dict,
+    n_jobs: int,
+    random_state: int,
+    verbose: int,
 ) -> dict[str, Union[str, Pipeline, float]]:
     """
     Cette fonction crée un pipeline dans le but d'optimiser les hyperparamètres du modèle neural network
@@ -38,11 +47,11 @@ def _pipeline_neural_network(
                     [
                         (
                             "Suppress_low_var",
-                            VarianceThreshold(threshold=(0.9 * (1 - 0.9))),
+                            VarianceThreshold(),
                         ),
                         ("knn_imputer", KNNImputer()),
                         ("standard_scaler", StandardScaler()),
-                        ("PCA", PCA(random_state=42)),
+                        ("PCA", PCA(random_state=random_state)),
                     ]
                 ),
                 variables_numeriques,
@@ -53,7 +62,6 @@ def _pipeline_neural_network(
                     [
                         (
                             "simple_imputer",
-                            # SimpleImputer(strategy='most_frequent'),
                             SimpleImputer(
                                 strategy="constant", fill_value="non-renseigné"
                             ),
@@ -72,19 +80,25 @@ def _pipeline_neural_network(
             (
                 "feature_selection_random_forest",
                 SelectFromModel(
-                    estimator=RandomForestClassifier(n_estimators=200, random_state=42)
+                    estimator=RandomForestClassifier(random_state=random_state, verbose=verbose)
                 ),
             ),
-            ("neural_network", MLPClassifier(random_state=42)),
+            ("neural_network", MLPClassifier(random_state=random_state, verbose=verbose)),
         ]
     )
 
     grid_search = GridSearchCV(
-        pipe, param_grid, cv=5, n_jobs=-1, pre_dispatch="2*n_jobs"
+        pipe, param_grid, cv=cv, n_jobs=n_jobs, pre_dispatch="2*n_jobs"
     )
     with parallel_backend("loky"):
         grid_search.fit(X_train, y_train[variable_a_predire])
 
+    logger.info(
+        f"Meilleurs hyperparamètres pour le modèle neural network : {grid_search.best_params_}"
+    )
+    logger.info(
+        f"Meilleur score pour le modèle neural network : {grid_search.best_score_}"
+    )
     return dict(
         nom="neural_network Classifier",
         modele=grid_search.best_estimator_,

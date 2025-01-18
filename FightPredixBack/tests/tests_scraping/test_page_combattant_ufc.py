@@ -13,15 +13,10 @@ from FightPredixBack.FightPredixScraping.lib_page_combattant_ufc import (
 from collections import defaultdict
 from selenium.webdriver.common.by import By
 
-from .fixtures import url_combattant, driver
-
-import os
-import sys
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from .fixtures import url_combattant, driver  # noqa F401
 
 
-def test_infos_principal_combattant(driver, url_combattant):
+def test_infos_principal_combattant(driver, url_combattant):  # noqa F811
     """
     Fonction qui teste la fonction _infos_principal_combattant
     """
@@ -39,7 +34,7 @@ def test_infos_principal_combattant(driver, url_combattant):
     assert dictio["GENRE"] == "Male"
 
 
-def test_combattant_actif(driver, url_combattant):
+def test_combattant_actif(driver, url_combattant):  # noqa F811
     """
     Fonction qui teste la fonction _combattant_actif
     """
@@ -49,7 +44,7 @@ def test_combattant_actif(driver, url_combattant):
     assert dictio["Actif"]
 
 
-def test_bio_combattant(driver, url_combattant):
+def test_bio_combattant(driver, url_combattant):  # noqa F811
     """
     Fonction qui teste la fonction _bio_combattant
     """
@@ -62,7 +57,7 @@ def test_bio_combattant(driver, url_combattant):
     assert dictio["POIDS"] == 237.6
 
 
-def test_tenant_titre(driver, url_combattant):
+def test_tenant_titre(driver, url_combattant):  # noqa F811
     """
     Fonction qui teste la fonction _tenant_titre
     """
@@ -72,7 +67,7 @@ def test_tenant_titre(driver, url_combattant):
     assert dictio["Title_holder"]
 
 
-def test_stats_combattants(driver, url_combattant):
+def test_stats_combattants(driver, url_combattant):  # noqa F811
     """
     Fonction qui teste la fonction _stats_combattant
     """
@@ -88,7 +83,7 @@ def test_stats_combattants(driver, url_combattant):
     assert dictio["SUB"] == 7
 
 
-def test_stats_corps_combattant(driver, url_combattant):
+def test_stats_corps_combattant(driver, url_combattant):  # noqa F811
     """
     Fonction qui teste la fonction _stats_corps_combattant
     """
@@ -101,7 +96,7 @@ def test_stats_corps_combattant(driver, url_combattant):
     assert dictio["sig_str_leg"] == 430
 
 
-def test_pourcentage_touche_takedown(driver, url_combattant):
+def test_pourcentage_touche_takedown(driver, url_combattant):  # noqa F811
     """
     Fonction qui teste la fonction _pourcentage_touche_takedown
     """
@@ -112,7 +107,7 @@ def test_pourcentage_touche_takedown(driver, url_combattant):
     assert dictio["PRÉCISION DE TAKEDOWN"] == 0.46
 
 
-def test_mesures_combattant(driver, url_combattant):
+def test_mesures_combattant(driver, url_combattant):  # noqa F811
     """
     Fonction qui teste la fonction _mesures_combattant
     """
