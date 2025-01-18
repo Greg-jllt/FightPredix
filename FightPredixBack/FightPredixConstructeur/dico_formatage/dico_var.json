@@ -1,0 +1,150 @@
+{
+    "combattant_sig_str_total_reussi": [
+        "combattant_1_sig_str_total_reussi",
+        "combattant_2_sig_str_total_reussi"
+    ],
+    "combattant_sig_str_total_total": [
+        "combattant_1_sig_str_total_total",
+        "combattant_2_sig_str_total_total"
+    ],
+    "combattant_total_str_total_reussi": [
+        "combattant_1_total_str_total_reussi",
+        "combattant_2_total_str_total_reussi"
+    ],
+    "combattant_total_str_total_total": [
+        "combattant_1_total_str_total_total",
+        "combattant_2_total_str_total_total"
+    ],
+    "combattant_tdtotal_reussi": [
+        "combattant_1_tdtotal_reussi",
+        "combattant_2_tdtotal_reussi"
+    ],
+    "combattant_tdtotal_total": [
+        "combattant_1_tdtotal_total",
+        "combattant_2_tdtotal_total"
+    ],
+    "combattant_headsig_str_total_reussi": [
+        "combattant_1_headsig_str_total_reussi",
+        "combattant_2_headsig_str_total_reussi"
+    ],
+    "combattant_headsig_str_total_total": [
+        "combattant_1_headsig_str_total_total",
+        "combattant_2_headsig_str_total_total"
+    ],
+    "combattant_bodysig_str_total_reussi": [
+        "combattant_1_bodysig_str_total_reussi",
+        "combattant_2_bodysig_str_total_reussi"
+    ],
+    "combattant_bodysig_str_total_total": [
+        "combattant_1_bodysig_str_total_total",
+        "combattant_2_bodysig_str_total_total"
+    ],
+    "combattant_legsig_str_total_reussi": [
+        "combattant_1_legsig_str_total_reussi",
+        "combattant_2_legsig_str_total_reussi"
+    ],
+    "combattant_legsig_str_total_total": [
+        "combattant_1_legsig_str_total_total",
+        "combattant_2_legsig_str_total_total"
+    ],
+    "combattant_distancesig_str_total_reussi": [
+        "combattant_1_distancesig_str_total_reussi",
+        "combattant_2_distancesig_str_total_reussi"
+    ],
+    "combattant_distancesig_str_total_total": [
+        "combattant_1_distancesig_str_total_total",
+        "combattant_2_distancesig_str_total_total"
+    ],
+    "combattant_clinchsig_str_total_reussi": [
+        "combattant_1_clinchsig_str_total_reussi",
+        "combattant_2_clinchsig_str_total_reussi"
+    ],
+    "combattant_clinchsig_str_total_total": [
+        "combattant_1_clinchsig_str_total_total",
+        "combattant_2_clinchsig_str_total_total"
+    ],
+    "combattant_groundsig_str_total_reussi": [
+        "combattant_1_groundsig_str_total_reussi",
+        "combattant_2_groundsig_str_total_reussi"
+    ],
+    "combattant_groundsig_str_total_total": [
+        "combattant_1_groundsig_str_total_total",
+        "combattant_2_groundsig_str_total_total"
+    ],
+    "combattant_frappe_tete": [
+        "combattant_1_frappe_tete",
+        "combattant_2_frappe_tete"
+    ],
+    "combattant_frappe_corps": [
+        "combattant_1_frappe_corps",
+        "combattant_2_frappe_corps"
+    ],
+    "combattant_frappe_jambe": [
+        "combattant_1_frappe_jambe",
+        "combattant_2_frappe_jambe"
+    ],
+    "combattant_frappe_distance": [
+        "combattant_1_frappe_distance",
+        "combattant_2_frappe_distance"
+    ],
+    "combattant_frappe_clinch": [
+        "combattant_1_frappe_clinch",
+        "combattant_2_frappe_clinch"
+    ],
+    "combattant_frappe_sol": [
+        "combattant_1_frappe_sol",
+        "combattant_2_frappe_sol"
+    ],
+    "combattant_kdtotal": [
+        "combattant_1_kdtotal",
+        "combattant_2_kdtotal"
+    ],
+    "combattant_sig_str_total_ratio": [
+        "combattant_1_sig_str_total_ratio",
+        "combattant_2_sig_str_total_ratio"
+    ],
+    "combattant_total_str_total_ratio": [
+        "combattant_1_total_str_total_ratio",
+        "combattant_2_total_str_total_ratio"
+    ],
+    "combattant_tdtotal_ratio": [
+        "combattant_1_tdtotal_ratio",
+        "combattant_2_tdtotal_ratio"
+    ],
+    "combattant_sub_atttotal": [
+        "combattant_1_sub_atttotal",
+        "combattant_2_sub_atttotal"
+    ],
+    "combattant_revtotal": [
+        "combattant_1_rev_total",
+        "combattant_2_rev_total"
+    ],
+    "combattant_ctrltotal": [
+        "combattant_1_ctrltotal",
+        "combattant_2_ctrltotal"
+    ],
+    "combattant_headsig_str_total_ratio": [
+        "combattant_1_headsig_str_total_ratio",
+        "combattant_2_headsig_str_total_ratio"
+    ],
+    "combattant_bodysig_str_total_ratio": [
+        "combattant_1_bodysig_str_total_ratio",
+        "combattant_2_bodysig_str_total_ratio"
+    ],
+    "combattant_legsig_str_total_ratio": [
+        "combattant_1_legsig_str_total_ratio",
+        "combattant_2_legsig_str_total_ratio"
+    ],
+    "combattant_distancesig_str_total_ratio": [
+        "combattant_1_distancesig_str_total_ratio",
+        "combattant_2_distancesig_str_total_ratio"
+    ],
+    "combattant_clinchsig_str_total_ratio": [
+        "combattant_1_clinchsig_str_total_ratio",
+        "combattant_2_clinchsig_str_total_ratio"
+    ],
+    "combattant_groundsig_str_total_ratio": [
+        "combattant_1_groundsig_str_total_ratio",
+        "combattant_2_groundsig_str_total_ratio"
+    ]
+}

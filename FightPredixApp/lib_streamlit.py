@@ -3,6 +3,7 @@ import pandas as pd
 from rapidfuzz import fuzz
 from PIL import Image
 
+import joblib
 import requests
 import re
 import os 
@@ -155,13 +156,18 @@ def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
 
     return resultat
 
+
 def _sub_fonction_cherche_metrique(nom, c1, c2, Data_combattant, DataCombats):
     if nom.lower() == c1.lower() or fuzz.ratio(nom.lower(), c1.lower()) >= 90:
-        Data_combattant = pd.concat([Data_combattant, DataCombats[DataCombats["combattant_1"] == c1]])
-    
+        Data_combattant = pd.concat(
+            [Data_combattant, DataCombats[DataCombats["combattant_1"] == c1]]
+        )
+
     if nom.lower() == c2.lower() or fuzz.ratio(nom.lower(), c2.lower()) >= 90:
-        Data_combattant = pd.concat([Data_combattant, DataCombats[DataCombats["combattant_2"] == c2]])
-    
+        Data_combattant = pd.concat(
+            [Data_combattant, DataCombats[DataCombats["combattant_2"] == c2]]
+        )
+
     return Data_combattant
 
 
@@ -170,62 +176,83 @@ def _obtenir_statistiques_combattant(nom, data_combattant):
     Cherche et retourne les statistiques d'un combattant dans un DataFrame.
     """
     for suffixe in ["1", "2"]:
-        if f"combattant_{suffixe}" in data_combattant.columns and (nom.lower() == data_combattant[f"combattant_{suffixe}"].iloc[0].lower() or \
-           fuzz.ratio(nom.lower(), data_combattant[f"combattant_{suffixe}"].iloc[0].lower()) >= 90):
+        if f"combattant_{suffixe}" in data_combattant.columns and (
+            nom.lower() == data_combattant[f"combattant_{suffixe}"].iloc[0].lower()
+            or fuzz.ratio(
+                nom.lower(), data_combattant[f"combattant_{suffixe}"].iloc[0].lower()
+            )
+            >= 90
+        ):
             return (
                 data_combattant[f"combattant_{suffixe}_forme"].iloc[0],
                 data_combattant[f"combattant_{suffixe}_serie"].iloc[0],
                 data_combattant[f"combattant_{suffixe}_nb_mois_dernier_combat"].iloc[0],
             )
-    print(nom)
     return None, None, None
 
 
-def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, num_features, cat_features) :
-    predictions = []
-    for num1, num2 in zip((indice_nom1,indice_nom2), (indice_nom2,indice_nom1)):
-            Combattant_1 = pd.DataFrame(DataFighters.loc[num1]).T
-            Combattant_2 = pd.DataFrame(DataFighters.loc[num2]).T
-            
-            Combattant_1.columns = [
-                "combattant_1" + str(col) if "moyenne" in col else "combattant_1_" + str(col)
-                for col in Combattant_1.columns
-            ]
-            Combattant_2.columns = [
-                "combattant_2" + str(col) if "moyenne" in col else "combattant_2_" + str(col)
-                for col in Combattant_2.columns
-            ]
+def _prediction_streamlit(
+    indice_nom1, indice_nom2, DataFighters, DataCombats, num_features, cat_features
+):
+    predictions: list = []
+    for num1, num2 in zip((indice_nom1, indice_nom2), (indice_nom2, indice_nom1)):
+        Combattant_1 = pd.DataFrame(DataFighters.loc[num1]).T
+        Combattant_2 = pd.DataFrame(DataFighters.loc[num2]).T
 
-            Combattant_1["join_key"] = "1"
-            Combattant_2["join_key"] = "1"
-            
-            combat = Combattant_1.merge(Combattant_2, on="join_key")
-            Data_combattant_1 = pd.DataFrame()
-            Data_combattant_2 = pd.DataFrame()
-            
-            nom1 = DataFighters.loc[num1, "name"]
-            nom2 = DataFighters.loc[num2, "name"]
+        Combattant_1.columns = [
+            (
+                "combattant_1" + str(col)
+                if "moyenne" in col
+                else "combattant_1_" + str(col)
+            )
+            for col in Combattant_1.columns
+        ]
+        Combattant_2.columns = [
+            (
+                "combattant_2" + str(col)
+                if "moyenne" in col
+                else "combattant_2_" + str(col)
+            )
+            for col in Combattant_2.columns
+        ]
 
-            for c1, c2 in zip(DataCombats["combattant_1"], DataCombats["combattant_2"]):
-                
+        Combattant_1["join_key"] = "1"
+        Combattant_2["join_key"] = "1"
 
-                Data_combattant_1 = _sub_fonction_cherche_metrique(nom1, c1, c2, Data_combattant_1, DataCombats=DataCombats)
-                Data_combattant_2 = _sub_fonction_cherche_metrique(nom2, c1, c2, Data_combattant_2, DataCombats=DataCombats)
+        combat = Combattant_1.merge(Combattant_2, on="join_key")
+        Data_combattant_1 = pd.DataFrame()
+        Data_combattant_2 = pd.DataFrame()
 
-                if Data_combattant_1.shape[0] > 0 and Data_combattant_2.shape[0] > 0:
-                    break                    
+        nom1 = DataFighters.loc[num1, "name"]
+        nom2 = DataFighters.loc[num2, "name"]
 
-            combattant_1_forme, combattant_1_serie, combattant_1_nb_mois = _obtenir_statistiques_combattant(nom1, Data_combattant_1)
-            combattant_2_forme, combattant_2_serie, combattant_2_nb_mois = _obtenir_statistiques_combattant(nom2, Data_combattant_2)
-            
-            combat.loc[0, "combattant_1_forme"] = combattant_1_forme
-            combat.loc[0, "combattant_1_serie"] = combattant_1_serie
-            combat.loc[0, "combattant_1_nb_mois_dernier_combat"] = combattant_1_nb_mois
-            combat.loc[0, "combattant_2_forme"] = combattant_2_forme
-            combat.loc[0, "combattant_2_serie"] = combattant_2_serie
-            combat.loc[0, "combattant_2_nb_mois_dernier_combat"] = combattant_2_nb_mois
-            
-            var_moyenne = [col for col in combat.columns if "moyenne" in col]
+        for c1, c2 in zip(DataCombats["combattant_1"], DataCombats["combattant_2"]):
+
+            Data_combattant_1 = _sub_fonction_cherche_metrique(
+                nom1, c1, c2, Data_combattant_1, DataCombats=DataCombats
+            )
+            Data_combattant_2 = _sub_fonction_cherche_metrique(
+                nom2, c1, c2, Data_combattant_2, DataCombats=DataCombats
+            )
+
+            if Data_combattant_1.shape[0] > 0 and Data_combattant_2.shape[0] > 0:
+                break
+
+        combattant_1_forme, combattant_1_serie, combattant_1_nb_mois = (
+            _obtenir_statistiques_combattant(nom1, Data_combattant_1)
+        )
+        combattant_2_forme, combattant_2_serie, combattant_2_nb_mois = (
+            _obtenir_statistiques_combattant(nom2, Data_combattant_2)
+        )
+
+        combat.loc[0, "combattant_1_forme"] = combattant_1_forme
+        combat.loc[0, "combattant_1_serie"] = combattant_1_serie
+        combat.loc[0, "combattant_1_nb_mois_dernier_combat"] = combattant_1_nb_mois
+        combat.loc[0, "combattant_2_forme"] = combattant_2_forme
+        combat.loc[0, "combattant_2_serie"] = combattant_2_serie
+        combat.loc[0, "combattant_2_nb_mois_dernier_combat"] = combattant_2_nb_mois
+
+        var_moyenne = [col for col in combat.columns if "moyenne" in col]
 
             var_num_en_plus = [
                 "combattant_1_win",
@@ -273,28 +300,36 @@ def _prediction_streamlit(indice_nom1, indice_nom2, DataFighters, DataCombats, n
             
             type_mapping = {col: 'number' if col in var_num_en_plus + var_moyenne else 'object' for col in combat.columns}
 
-            for col, dtype in type_mapping.items():
-                if dtype == 'number':
-                    combat[col] = combat[col].astype(float)  # Convertir en float pour les colonnes numériques
-                else:
-                    combat[col] = combat[col].astype(str)  # Convertir en string pour les colonnes catégorielles
-            
-            combat = _difference_num_combats(combat)
-            
-            combat.rename(columns={
-                "diff_age" : "diff_age_t",
-                "diff_win" : "diff_win_t",
-                "diff_losses" : "diff_losses_t",
-                "diff_dec" : "diff_DEC",
-                "diff_ko_tko" : "diff_KO/TKO",
-                "diff_sub" : "diff_SUB",
-                }, inplace=True)
-            
-            import joblib
-            modele_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ModelApp", "best_model.pkl")
-            model = joblib.load(modele_path)
-            
-            predictions.append(model.predict_proba(combat[num_features + cat_features]))
+        for col, dtype in type_mapping.items():
+            if dtype == "number":
+                combat[col] = combat[col].astype(
+                    float
+                )  # Convertir en float pour les colonnes numériques
+            else:
+                combat[col] = combat[col].astype(
+                    str
+                )  # Convertir en string pour les colonnes catégorielles
+
+        combat = _difference_num_combats(combat)
+
+        combat.rename(
+            columns={
+                "diff_age": "diff_age_t",
+                "diff_win": "diff_win_t",
+                "diff_losses": "diff_losses_t",
+                "diff_dec": "diff_DEC",
+                "diff_ko_tko": "diff_KO/TKO",
+                "diff_sub": "diff_SUB",
+            },
+            inplace=True,
+        )
+
+        modele_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "ModelApp", "best_model.pkl"
+        )
+        model = joblib.load(modele_path)
+
+        predictions.append(model.predict_proba(combat[num_features + cat_features]))
 
     results = ((predictions[1].flatten()[1] + predictions[0].flatten()[0])/2 , (predictions[1].flatten()[0] + predictions[0].flatten()[1])/2)
 

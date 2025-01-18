@@ -15,15 +15,15 @@ repos:
 #     rev: v1.10.0
 #     hooks:
 #     -   id: mypy
-# # -   repo: local
-# #     hooks:
-# #     -   id: run-pytest
-# #         name: Run pytest before push
-# #         entry: python -m pytest
-# #         language: system
-# #         pass_filenames: false
-# #         always_run: true
-# -   repo: https://github.com/psf/black
-#     rev: 24.4.2
+# -   repo: local
 #     hooks:
-#     -   id: black
+#     -   id: run-pytest
+#         name: Run pytest before push
+#         entry: python -m pytest
+#         language: system
+#         pass_filenames: false
+#         always_run: true
+-   repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+    -   id: black

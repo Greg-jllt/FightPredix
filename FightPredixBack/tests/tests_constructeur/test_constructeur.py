@@ -29,15 +29,6 @@ def test_difference_combats():
     Test de la fonction _difference_combats
     """
 
-    caracteristiques = pd.DataFrame(
-        {
-            "name": ["John Doe", "Jane Doe"],
-            "age": [30, 25],
-            "height": [180, 170],
-            "weight": [80, 75],
-        }
-    )
-
     combats = pd.DataFrame(
         {
             "combattant_1": ["John Doe", "Jane Doe"],
@@ -112,8 +103,8 @@ def test_process_ratio():
     """
     Test de la fonction _process_ratio
     """
-    assert _process_ratio("10 of 20") == (10,20,0.5)
-    assert _process_ratio("10 of 0") == (10,0,np.nan)
+    assert _process_ratio("10 of 20") == (10, 20, 0.5)
+    assert _process_ratio("10 of 0") == (10, 0, np.nan)
 
 
 def test_cleaning():
@@ -169,14 +160,14 @@ def test_age_temps_t():
         {
             "combattant_1": ["John Doe", "Jane Doe"],
             "combattant_2": ["Jane Doe", "John Doe"],
-            "date": ["January 2, 2021", "January 2, 2021"],
+            "date": [datetime.now(), datetime.now()],
         }
     )
 
     combats = _age_temps_t(data, combats)
 
-    assert combats["combattant_1_age_t"].tolist() == [31, 26]
-    assert combats["combattant_2_age_t"].tolist() == [26, 31]
+    assert combats["combattant_1_age_t"].tolist() == [35, 30]
+    assert combats["combattant_2_age_t"].tolist() == [30, 35]
 
 
 def test_victoires_defaites_temps_t():
@@ -200,7 +191,7 @@ def test_victoires_defaites_temps_t():
     assert combats["combattant_1_losses_t"].tolist() == [0, 0]
     assert combats["combattant_2_win_t"].tolist() == [0, 0]
     assert combats["combattant_2_losses_t"].tolist() == [1, 0]
-    
+
 
 def test_forme_combattant():
     """

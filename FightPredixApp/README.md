@@ -1,6 +1,6 @@
 ## Présentation
 
-Vous vous trouvez actuellement dans le module lié a la visualisation des résultats 
+Vous vous trouvez actuellement dans le module lié a la visualisation des résultats
 
 ## Requirement
 
@@ -52,8 +52,7 @@ python -m uv sync
 6. Lorsque vous voyez `(FightPredixApp)` dans votre terminal, cela indique que vous êtes dans l'environnement virtuel.
 Cela signifie que toutes les commandes Python que vous exécutez fonctionneront dans cet environnement et auront accès aux dépendances installées.
 
-
-7. Lancez l'application avec :
+7. Repositionnez-vous à la racine et lancez l'application avec la commande :
 
 ```bash
 streamlit run FightPredixApp/app.py

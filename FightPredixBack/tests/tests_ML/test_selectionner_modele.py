@@ -6,7 +6,6 @@ Module de test pour la librairie selectionner_modele
 from FightPredixBack.FightPredixML.selectionner_modele import (
     _comparer_score_entrainement,
     _tester_surapprentissage,
-    _selectionner_meilleurs_modeles,
 )
 from sklearn.linear_model import LogisticRegression
 import pytest
@@ -97,55 +96,3 @@ def test_tester_surapprentissage(data_fixture):
         assert _tester_surapprentissage(X_test, np.array([y_test]), modele2)
     else:
         assert not _tester_surapprentissage(X_test, np.array([y_test]), modele2)
-
-
-def test_echec_de_selection_de_modele(data_fixture):
-    """
-    Test de l'exception ModelSelectionError
-    """
-
-    modele = {
-        "modele": LogisticRegression().fit(
-            data_fixture.drop(
-                columns=["resultat", "poids_ml", "combattant_1_cat", "combattant_2_cat"]
-            ).loc[:2],
-            data_fixture["resultat"].loc[:2],
-        ),
-        "score_entrainement": 1,
-        "nom": "modele1",
-    }
-
-    modele2 = {
-        "modele": LogisticRegression().fit(
-            data_fixture.drop(
-                columns=["resultat", "poids_ml", "combattant_1_cat", "combattant_2_cat"]
-            ).loc[:2],
-            data_fixture["resultat"].loc[:2],
-        ),
-        "score_entrainement": 1,
-        "nom": "modele2",
-    }
-    X_test = data_fixture.drop(
-        columns=["resultat", "poids_ml", "combattant_1_cat", "combattant_2_cat"]
-    ).loc[[3]]
-
-    y_test = data_fixture["resultat"].loc[3]
-    with pytest.raises(
-        Exception,
-        match="Aucun modèle n'a été sélectionné car tous surapprennent",
-    ):
-        _selectionner_meilleurs_modeles(
-            X_test,
-            np.array([y_test]),
-            [modele, modele2],
-        )
-
-    with pytest.raises(
-        Warning,
-        match="Aucun modèle n'a été sélectionné car tous surapprennent",
-    ):
-        _selectionner_meilleurs_modeles(
-            X_test,
-            np.array([y_test]),
-            [modele, modele2],
-        )

@@ -62,7 +62,7 @@ def main():
 
     Data.to_json(
         "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json",
-        index=False,
+        orient="records",
     )
     main_driver.quit()
 
@@ -74,23 +74,22 @@ def main():
 
     Data.to_json(
         "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json",
-        index=False,
+        orient="records",
     )
 
     logger.info("Lancement du scraping sur tapology et création des données jointes")
 
     Data = _main_tapology()
     Data.to_pandas().to_json(
-        "FightPredixBack/Data/Data_ufc_combattant_complet.json",
-        index=False,
+        "FightPredixBack/Data/Data_ufc_combattant_complet.json", orient="records"
     )
 
     logger.info("Lancement du scraping sur les combats")
     combats = Dataframe_combats(main_driver)
 
-    breakpoint()
     combats.to_json(
         "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_combats_simple.json",
+        orient="records",
     )
     main_driver.quit()
 
@@ -101,9 +100,8 @@ def main():
     data_arbitres = _main_arbitre().to_pandas()
     combats = _join_arbitre(combats, data_arbitres).to_pandas()
 
-    breakpoint()
     combats.to_json(
-        "FightPredixBack/Data/Data_ufc_combats_complet.json",
+        "FightPredixBack/Data/Data_ufc_combats_complet.json", orient="records"
     )
     main_driver.quit()
 
@@ -114,7 +112,6 @@ def main():
         "FightPredixBack/FightPredixScraping/temp_data/final_tapology.json"
         "FightPredixBack/FightPredixScraping/temp_data/data_tapology.json",
         "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_combats_simple.json",
-        "FightPredixBack/FightPredixScraping/temp_data/clean_tapology.json",
     ]:
         if os.path.exists(file_path):
             os.remove(file_path)

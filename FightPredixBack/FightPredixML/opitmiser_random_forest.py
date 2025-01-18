@@ -3,7 +3,6 @@
 Contient le pipeline et l'optimisation des hyperparamètres pour le modèle SVM
 """
 
-from tabnanny import verbose
 from typing import Union
 from sklearn.model_selection import GridSearchCV
 from sklearn.impute import KNNImputer, SimpleImputer
@@ -33,6 +32,7 @@ def _pipeline_random_forest(
     param_grid: dict,
     n_jobs: int,
     random_state: int,
+    verbose: int,
 ) -> dict[str, Union[str, Pipeline, float]]:
     """
     Cette fonction crée un pipeline dans le but d'optimiser les hyperparamètres du modèle Random Forest
@@ -79,10 +79,15 @@ def _pipeline_random_forest(
             (
                 "feature_selection_random_forest",
                 SelectFromModel(
-                    estimator=RandomForestClassifier(random_state=random_state, verbose=verbose)
+                    estimator=RandomForestClassifier(
+                        random_state=random_state, verbose=verbose
+                    )
                 ),
             ),
-            ("random_forest", RandomForestClassifier(verbose=verbose, random_state=random_state)),
+            (
+                "random_forest",
+                RandomForestClassifier(verbose=verbose, random_state=random_state),
+            ),
         ]
     )
 

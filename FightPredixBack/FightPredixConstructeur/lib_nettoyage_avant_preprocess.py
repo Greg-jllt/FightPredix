@@ -6,7 +6,6 @@ Librairie de nettoyage des données avant le preprocess
 import re
 import pandas as pd
 import miceforest as mf
-from sklearn.preprocessing import MinMaxScaler
 
 
 def _supprimer_combattants_problematiques(DataCombats: pd.DataFrame) -> pd.DataFrame:
@@ -152,26 +151,7 @@ def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
     return resultat
 
 
-def _attribution_poids(DataCombats: pd.DataFrame) -> pd.DataFrame:
-    """
-    Fonction qui attribue un poids aux combats
-    """
-
-    DataCombats["nb_combat_des_deux_combattants"] = (
-        DataCombats["combattant_1_win_t"]
-        + DataCombats["combattant_1_losses_t"]
-        + DataCombats["combattant_2_win_t"]
-        + DataCombats["combattant_2_losses_t"]
-    )
-    DataCombats = DataCombats[~DataCombats["nb_combat_des_deux_combattants"].isna()]
-    DataCombats["poids_ml"] = MinMaxScaler(feature_range=(0.2, 0.8)).fit_transform(
-        DataCombats[["nb_combat_des_deux_combattants"]]
-    )
-
-    return DataCombats
-
-
-def _liste_features() -> tuple[list[str], list[str], list[str]]:
+def _liste_features() -> tuple[list[str], list[str], str, str]:
     """
     Renvoie des listes de variables utilisables pour le machine learning
     """
@@ -208,10 +188,8 @@ def _liste_features() -> tuple[list[str], list[str], list[str]]:
         "diff_frappe_sol_moyenne",
         "diff_kdtotal_moyenne",
         "diff_sig_str_total_ratio_moyenne",
-        "diff_sig_str_percent_total_moyenne",
         "diff_total_str_total_ratio_moyenne",
         "diff_tdtotal_ratio_moyenne",
-        "diff_td_percent_total_moyenne",
         "diff_sub_atttotal_moyenne",
         "diff_revtotal_moyenne",
         "diff_ctrltotal_moyenne",
@@ -265,7 +243,7 @@ def _suppress_nan(
     size = DataCombats.shape
     nan_values = DataCombats.isna().sum()
     nan_values = nan_values.sort_values(ascending=True) * 100 / size[0]
-    num_features, cat_features, output_features = _liste_features()
+    num_features, _, _, _ = _liste_features()
     if (
         len(
             [
@@ -284,25 +262,7 @@ def _suppress_nan(
             ]
         )
 
-    if (
-        len(
-            [
-                col
-                for col in DataCombats.columns
-                if nan_values[col] > 30 and col in cat_features
-            ]
-        )
-        > 0
-    ):
-        cat_features.remove(
-            *[
-                col
-                for col in DataCombats.columns
-                if nan_values[col] > 30 and col in cat_features
-            ]
-        )
-
-    return DataCombats
+    return DataCombats.reset_index(drop=True)
 
 
 def _main_nettoyage_avant_preprocess(DataCombats: pd.DataFrame) -> pd.DataFrame:
@@ -313,11 +273,6 @@ def _main_nettoyage_avant_preprocess(DataCombats: pd.DataFrame) -> pd.DataFrame:
     DataCombats = _supprimer_combattants_problematiques(DataCombats)
     DataCombats = _garder_combats_apres_2014(DataCombats).reset_index(drop=True)
     DataCombats = _impute_dimension_variables(DataCombats)
-    DataCombats = _attribution_poids(DataCombats)
-
-    DataCombats.drop(
-        columns=[col for col in DataCombats.columns if "diff" in col], inplace=True
-    )
     DataCombats = _difference_num_combats(DataCombats)
 
     (
@@ -326,17 +281,14 @@ def _main_nettoyage_avant_preprocess(DataCombats: pd.DataFrame) -> pd.DataFrame:
         variable_a_predire,
         variable_de_poids,
     ) = _liste_features()
-
     DataCombats = DataCombats[
         variables_numeriques
         + variables_categorielles
-        + variable_a_predire
-        + variable_de_poids
+        + [variable_a_predire, variable_de_poids]
     ]
     DataCombats = _suppress_nan(DataCombats)
     DataCombats.rename(
         columns={"diff_portée_de_la_jambe": "diff_portee_de_la_jambe"},
-        axis=1,
         inplace=True,
     )
     return DataCombats
