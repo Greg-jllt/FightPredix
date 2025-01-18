@@ -254,51 +254,51 @@ def _prediction_streamlit(
 
         var_moyenne = [col for col in combat.columns if "moyenne" in col]
 
-            var_num_en_plus = [
-                "combattant_1_win",
-                "combattant_1_losses",
-                "combattant_1_age",
-                "combattant_1_la_taille",
-                "combattant_1_poids",
-                "combattant_1_reach",
-                "combattant_1_portee_de_la_jambe",
-                "combattant_2_win",
-                "combattant_2_losses",
-                "combattant_2_age",
-                "combattant_2_la_taille",
-                "combattant_2_poids",
-                "combattant_2_reach",
-                "combattant_2_portee_de_la_jambe",
-                "combattant_1_sol",
-                "combattant_1_ko_tko",
-                "combattant_1_dec",
-                "combattant_1_sub",
-                "combattant_2_sol",
-                "combattant_2_ko_tko",
-                "combattant_2_dec",
-                "combattant_2_sub",
-                "combattant_1_forme",
-                "combattant_1_serie",
-                "combattant_2_forme",
-                "combattant_2_serie",
-                "combattant_1_nb_mois_dernier_combat",
-                "combattant_2_nb_mois_dernier_combat",
-            ]
+        var_num_en_plus = [
+            "combattant_1_win",
+            "combattant_1_losses",
+            "combattant_1_age",
+            "combattant_1_la_taille",
+            "combattant_1_poids",
+            "combattant_1_reach",
+            "combattant_1_portee_de_la_jambe",
+            "combattant_2_win",
+            "combattant_2_losses",
+            "combattant_2_age",
+            "combattant_2_la_taille",
+            "combattant_2_poids",
+            "combattant_2_reach",
+            "combattant_2_portee_de_la_jambe",
+            "combattant_1_sol",
+            "combattant_1_ko_tko",
+            "combattant_1_dec",
+            "combattant_1_sub",
+            "combattant_2_sol",
+            "combattant_2_ko_tko",
+            "combattant_2_dec",
+            "combattant_2_sub",
+            "combattant_1_forme",
+            "combattant_1_serie",
+            "combattant_2_forme",
+            "combattant_2_serie",
+            "combattant_1_nb_mois_dernier_combat",
+            "combattant_2_nb_mois_dernier_combat",
+        ]
 
-            cat_features = [
-                "combattant_1_style_de_combat",
-                "combattant_1_country_of_residence_tapology",
-                "combattant_1_country_of_birth_tapology",
-                "combattant_2_style_de_combat",
-                "combattant_2_country_of_residence_tapology",
-                "combattant_2_country_of_birth_tapology",
-            ]
-            
-            liste_a_travailler = var_moyenne + var_num_en_plus + cat_features
+        cat_features = [
+            "combattant_1_style_de_combat",
+            "combattant_1_country_of_residence_tapology",
+            "combattant_1_country_of_birth_tapology",
+            "combattant_2_style_de_combat",
+            "combattant_2_country_of_residence_tapology",
+            "combattant_2_country_of_birth_tapology",
+        ]
+        
+        liste_a_travailler = var_moyenne + var_num_en_plus + cat_features
 
-            combat = combat[liste_a_travailler]
-            
-            type_mapping = {col: 'number' if col in var_num_en_plus + var_moyenne else 'object' for col in combat.columns}
+        combat = combat[liste_a_travailler]
+        
+        type_mapping = {col: 'number' if col in var_num_en_plus + var_moyenne else 'object' for col in combat.columns}
 
         for col, dtype in type_mapping.items():
             if dtype == "number":
