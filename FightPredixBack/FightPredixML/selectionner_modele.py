@@ -24,6 +24,8 @@ def _comparer_score_entrainement(
 
     meilleur_score = 0.0
     for modele in modeles:
+        if modele is None:
+            continue
         if (
             isinstance(modele["score_entrainement"], float)
             and modele["score_entrainement"] > meilleur_score
@@ -75,6 +77,8 @@ def _selectionner_meilleurs_modeles(
     """
     liste_modeles = [modele for modele in modeles]
     for modele in modeles:
+        if modele is None:
+            continue
         if _tester_surapprentissage(X_test, y_test, modele, seuil_surapprentissage):
             liste_modeles.remove(modele)
     if len(liste_modeles) == 0:

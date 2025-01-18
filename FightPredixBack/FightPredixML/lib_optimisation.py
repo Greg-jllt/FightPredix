@@ -68,10 +68,8 @@ def _liste_features() -> tuple[list[str], list[str], str, str]:
         "diff_frappe_sol_moyenne",
         "diff_kdtotal_moyenne",
         "diff_sig_str_total_ratio_moyenne",
-        "diff_sig_str_percent_total_moyenne",
         "diff_total_str_total_ratio_moyenne",
         "diff_tdtotal_ratio_moyenne",
-        "diff_td_percent_total_moyenne",
         "diff_sub_atttotal_moyenne",
         "diff_revtotal_moyenne",
         "diff_ctrltotal_moyenne",
@@ -126,10 +124,22 @@ def _optimiser_modeles(
     n_jobs: int,
     random_state: int,
     verbose: int,
-) -> tuple[ModelDict, ModelDict, ModelDict, ModelDict, ModelDict]:
+) -> tuple[
+    ModelDict | None,
+    ModelDict | None,
+    ModelDict | None,
+    ModelDict | None,
+    ModelDict | None,
+]:
     """
     Cette fonction permet d'optimiser les modèles
     """
+
+    dico_boosting = None
+    dico_logit = None
+    dico_random_forest = None
+    dico_neural_network = None
+    dico_svm = None
 
     logger.info(
         f"""
@@ -188,10 +198,12 @@ def _optimiser_modeles(
             f"Erreur lors de l'optimisation du modèle regression logistique : {e}"
         )
 
-    logger.info(f"""
+    logger.info(
+        f"""
                 Optimisation du modèle random forest...
                 La grille de paramètres est la suivante : {parametres_random_forest}
-                """)
+                """
+    )
     try:
         dico_random_forest = _pipeline_random_forest(
             X_train,
@@ -214,10 +226,12 @@ def _optimiser_modeles(
     except Exception as e:
         logger.error(f"Erreur lors de l'optimisation du modèle random forest : {e}")
 
-    logger.info(f"""
+    logger.info(
+        f"""
                 Optimisation du modèle neural network...
                 La grille de paramètres est la suivante : {parametres_neural_network}
-                """)
+                """
+    )
     try:
         dico_neural_network = _pipeline_neural_network(
             X_train,
@@ -240,10 +254,12 @@ def _optimiser_modeles(
     except Exception as e:
         logger.error(f"Erreur lors de l'optimisation du modèle neural network : {e}")
 
-    logger.info(f"""
+    logger.info(
+        f"""
                 Optimisation du modèle SVM...
                 La grille de paramètres est la suivante : {parametres_svm}
-                """)
+                """
+    )
     try:
         dico_svm = _pipeline_svm(
             X_train,
@@ -264,9 +280,9 @@ def _optimiser_modeles(
         logger.error(f"Erreur lors de l'optimisation du modèle SVM : {e}")
 
     return (
-        dico_boosting if dico_boosting is not None else None,
-        dico_logit if dico_logit is not None else None,
-        dico_random_forest if dico_random_forest is not None else None,
-        dico_neural_network if dico_neural_network is not None else None,
-        dico_svm if dico_svm is not None else None,
+        dico_boosting,
+        dico_logit,
+        dico_random_forest,
+        dico_neural_network,
+        dico_svm,
     )
