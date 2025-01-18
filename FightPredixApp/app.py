@@ -144,11 +144,8 @@ elif st.session_state.current_page == "combattants":
     fights_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "DataApp", "Data_final_combats.json"
     )
-
-
-
-
-
+    a1, a2 = st.columns([0.5, 1])
+    
     df = st.session_state["DataFighters"]
 
     df = df.dropna(subset=["actif"])
