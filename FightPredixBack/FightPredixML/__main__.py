@@ -28,6 +28,7 @@ n_jobs = -2
 random_state = 42
 cv = 5
 verbose = 1
+test_size = 0.3
 
 
 if __name__ == "__main__":
@@ -51,13 +52,15 @@ if __name__ == "__main__":
         variables_categorielles,
         variable_a_predire,
         variable_de_poids,
+        test_size,
+        random_state,
     )
 
     logger.info("Optimisation des modèles...")
     logger.info(f"Variables numériques : {variables_numeriques}")
     logger.info(f"Variables catégorielles : {variables_categorielles}")
     logger.info(f"Variable à prédire : {variable_a_predire}")
-    logger(
+    logger.info(
         f"""
         Vous avez choisi {n_jobs} coeurs pour l'optimisation des modèles.
         Vous avez choisi {cv} folds pour la validation croisée.

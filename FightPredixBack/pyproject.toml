@@ -11,6 +11,7 @@ dependencies = [
     "joblib>=1.4.2",
     "logging>=0.4.9.6",
     "miceforest>=6.0.3",
+    "numpy>=2.2.1",
     "pandas>=2.2.3",
     "polars>=1.19.0",
     "rapidfuzz>=3.11.0",

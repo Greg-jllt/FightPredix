@@ -61,6 +61,8 @@ def _preparer_echantillons(
     variables_categorielles: list[str],
     variable_a_predire: str,
     variable_de_poids: str,
+    test_size: float,
+    random_state: int,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """
     Cette fonction permet de préparer les données de tests et d'entraînement
@@ -69,7 +71,7 @@ def _preparer_echantillons(
     X, y = _creer_x_y(Data, variable_a_predire, variable_de_poids)
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42
+        X, y, test_size=test_size, random_state=random_state
     )
     X_train, X_test = (
         _symetrisation_explicative(

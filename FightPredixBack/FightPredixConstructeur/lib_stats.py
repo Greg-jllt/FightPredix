@@ -71,20 +71,25 @@ def _calcul_stat_cumul(
                 moyenne_cumulative = round(somme_cumulative / denominateur, 2)
                 moyennes_cumulatives.append(moyenne_cumulative)
 
-        for (
-            index,
-            num_combattant,
-            moyenne,
-        ) in zip(
-            data_combattant.index[1:],
-            liste_num_du_combattant[1:],
-            moyennes_cumulatives[:-1],
-        ):
-            data.loc[
-                index, f"combattant_{num_combattant}_{stat_sans_combattant}_moyenne"
-            ] = moyenne
-
-        dico_last_combat[f"{stat_sans_combattant}_moyenne"] = moyennes_cumulatives[-1]
+        if data_combattant.shape[0] > 1:
+            for (
+                index,
+                num_combattant,
+                moyenne,
+            ) in zip(
+                data_combattant.index[1:],
+                liste_num_du_combattant[1:],
+                moyennes_cumulatives[:-1],
+            ):
+                data.loc[
+                    index, f"combattant_{num_combattant}_{stat_sans_combattant}_moyenne"
+                ] = moyenne
+        if moyennes_cumulatives:
+            dico_last_combat[f"{stat_sans_combattant}_moyenne"] = moyennes_cumulatives[
+                -1
+            ]
+        else:
+            dico_last_combat[f"{stat_sans_combattant}_moyenne"] = nan
 
     return data, dico_last_combat
 
@@ -107,7 +112,9 @@ def _assignement_stat_combattant(
     Fonction qui permet d'assigner les statistiques des combattants dans le dataframe.
     """
 
-    data["date"] = pd.to_datetime(data["date"].apply(lambda x: str(x).split(" ")[0].strip()), format="%Y-%m-%d")
+    data["date"] = pd.to_datetime(
+        data["date"].apply(lambda x: str(x).split(" ")[0].strip()), format="%Y-%m-%d"
+    )
 
     new_columns: dict[str, float] = dict()
     dico_last_combat = dict()
@@ -129,7 +136,6 @@ def _assignement_stat_combattant(
             data_combattant = pd.concat(
                 [data[data["combattant_1"] == nom], data[data["combattant_2"] == nom]]
             ).sort_index(ascending=False)
-
             data, dico = _calcul_stat_cumul(data, data_combattant, nom, dico_var)
             dico_last_combat[f"{nom}"] = dico
         else:

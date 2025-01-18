@@ -4,18 +4,23 @@ Module de test pour la librairie lib_constructeur.py
 
 import pandas as pd
 import numpy as np
+
 from datetime import datetime
-from lib_constructeur import (
-    _difference_combats,
+
+
+from FightPredixBack.FightPredixConstructeur.lib_constructeur import (
+    _difference_num_combats,
     _age_by_DOB,
     _transformation_debut_octogone,
-    clean_column_nom,
+    _nettoyage_nom_colonne,
     _process_valeur,
     _process_ratio,
     _cleaning,
     _sub_fonction_age,
     _age_temps_t,
-    _win_losses_temps_t,
+    _calcul_victoires_defaites,
+    _calcul_forme_combattant,
+    _calcul_statistique_generique,
 )
 
 
@@ -23,15 +28,6 @@ def test_difference_combats():
     """
     Test de la fonction _difference_combats
     """
-
-    caracteristiques = pd.DataFrame(
-        {
-            "name": ["John Doe", "Jane Doe"],
-            "age": [30, 25],
-            "height": [180, 170],
-            "weight": [80, 75],
-        }
-    )
 
     combats = pd.DataFrame(
         {
@@ -46,7 +42,7 @@ def test_difference_combats():
         }
     )
 
-    combats = _difference_combats(caracteristiques, combats)
+    combats = _difference_num_combats(combats)
 
     assert combats["diff_age"].tolist() == [5, -5]
     assert combats["diff_height"].tolist() == [10, -10]
@@ -82,23 +78,22 @@ def test_transformation_debut_octogone():
 
     data = _transformation_debut_octogone(data)
 
-    assert data["DÉBUT DE L'OCTOGONE"].tolist() == [61, 48]
+    assert data["DÉBUT DE L'OCTOGONE"].tolist() == [61, 49]
 
 
 def test_clean_column_nom():
     """
     Test de la fonction clean_column_nom
     """
-    assert clean_column_nom("John Doe") == "john_doe"
-    assert clean_column_nom("John Doe 2") == "john_doe_2"
-    assert clean_column_nom("John Doe 2!") == "john_doe_2_"
+    assert _nettoyage_nom_colonne("John Doe") == "john_doe"
+    assert _nettoyage_nom_colonne("John Doe 2") == "john_doe_2"
+    assert _nettoyage_nom_colonne("John Doe 2!") == "john_doe_2_"
 
 
 def test_process_valeur():
     """
     Test de la fonction _process_valeur
     """
-    assert _process_valeur("10 of 20") == 20
     assert _process_valeur("10%") == 0.1
     assert _process_valeur("10:30") == 630
     assert _process_valeur("---") is None
@@ -108,8 +103,8 @@ def test_process_ratio():
     """
     Test de la fonction _process_ratio
     """
-    assert _process_ratio("10 of 20") == 0.5
-    assert np.isnan(_process_ratio("10 of 0"))
+    assert _process_ratio("10 of 20") == (10, 20, 0.5)
+    assert _process_ratio("10 of 0") == (10, 0, np.nan)
 
 
 def test_cleaning():
@@ -118,15 +113,19 @@ def test_cleaning():
     """
     data = pd.DataFrame(
         {
-            "col1": ["10 of 20", "10%"],
-            "col2": ["10:30", "30%"],
+            "col1": ["10 of 20"],
+            "col2": ["10:30"],
+            "col3": ["30%"],
         }
     )
 
     data = _cleaning(data)
 
-    assert data["col1"].tolist() == [20, 0.1]
-    assert data["col2"].tolist() == [630, 0.3]
+    assert data["col1_reussi"].tolist() == [10.0]
+    assert data["col1_total"].tolist() == [20.0]
+    assert data["col1_ratio"].tolist() == [0.5]
+    assert data["col2"].tolist() == [630]
+    assert data["col3"].tolist() == [0.3]
 
 
 def test_sub_fonction_age():
@@ -161,39 +160,55 @@ def test_age_temps_t():
         {
             "combattant_1": ["John Doe", "Jane Doe"],
             "combattant_2": ["Jane Doe", "John Doe"],
-            "date": ["January 2, 2021", "January 2, 2021"],
+            "date": [datetime.now(), datetime.now()],
         }
     )
 
     combats = _age_temps_t(data, combats)
 
-    assert combats["combattant_1_age_t"].tolist() == [31, 26]
-    assert combats["combattant_2_age_t"].tolist() == [26, 31]
+    assert combats["combattant_1_age_t"].tolist() == [35, 30]
+    assert combats["combattant_2_age_t"].tolist() == [30, 35]
 
 
-def test_win_losses_temps_t():
+def test_victoires_defaites_temps_t():
     """
-    Test de la fonction _win_losses_temps_t
+    Test de la fonction _win_losses_temps_t et plus généralement de la fonction _calcul_statistiques_generique
     """
-    data = pd.DataFrame(
-        {
-            "name": ["John Doe", "Jane Doe"],
-            "win": [10, 20],
-            "losses": [5, 10],
-        }
-    )
 
     combats = pd.DataFrame(
         {
             "combattant_1": ["John Doe", "Jane Doe"],
             "combattant_2": ["Jane Doe", "John Doe"],
+            "combattant_1_nickname": ["John", "Jane"],
+            "combattant_2_nickname": ["Jane", "John"],
             "resultat": [0, 1],
         }
     )
 
-    combats = _win_losses_temps_t(data, combats)
+    combats = _calcul_statistique_generique(combats, _calcul_victoires_defaites)
 
-    assert combats["combattant_1_win_t"].tolist() == [9, 20]
-    assert combats["combattant_1_losses_t"].tolist() == [5, 8]
-    assert combats["combattant_2_win_t"].tolist() == [20, 8]
-    assert combats["combattant_2_losses_t"].tolist() == [9, 5]
+    assert combats["combattant_1_win_t"].tolist() == [1, 0]
+    assert combats["combattant_1_losses_t"].tolist() == [0, 0]
+    assert combats["combattant_2_win_t"].tolist() == [0, 0]
+    assert combats["combattant_2_losses_t"].tolist() == [1, 0]
+
+
+def test_forme_combattant():
+    """
+    Test de la fonction de forme des combattants et plus généralement de la fonction _calcul_statistiques_generique
+    """
+
+    combats = pd.DataFrame(
+        {
+            "combattant_1": ["John Doe", "Jane Doe"],
+            "combattant_2": ["Jane Doe", "John Doe"],
+            "combattant_1_nickname": ["John", "Jane"],
+            "combattant_2_nickname": ["Jane", "John"],
+            "resultat": [0, 1],
+        }
+    )
+
+    combats = _calcul_statistique_generique(combats, _calcul_forme_combattant)
+
+    assert combats["combattant_1_forme"].tolist() == [1, 0]
+    assert combats["combattant_2_forme"].tolist() == [-1, 0]

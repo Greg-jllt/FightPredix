@@ -7,12 +7,16 @@ from selenium import webdriver
 import pandas as pd
 
 from .lib_constructeur import _main_constructeur
-from FightPredixBack.FightPredixScraping.lib_ufc_stats import (
-    _ratrappage_manquants
-)
+from FightPredixBack.FightPredixScraping.lib_ufc_stats import _ratrappage_manquants
 from .lib_nettoyage_avant_preprocess import (
     _main_nettoyage_avant_preprocess,
 )
+from datetime import datetime
+from FightPredixBack.outils import configure_logger
+
+
+date = datetime.now().strftime("%Y-%m-%d")
+logger = configure_logger(f"{date}_crawler_constructeur")
 
 
 def _constructeur(
@@ -37,5 +41,5 @@ if __name__ == "__main__":
 
     main_driver.quit()
 
-    Data.to_json("FightPredixApp/DataApp/Data_final_fighters.json")
-    combats.to_json("FightPredixApp/DataApp/Data_final_combats.json")
+    Data.to_json("FightPredixApp/DataApp/Data_final_fighters.json", orient="records")
+    combats.to_json("FightPredixApp/DataApp/Data_final_combats.json", orient="records")

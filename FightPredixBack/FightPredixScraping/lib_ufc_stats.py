@@ -100,12 +100,12 @@ def _recolte_ufc_stats(driver: webdriver.Chrome) -> dict:
     liste_items = driver.find_elements(By.CSS_SELECTOR, "li.b-list__box-list-item")
 
     return {
-        item.find_element(
-            By.CSS_SELECTOR, "i.b-list__box-item-title"
-        ).text.strip(): item.text.replace(
+        item.find_element(By.CSS_SELECTOR, "i.b-list__box-item-title")
+        .text.strip(): item.text.replace(
             item.find_element(By.CSS_SELECTOR, "i.b-list__box-item-title").text.strip(),
             "",
-        ).strip()
+        )
+        .strip()
         for item in liste_items
         if item.text.strip()
     }
@@ -371,7 +371,7 @@ def _traiter_combattants(
     Returns:
         pd.DataFrame: DataFrame mis à jour avec les statistiques des combattants.
     """
-    manqué = []
+    manqué: list = []
     for cplt_name, nickname in zip(noms_combattants, nicknames):
         logger.info(f"Recherche du combattant {cplt_name}, {nickname}")
         try:
@@ -381,12 +381,13 @@ def _traiter_combattants(
                 manqué.append({"nom_complet": cplt_name, "surnom": nickname})
                 continue
 
-            logger.info(temp_dict)
-            _accès_cbt_page(temp_dict, driver)
+            if isinstance(temp_dict, dict):
+                logger.info(temp_dict)
+                _accès_cbt_page(temp_dict, driver)
 
-            win_draw_loss = list(_compte_victoires_defaites_cbt(driver).values())
+                win_draw_loss = list(_compte_victoires_defaites_cbt(driver).values())
 
-            data = _integration_metriques(data, cplt_name, driver, win_draw_loss)
+                data = _integration_metriques(data, cplt_name, driver, win_draw_loss)
         except Exception as e:
             logger.warning(
                 f"Erreur lors de la recherche du combattant {cplt_name} : {e}"

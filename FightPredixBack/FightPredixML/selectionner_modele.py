@@ -24,7 +24,10 @@ def _comparer_score_entrainement(
 
     meilleur_score = 0.0
     for modele in modeles:
-        if modele and modele["score_entrainement"] > meilleur_score:
+        if (
+            isinstance(modele["score_entrainement"], float)
+            and modele["score_entrainement"] > meilleur_score
+        ):
             meilleur_score = modele["score_entrainement"]
             meilleur_modele = modele["modele"]
             nom_meilleur_modele = modele["nom"]
@@ -44,9 +47,11 @@ def _tester_surapprentissage(
     Cette fonction permet de vérifier le surapprentissage, le critère retenu est une différence de -0.05 entre le score d'entrainement et le score de validation
     """
 
-    score_test = modele["modele"].score(X_test, y_test)
+    if isinstance(modele["modele"], Pipeline):
+        score_test = modele["modele"].score(X_test, y_test)
 
-    diff_score_entrainement_test = modele["score_entrainement"] - score_test
+    if isinstance(modele["score_entrainement"], float):
+        diff_score_entrainement_test = modele["score_entrainement"] - score_test
 
     if diff_score_entrainement_test > seuil_surapprentissage:
         logger.info(
@@ -62,7 +67,7 @@ def _tester_surapprentissage(
 def _selectionner_meilleurs_modeles(
     X_test: pd.DataFrame,
     y_test: pd.Series,
-    modeles: list[ModelDict],
+    modeles: list[ModelDict | None],
     seuil_surapprentissage: float = 0.05,
 ) -> Pipeline | None:
     """
