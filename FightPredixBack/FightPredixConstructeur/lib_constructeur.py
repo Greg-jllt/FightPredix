@@ -394,62 +394,51 @@ def _calcul_nb_mois_dernier_combat(
     )
 
 
-def _methode_temps_t(Combats: pd.DataFrame) -> pd.DataFrame:
-    combats = Combats.copy()
-    combats = combats.sort_index(ascending=False)
-    temp_dict = {}
+def _calcul_methode_temps_t(
+    temp_dict: dict,
+    cob: pd.DataFrame,
+    combattant: str,
+    nickname: str,
+    prefixe: str,
+    resultat: int,
+    methode: str,
+    index: int,
+):
+    """
+    Fonction qui compte les methodes de victoires des combattants au temps t
+    """
+    key = f"{combattant}_{nickname}_methode"
 
-    for prefixe in ["combattant_1", "combattant_2"]:
-        for methode in ["DEC", "KO/TKO", "SUB", "DQ"]:
-            combats[f"{prefixe}_{methode}"] = 0
+    if key not in temp_dict:
+        temp_dict[key] = {}
 
-    for i, combat in combats.iterrows():
-        combattant_1, nickname_1 = (
-            combat["combattant_1"],
-            combat["combattant_1_nickname"],
-        )
-        combattant_2, nickname_2 = (
-            combat["combattant_2"],
-            combat["combattant_2_nickname"],
-        )
-        resultat = combat["resultat"]
-        methode = combat["methode"]
+    cob.loc[index, f"{prefixe}_DEC"] = temp_dict[key].get("DEC", 0)
+    cob.loc[index, f"{prefixe}_KO/TKO"] = temp_dict[key].get("KO/TKO", 0)
+    cob.loc[index, f"{prefixe}_SUB"] = temp_dict[key].get("SUB", 0)
+    cob.loc[index, f"{prefixe}_DQ"] = temp_dict[key].get("DQ", 0)
 
-        def sub_fonction(combattant, nickname, prefixe, resultat, methode):
-            key = f"{combattant}_{nickname}_methode"
-
-            if key not in temp_dict:
-                temp_dict[key] = {}
-
-            combats.loc[i, f"{prefixe}_DEC"] = temp_dict[key].get("DEC", 0)
-            combats.loc[i, f"{prefixe}_KO/TKO"] = temp_dict[key].get("KO/TKO", 0)
-            combats.loc[i, f"{prefixe}_SUB"] = temp_dict[key].get("SUB", 0)
-            combats.loc[i, f"{prefixe}_DQ"] = temp_dict[key].get("DQ", 0)
-
-            if (resultat == 0 and prefixe == "combattant_1") or (
-                resultat == 1 and prefixe == "combattant_2"
-            ):
-                if methode in temp_dict[key]:
-                    temp_dict[key][methode] += 1
-                else:
-                    temp_dict[key][methode] = 1
-
-        sub_fonction(combattant_1, nickname_1, "combattant_1", resultat, methode)
-        sub_fonction(combattant_2, nickname_2, "combattant_2", resultat, methode)
-
-    combats = combats.sort_index(ascending=True)
-
-    return combats
+    if (resultat == 0 and prefixe == "combattant_1") or (
+        resultat == 1 and prefixe == "combattant_2"
+    ):
+        if methode in temp_dict[key]:
+            temp_dict[key][methode] += 1
+        else:
+            temp_dict[key][methode] = 1
 
 
 def _calcul_statistique_generique(
-    combats: pd.DataFrame, calculs_par_combattant: Callable, date: bool = False
+    combats: pd.DataFrame, calculs_par_combattant: Callable, date: bool = False, methode: bool = False
 ) -> pd.DataFrame:
     """
     Fonction générique pour calculer des statistiques des combattants à partir des combats.
     """
     cob = combats.copy()
     cob = cob.sort_index(ascending=False)
+
+    if methode is True:
+        for prefixe in ["combattant_1", "combattant_2"]:
+            for methode in ["DEC", "KO/TKO", "SUB", "DQ"]:
+                cob[f"{prefixe}_{methode}"] = 0
 
     temp_dict: dict = {}
 
@@ -462,23 +451,83 @@ def _calcul_statistique_generique(
             combat["combattant_2"],
             combat["combattant_2_nickname"],
         )
-        if date is False:
+        if date is True:
             resultat = combat["resultat"]
+        elif methode is True:
+            resultat = combat["resultat"]
+            methode = combat["methode"]
         else:
             resultat = combat["date"]
 
         nickname_1 = nickname_1 if isinstance(nickname_1, str) else "NO"
         nickname_2 = nickname_2 if isinstance(nickname_2, str) else "NO"
 
-        calculs_par_combattant(
-            temp_dict, cob, combattant_1, nickname_1, "combattant_1", resultat, i
-        )
-        calculs_par_combattant(
-            temp_dict, cob, combattant_2, nickname_2, "combattant_2", resultat, i
-        )
+        if methode is False :
+            calculs_par_combattant(
+                temp_dict, cob, combattant_1, nickname_1, "combattant_1", resultat, i
+            )
+            calculs_par_combattant(
+                temp_dict, cob, combattant_2, nickname_2, "combattant_2", resultat, i
+            )
+        else:
+            calculs_par_combattant(
+                temp_dict, cob, combattant_1, nickname_1, "combattant_1", resultat, methode, i
+            )
+            calculs_par_combattant(
+                temp_dict, cob, combattant_2, nickname_2, "combattant_2", resultat, methode, i
+            )
 
     cob = cob.sort_index(ascending=True)
     return cob
+
+
+# def _calcul_methode_temps_t(Combats: pd.DataFrame) -> pd.DataFrame:
+#     combats = Combats.copy()
+#     combats = combats.sort_index(ascending=False)
+#     temp_dict = {}
+
+#     for prefixe in ["combattant_1", "combattant_2"]:
+#         for methode in ["DEC", "KO/TKO", "SUB", "DQ"]:
+#             combats[f"{prefixe}_{methode}"] = 0
+
+#     for i, combat in combats.iterrows():
+#         combattant_1, nickname_1 = (
+#             combat["combattant_1"],
+#             combat["combattant_1_nickname"],
+#         )
+#         combattant_2, nickname_2 = (
+#             combat["combattant_2"],
+#             combat["combattant_2_nickname"],
+#         )
+#         resultat = combat["resultat"]
+#         methode = combat["methode"]
+
+#         def sub_fonction(combattant, nickname, prefixe, resultat, methode):
+#             key = f"{combattant}_{nickname}_methode"
+
+#             if key not in temp_dict:
+#                 temp_dict[key] = {}
+
+#             combats.loc[i, f"{prefixe}_DEC"] = temp_dict[key].get("DEC", 0)
+#             combats.loc[i, f"{prefixe}_KO/TKO"] = temp_dict[key].get("KO/TKO", 0)
+#             combats.loc[i, f"{prefixe}_SUB"] = temp_dict[key].get("SUB", 0)
+#             combats.loc[i, f"{prefixe}_DQ"] = temp_dict[key].get("DQ", 0)
+
+#             if (resultat == 0 and prefixe == "combattant_1") or (
+#                 resultat == 1 and prefixe == "combattant_2"
+#             ):
+#                 if methode in temp_dict[key]:
+#                     temp_dict[key][methode] += 1
+#                 else:
+#                     temp_dict[key][methode] = 1
+
+#         sub_fonction(combattant_1, nickname_1, "combattant_1", resultat, methode)
+#         sub_fonction(combattant_2, nickname_2, "combattant_2", resultat, methode)
+
+#     combats = combats.sort_index(ascending=True)
+
+#     return combats
+
 
 
 def _format_last_stats(
@@ -652,7 +701,7 @@ def _main_constructeur(
         date=True,
     )
 
-    combats = _methode_temps_t(combats)
+    combats = _calcul_methode_temps_t(combats)
 
     with open(
         "FightPredixBack/FightPredixConstructeur/dico_formatage/dico_var.json", "r"
