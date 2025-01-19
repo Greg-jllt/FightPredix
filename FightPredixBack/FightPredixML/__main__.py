@@ -102,5 +102,4 @@ if __name__ == "__main__":
         seuil_surapprentissage=seuil_surapprentissage,
     )
 
-    if best_model is not None:
-        joblib.dump(best_model, "FightPredixApp/ModelApp/best_model.pkl")
+    joblib.dump(best_model, "FightPredixApp/ModelApp/best_model.pkl")

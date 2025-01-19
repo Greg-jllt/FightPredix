@@ -71,7 +71,7 @@ def _selectionner_meilleurs_modeles(
     y_test: pd.Series,
     modeles: list[ModelDict | None],
     seuil_surapprentissage: float = 0.05,
-) -> Pipeline | None:
+) -> Pipeline:
     """
     Cette fonction permet de sélectionner le meilleur modèle
     """
@@ -82,6 +82,7 @@ def _selectionner_meilleurs_modeles(
         if _tester_surapprentissage(X_test, y_test, modele, seuil_surapprentissage):
             liste_modeles.remove(modele)
     if len(liste_modeles) == 0:
-        logger.warning("Aucun modèle n'a été sélectionné car tous surapprennent")
+        logger.warning("Tous les modèles surapprennent")
+        return _comparer_score_entrainement(modeles)
     else:
         return _comparer_score_entrainement(liste_modeles)
