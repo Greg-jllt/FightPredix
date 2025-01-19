@@ -8,7 +8,6 @@
 
 
 FightPredixBack/FightPredixConstructeur/temp_data/*.json
-FightPredixBack/FightPredixScraping/temp_data/*.json
 FightPredixBack/FightPredixML/modele/*.pkl
 FightPredixApp/img/cbt1.png
 FightPredixApp/img/cbt2.png

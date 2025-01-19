@@ -2,3 +2,4 @@ FightPredixBack/Data/Data_ufc_combattant_complet.json filter=lfs diff=lfs merge=
 FightPredixBack/Data/Data_ufc_combats_complet.json filter=lfs diff=lfs merge=lfs -text
 FightPredixApp/DataApp/Data_final_fighters.json filter=lfs diff=lfs merge=lfs -text
 FightPredixApp/DataApp/Data_final_combats.json filter=lfs diff=lfs merge=lfs -text
+FightPredixBack/FightPredixScraping/temp_data/clean_tapology.json filter=lfs diff=lfs merge=lfs -text
