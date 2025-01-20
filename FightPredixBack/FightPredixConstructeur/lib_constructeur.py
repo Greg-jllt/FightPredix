@@ -555,7 +555,12 @@ def _stat_actualisation(combats: pd.DataFrame) -> pd.DataFrame:
         ]:
             if nom_db == combattant:
                 cbt = _sub_fonction_actualisation(
-                    df, combattant, prefixe, resultat, date, data_combattant
+                    df=df,
+                    combattant=combattant,
+                    prefixe=prefixe,
+                    resultat=resultat,
+                    date=date,
+                    data_combattant=data_combattant,
                 )
                 if len(cbt) > 0:
                     dico_principale["name"].append(cbt["nom"])
@@ -690,11 +695,19 @@ def _assignement_taille_poids_reach_portee_de_la_jambe(
         for c1, c2 in zip(DataCombats["combattant_1"], DataCombats["combattant_2"]):
             if nom.lower() == c1.lower() or fuzz.ratio(c1.lower(), nom.lower()) >= 90:
                 DataCombats = _identifier_assignement(
-                    DataCombats, caracteristiques, 1, nom, c1
+                    DataCombats=DataCombats,
+                    caracteristiques=caracteristiques,
+                    num=1,
+                    nom_car=nom,
+                    nom_combat=c1,
                 )
             if nom.lower() == c2.lower() or fuzz.ratio(c2.lower(), nom.lower()) >= 90:
                 DataCombats = _identifier_assignement(
-                    DataCombats, caracteristiques, 2, nom, c2
+                    DataCombats=DataCombats,
+                    caracteristiques=caracteristiques,
+                    num=2,
+                    nom_car=nom,
+                    nom_combat=c2,
                 )
     return DataCombats
 
@@ -704,10 +717,10 @@ def _main_constructeur(
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     logger.info("Début du constructeur")
     logger.info("Calcule de l'age des combattants")
-    caracteristiques = _age_by_DOB(caracteristiques)
+    caracteristiques = _age_by_DOB(Data=caracteristiques)
 
     logger.info("Transformation de la date de début de l'octogone")
-    caracteristiques = _transformation_debut_octogone(caracteristiques)
+    caracteristiques = _transformation_debut_octogone(Data=caracteristiques)
 
     logger.info("Formatage des noms de colonnes")
     caracteristiques.columns = [
@@ -760,7 +773,7 @@ def _main_constructeur(
         _assignement_stat_combattant(data=combats, dico_var=dico_var)
     )
 
-    combats = _attribution_poids(combats)
+    combats = _attribution_poids(DataCombats=combats)
 
     logger.info("Calcul de la différence entre les caractéristiques des combattants")
     combats = _difference_num_combats(combats)
@@ -786,7 +799,7 @@ def _main_constructeur(
         orient="records",
     )
     combats = _assignement_taille_poids_reach_portee_de_la_jambe(
-        combats, caracteristiques
+        DataCombats=combats, caracteristiques=caracteristiques
     )
     caracteristiques.columns = [
         _nettoyage_nom_colonne(col) for col in caracteristiques.columns
