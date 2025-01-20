@@ -1,6 +1,12 @@
-## Présentation
+# FightPredixApp
 
-Vous vous trouvez actuellement dans le module lié a la visualisation des résultats
+<p align="center">
+  <img src="../../FightPredixApp/img/logo_readme.png" alt="Logo de mon projet" width="200" height="200">
+</p>
+
+## Description
+
+Ce module contient l'application web permettant de lancer des prédictions de combats.
 
 ## Requirement
 

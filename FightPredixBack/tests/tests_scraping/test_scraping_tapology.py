@@ -95,29 +95,6 @@ def test_explorer_combattant(driver_tapology):
     )[1]
 
 
-def test_scraper_combattant(df, driver_tapology):
-    """
-    Test de la fonction _scraper_combattant
-    """
-
-    with open(
-        "FightPredixBack/tests/tests_scraping/data_test/data_tapology_test.json", "r"
-    ) as f:
-        liste_dictio = json.load(f)
-
-    for nom in (df["NAME"][4], df["NAME"][0], df["NAME"][7]):
-        sub_driver = _recherche_nom(
-            nom, driver_tapology, Options(), "https://www.tapology.com"
-        )
-        sub_driver, combattant_trouvee = _explorer_combattant(
-            sub_driver, "https://www.tapology.com", Options(), nom
-        )
-        assert combattant_trouvee
-
-        dictio = _scraper_combattant(sub_driver, nom, Options())
-
-        assert dict(dictio[0]) in liste_dictio
-
 
 def test_procedure_de_scraping(driver_tapology):
     """

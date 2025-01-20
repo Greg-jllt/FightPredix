@@ -423,7 +423,7 @@ def _calcul_statistique_generique(
     combats: pd.DataFrame, calculs_par_combattant: Callable, date: bool = False, methode: bool = False
 ) -> pd.DataFrame:
     """
-    Fonction générique pour calculer des statistiques des combattants à partir des combats.
+    Fonction générique pour calculer des statistiques de combattants à partir des combats.
     """
     cob = combats.copy()
     cob = cob.sort_index(ascending=False)
@@ -474,66 +474,16 @@ def _calcul_statistique_generique(
     return cob
 
 
-# def _calcul_methode_temps_t(Combats: pd.DataFrame) -> pd.DataFrame:
-#     combats = Combats.copy()
-#     combats = combats.sort_index(ascending=False)
-#     temp_dict = {}
-
-#     for prefixe in ["combattant_1", "combattant_2"]:
-#         for methode in ["DEC", "KO/TKO", "SUB", "DQ"]:
-#             combats[f"{prefixe}_{methode}"] = 0
-
-#     for i, combat in combats.iterrows():
-#         combattant_1, nickname_1 = (
-#             combat["combattant_1"],
-#             combat["combattant_1_nickname"],
-#         )
-#         combattant_2, nickname_2 = (
-#             combat["combattant_2"],
-#             combat["combattant_2_nickname"],
-#         )
-#         resultat = combat["resultat"]
-#         methode = combat["methode"]
-
-#         def sub_fonction(combattant, nickname, prefixe, resultat, methode):
-#             key = f"{combattant}_{nickname}_methode"
-
-#             if key not in temp_dict:
-#                 temp_dict[key] = {}
-
-#             combats.loc[i, f"{prefixe}_DEC"] = temp_dict[key].get("DEC", 0)
-#             combats.loc[i, f"{prefixe}_KO/TKO"] = temp_dict[key].get("KO/TKO", 0)
-#             combats.loc[i, f"{prefixe}_SUB"] = temp_dict[key].get("SUB", 0)
-#             combats.loc[i, f"{prefixe}_DQ"] = temp_dict[key].get("DQ", 0)
-
-#             if (resultat == 0 and prefixe == "combattant_1") or (
-#                 resultat == 1 and prefixe == "combattant_2"
-#             ):
-#                 if methode in temp_dict[key]:
-#                     temp_dict[key][methode] += 1
-#                 else:
-#                     temp_dict[key][methode] = 1
-
-#         sub_fonction(combattant_1, nickname_1, "combattant_1", resultat, methode)
-#         sub_fonction(combattant_2, nickname_2, "combattant_2", resultat, methode)
-
-#     combats = combats.sort_index(ascending=True)
-
-#     return combats
-
-
 def _sub_fonction_actualisation(df:pd.DataFrame, combattant:str, prefixe:str, resultat:int, date:datetime, data_combattant:pd.DataFrame) -> dict:
     temp_dict: dict = {}
     temp_dict["nom"] = combattant
-    calcul_forme = 0
+    temp_dict["forme"] = 0
     
     for c1, c2, r in zip(data_combattant["combattant_1"], data_combattant["combattant_2"], data_combattant["resultat"]):
         if c1 == combattant:
-            calcul_forme += 1 if r == 0 else -1
+            temp_dict["forme"] += 1 if r == 0 else -1
         elif c2 == combattant:
-            calcul_forme += 1 if r == 1 else -1
-    temp_dict["forme"] = calcul_forme
-    
+            temp_dict["forme"] += 1 if r == 1 else -1    
     if (resultat == 0 and prefixe == "combattant_1") or (resultat == 1 and prefixe == "combattant_2"):
         temp_dict["serie"] = df[f"{prefixe}_serie"].iloc[0] + 1
     else :
@@ -546,38 +496,50 @@ def _sub_fonction_actualisation(df:pd.DataFrame, combattant:str, prefixe:str, re
 
 def _stat_actualisation(combats: pd.DataFrame) -> pd.DataFrame:
     dico_principale: dict = {}
-    dico_principale["name"] = []
-    dico_principale["forme"] = []
-    dico_principale["serie"] = []
-    dico_principale["nb_mois_dernier_combat"] = []
+    dico_principale = {
+        "name": [],
+        "forme": [],
+        "serie": [],
+        "nb_mois_dernier_combat": [],
+    }
     noms_df = set(combats["combattant_1"].unique().tolist() + combats["combattant_2"].unique().tolist())
+    combats["date"] = pd.to_datetime(combats["date"], unit="ms")
+
     for nom_db in noms_df:
         df =  combats[( combats["combattant_1"]== nom_db) | (combats["combattant_2"] == nom_db)]
-        df["date"] = pd.to_datetime(df["date"], unit="ms")
 
         data_combattant = df.iloc[:3]
         row = df.iloc[0]
-        combattant_1 = row["combattant_1"]
-        combattant_2 = row["combattant_2"]
         date = row["date"]
         resultat = row["resultat"]
-        
-        
-        if nom_db == row["combattant_1"]:
-            cbt_1 = _sub_fonction_actualisation(df, combattant_1,"combattant_1", resultat, date, data_combattant)
-            if len(cbt_1) > 0:
-                dico_principale["name"].append(cbt_1["nom"])
-                dico_principale["forme"].append(cbt_1["forme"])
-                dico_principale["serie"].append(cbt_1["serie"])
-                dico_principale["nb_mois_dernier_combat"].append(cbt_1["nb_mois_dernier_combat"])
-        elif nom_db == row["combattant_2"]:    
-            cbt_2 = _sub_fonction_actualisation(df, combattant_2,"combattant_2", resultat, date, data_combattant)
-            if len(cbt_2) > 0:
-                dico_principale["name"].append(cbt_2["nom"])
-                dico_principale["forme"].append(cbt_2["forme"])
-                dico_principale["serie"].append(cbt_2["serie"])
-                dico_principale["nb_mois_dernier_combat"].append(cbt_2["nb_mois_dernier_combat"])
+
+        for prefixe, combattant in [("combattant_1", row["combattant_1"]), ("combattant_2", row["combattant_2"])]:
+            if nom_db == combattant:
+                cbt = _sub_fonction_actualisation(df, combattant, prefixe, resultat, date, data_combattant)
+                if len(cbt) > 0:
+                    dico_principale["name"].append(cbt["nom"])
+                    dico_principale["forme"].append(cbt["forme"])
+                    dico_principale["serie"].append(cbt["serie"])
+                    dico_principale["nb_mois_dernier_combat"].append(cbt["nb_mois_dernier_combat"])
+                    
     return pd.DataFrame(dico_principale)
+        
+        
+    #     if nom_db == row["combattant_1"]:
+    #         cbt_1 = _sub_fonction_actualisation(df, combattant_1,"combattant_1", resultat, date, data_combattant)
+    #         if len(cbt_1) > 0:
+    #             dico_principale["name"].append(cbt_1["nom"])
+    #             dico_principale["forme"].append(cbt_1["forme"])
+    #             dico_principale["serie"].append(cbt_1["serie"])
+    #             dico_principale["nb_mois_dernier_combat"].append(cbt_1["nb_mois_dernier_combat"])
+    #     elif nom_db == row["combattant_2"]:    
+    #         cbt_2 = _sub_fonction_actualisation(df, combattant_2,"combattant_2", resultat, date, data_combattant)
+    #         if len(cbt_2) > 0:
+    #             dico_principale["name"].append(cbt_2["nom"])
+    #             dico_principale["forme"].append(cbt_2["forme"])
+    #             dico_principale["serie"].append(cbt_2["serie"])
+    #             dico_principale["nb_mois_dernier_combat"].append(cbt_2["nb_mois_dernier_combat"])
+    # return pd.DataFrame(dico_principale)
 
 
 def _format_last_stats(

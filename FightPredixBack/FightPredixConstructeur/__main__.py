@@ -33,7 +33,7 @@ if __name__ == "__main__":
     combats = pd.read_json("FightPredixBack/Data/Data_ufc_combats_complet.json")
 
     chrome_options = Options()
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
     main_driver = webdriver.Chrome(options=chrome_options)
 
     combats, Data = _constructeur(combats, Data, main_driver)

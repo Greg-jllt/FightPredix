@@ -78,52 +78,11 @@ def _liste_features() -> tuple[list[str], list[str], list[str]]:
     return numeric_features, categorical_features, output_feature
 
 
-def _calcul_nb_mois_dernier_combat(combats: pd.DataFrame) -> pd.DataFrame:
-    """
-    Fonction qui calcule les victoires des combattants au moment du combat
-    """
-    cob = combats.copy()
-    cob = cob.sort_index(ascending=False)
-
-    temp_dict: dict = {}
-
-    def _sub_nb_mois_dernier_combat(combattant, nickname, prefixe):
-        if f"{combattant}_{nickname}_date" not in temp_dict.keys():
-            temp_dict[f"{combattant}_{nickname}_date"] = []
-
-        temp_dict[f"{combattant}_{nickname}_date"].append(date)
-
-        if len(temp_dict[f"{combattant}_{nickname}_date"]) > 2:
-            temp_dict[f"{combattant}_{nickname}_date"].pop(0)
-
-        cob.loc[i, f"{prefixe}_nb_mois_dernier_combat"] = (
-            round((temp_dict[f"{combattant}_{nickname}_date"][1] - temp_dict[f"{combattant}_{nickname}_date"][0]).days / 30)
-            if len(temp_dict[f"{combattant}_{nickname}_date"]) == 2
-            else 0
-        )
-
-    for i, combat in cob.iterrows():
-        combattant_1, nickname_1 = combat["combattant_1"], combats["combattant_1_nickname"]
-        combattant_2, nickname_2 = combat["combattant_2"], combats["combattant_2_nickname"]
-        date = combat["date"]
-
-        nickname_1 = nickname_1 if isinstance(nickname_1, str) else "NO"
-        nickname_2 = nickname_2 if isinstance(nickname_2, str) else "NO"
-
-        _sub_nb_mois_dernier_combat(combattant_1, nickname_1, "combattant_1")
-        _sub_nb_mois_dernier_combat(combattant_2, nickname_2, "combattant_2")
-
-    cob = cob.sort_index(ascending=True)
-
-    return cob
-
 def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
     """
     Fonction de calcul de la différence entre les caractéristiques des combattants
     au sein de chaque combat.
     """
-
-    cols_to_drop = []
     colonnes_a_concat = {}
 
     num_colonnes_combats = combats.select_dtypes(include=["number"]).columns
@@ -138,16 +97,10 @@ def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
                 combats[f"combattant_1_{stat_type}"]
                 - combats[f"combattant_2_{stat_type}"]
             )
-            cols_to_drop.append(f"combattant_1_{stat_type}")
-            cols_to_drop.append(f"combattant_2_{stat_type}")
 
     df_numerique = pd.DataFrame(colonnes_a_concat, index=combats.index)
 
     resultat = pd.concat([combats.reset_index(drop=True), df_numerique], axis=1)
-
-    # if cols_to_drop:
-    #     Console().print(f"Colonnes à supprimer : {len(cols_to_drop)}")
-    #     resultat.drop(cols_to_drop, axis=1, inplace=True)
 
     return resultat
 
@@ -162,13 +115,13 @@ def _prediction_streamlit(
 
         Combattant_1.columns = [
             (
-                "combattant_1" + str(col)
+                "combattant_1_" + str(col)
             )
             for col in Combattant_1.columns
         ]
         Combattant_2.columns = [
             (
-                "combattant_2" + str(col)
+                "combattant_2_" + str(col)
             )
             for col in Combattant_2.columns
         ]

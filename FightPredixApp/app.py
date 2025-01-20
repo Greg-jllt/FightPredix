@@ -8,7 +8,6 @@ from PIL import Image
 from style import init_pages
 from lib_streamlit import (
     _liste_features,
-    _calcul_nb_mois_dernier_combat,
     _prediction_streamlit,
     _download_et_convert_image,
 )
@@ -176,7 +175,7 @@ elif st.session_state.current_page == "combattants":
                     df["name"] == fighter_1, "img_cbt"
                 ].iloc[0]
                 if st.session_state["url_1"] == "NO":
-                    st.session_state["url_1"] = os.path.join("img", "fighter.png")
+                    st.session_state["url_1"] = os.path.join("FightPredixApp\img", "fighter.png")
                 col1.image(st.session_state["url_1"], width=300)
 
         with col2:
@@ -190,7 +189,8 @@ elif st.session_state.current_page == "combattants":
                     df["name"] == fighter_2, "img_cbt"
                 ].iloc[0]
                 if st.session_state["url_2"] == "NO":  # type: ignore
-                    st.session_state["url_2"] = os.path.join("img", "fighter.png")
+                    st.session_state["url_2"] = os.path.join("FightPredixApp\img", "fighter.png")
+                st.write(st.session_state["url_2"])
                 col3.image(st.session_state["url_2"], width=300)
 
         if fighter_1 == "None" or fighter_2 == "None" or fighter_1 == fighter_2:
@@ -385,7 +385,6 @@ elif st.session_state.current_page == "predictions":
         if "DataFighters" in st.session_state and "DataCombats" in st.session_state:
             DataFighters = st.session_state["DataFighters"]
             DataCombats = st.session_state["DataCombats"]
-            DataCombats = _calcul_nb_mois_dernier_combat(DataCombats)
 
             num_features, cat_features, output_features = _liste_features()
 
@@ -408,17 +407,23 @@ elif st.session_state.current_page == "predictions":
                 indice_nom1,
                 indice_nom2,
                 DataFighters,
-                DataCombats,
                 num_features,
                 cat_features,
-            )
+            ) 
 
-            image_path_1 = _download_et_convert_image(
-                st.session_state.get("url_1", "None"), "FightPredixApp/img/cbt1.jpg"
-            )
-            image_path_2 = _download_et_convert_image(
-                st.session_state.get("url_2", "None"), "FightPredixApp/img/cbt2.jpg"
-            )
+            if st.session_state["url_1"][19:26] != "fighter":
+                image_path_1 = _download_et_convert_image(
+                    st.session_state.get("url_1", "None"), "FightPredixApp/img/cbt1.jpg"
+                )
+            else :
+                image_path_1 = st.session_state["url_1"]
+
+            if st.session_state["url_2"][19:26] != "fighter":
+                image_path_2 = _download_et_convert_image(
+                    st.session_state.get("url_2", "None"), "FightPredixApp/img/cbt2.jpg"
+                )
+            else :
+                image_path_2 = st.session_state["url_2"]
 
             if image_path_1 is not None and image_path_2 is not None:
                 cbt1 = Image.open(image_path_1)

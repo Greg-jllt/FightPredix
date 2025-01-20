@@ -3,6 +3,7 @@
 Module de test pour la librairie selectionner_modele
 """
 
+from sklearn.pipeline import Pipeline
 from FightPredixBack.FightPredixML.selectionner_modele import (
     _comparer_score_entrainement,
     _tester_surapprentissage,
@@ -58,24 +59,24 @@ def test_tester_surapprentissage(data_fixture):
     Test de la fonction _tester_surapprentissage
     """
     modele = {
-        "modele": LogisticRegression().fit(
+        "modele": Pipeline([("classifier",LogisticRegression().fit(
             data_fixture.drop(
                 columns=["resultat", "poids_ml", "combattant_1_cat", "combattant_2_cat"]
             ).loc[:3],
             data_fixture["resultat"].loc[:3],
-        ),
+        ))]),
         "score_entrainement": 0.8,
         "nom": "modele1",
     }
 
     modele2 = {
-        "modele": LogisticRegression().fit(
+        "modele": Pipeline([("classifier",LogisticRegression().fit(
             data_fixture.drop(
                 columns=["resultat", "poids_ml", "combattant_1_cat", "combattant_2_cat"]
             ).loc[:3],
             data_fixture["resultat"].loc[:3],
-        ),
-        "score_entrainement": 0,
+        ))]),
+        "score_entrainement": 0.,
         "nom": "modele2",
     }
 
@@ -88,11 +89,11 @@ def test_tester_surapprentissage(data_fixture):
     score_test2 = modele2["modele"].score(X_test, np.array([y_test]))
 
     if score_test < 0.7:
-        assert _tester_surapprentissage(X_test, np.array([y_test]), modele)
+        assert _tester_surapprentissage(X_test, np.array([y_test]), modele, seuil_surapprentissage=0.05)
     else:
-        assert not _tester_surapprentissage(X_test, np.array([y_test]), modele)
+        assert not _tester_surapprentissage(X_test, np.array([y_test]), modele, seuil_surapprentissage=0.05)
 
     if score_test2 < -0.1:
-        assert _tester_surapprentissage(X_test, np.array([y_test]), modele2)
+        assert _tester_surapprentissage(X_test, np.array([y_test]), modele2, seuil_surapprentissage=0.05)
     else:
-        assert not _tester_surapprentissage(X_test, np.array([y_test]), modele2)
+        assert not _tester_surapprentissage(X_test, np.array([y_test]), modele2, seuil_surapprentissage=0.05)
