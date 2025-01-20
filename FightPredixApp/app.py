@@ -146,6 +146,12 @@ elif st.session_state.current_page == "combattants":
     )
     a1, a2 = st.columns([0.5, 1])
     
+    if "DataFighters" not in st.session_state:
+        st.session_state["DataFighters"] = pd.read_json(fighters_path)
+
+    if "DataCombats" not in st.session_state:
+        st.session_state["DataCombats"] = pd.read_json(fights_path)
+
     df = st.session_state["DataFighters"]
 
     df = df.dropna(subset=["actif"])

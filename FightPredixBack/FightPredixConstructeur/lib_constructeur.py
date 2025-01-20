@@ -6,7 +6,7 @@ Développée par :
     - [Hugo Cochereau](https://github.com/hugocoche)
 """
 
-from typing import Callable
+from typing import Any, Callable
 from rapidfuzz import fuzz
 from datetime import datetime
 from unidecode import unidecode
@@ -97,8 +97,6 @@ def _difference_num_combats(combats: pd.DataFrame) -> pd.DataFrame:
             cols_to_drop.append(f"combattant_2_{stat_type}")
 
     df_numerique = pd.DataFrame(colonnes_a_concat, index=combats.index)
-    if cols_to_drop:
-        combats.drop(columns=cols_to_drop, inplace=True, axis=1)
     resultat = pd.concat([combats, df_numerique], axis=1)
 
     return resultat
@@ -380,7 +378,6 @@ def _calcul_nb_mois_dernier_combat(
 
     if len(temp_dict[f"{combattant}_{nickname}_date"]) > 2:
         temp_dict[f"{combattant}_{nickname}_date"].pop(0)
-
     cob.loc[index, f"{prefixe}_nb_mois_dernier_combat"] = (
         round(
             (
@@ -392,6 +389,7 @@ def _calcul_nb_mois_dernier_combat(
         if len(temp_dict[f"{combattant}_{nickname}_date"]) == 2
         else 0
     )
+
 
 
 def _calcul_methode_temps_t(
@@ -452,12 +450,12 @@ def _calcul_statistique_generique(
             combat["combattant_2_nickname"],
         )
         if date is True:
-            resultat = combat["resultat"]
+            resultat = combat["date"]
         elif methode is True:
             resultat = combat["resultat"]
             methode = combat["methode"]
         else:
-            resultat = combat["date"]
+            resultat = combat["resultat"]
 
         nickname_1 = nickname_1 if isinstance(nickname_1, str) else "NO"
         nickname_2 = nickname_2 if isinstance(nickname_2, str) else "NO"
@@ -701,7 +699,11 @@ def _main_constructeur(
         date=True,
     )
 
-    combats = _calcul_methode_temps_t(combats)
+    combats = _calcul_statistique_generique(
+        combats=combats,
+        calculs_par_combattant=_calcul_methode_temps_t,
+        methode=True,
+    )
 
     with open(
         "FightPredixBack/FightPredixConstructeur/dico_formatage/dico_var.json", "r"

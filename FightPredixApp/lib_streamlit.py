@@ -64,9 +64,9 @@ def _liste_features() -> tuple[list[str], list[str], list[str]]:
         "diff_reach",
         "diff_portee_de_la_jambe",
         "diff_nb_mois_dernier_combat",
-        "diff_DEC",
-        "diff_KO/TKO",
-        "diff_SUB",
+        "diff_dec",
+        "diff_ko_tko",
+        "diff_sub",
     ]
 
     categorical_features = [
@@ -106,10 +106,10 @@ def _calcul_nb_mois_dernier_combat(combats: pd.DataFrame) -> pd.DataFrame:
             if len(temp_dict[f"{combattant}_{nickname}_date"]) == 2
             else 0
         )
- 
+
     for i, combat in cob.iterrows():
-        combattant_1, nickname_1 = combat["combattant_1"], combats["nickname_1"]
-        combattant_2, nickname_2 = combat["combattant_2"], combats["nickname_2"]
+        combattant_1, nickname_1 = combat["combattant_1"], combats["combattant_1_nickname"]
+        combattant_2, nickname_2 = combat["combattant_2"], combats["combattant_2_nickname"]
         date = combat["date"]
 
         nickname_1 = nickname_1 if isinstance(nickname_1, str) else "NO"
@@ -317,9 +317,6 @@ def _prediction_streamlit(
                 "diff_age": "diff_age_t",
                 "diff_win": "diff_win_t",
                 "diff_losses": "diff_losses_t",
-                "diff_dec": "diff_DEC",
-                "diff_ko_tko": "diff_KO/TKO",
-                "diff_sub": "diff_SUB",
             },
             inplace=True,
         )

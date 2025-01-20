@@ -207,9 +207,18 @@ def _liste_features() -> tuple[list[str], list[str], str, str]:
         "diff_sub",
         "diff_ko_tko",
         "diff_dec",
+        "combattant_1_forme",
+        "combattant_2_forme",
+        "combattant_1_serie",
+        "combattant_2_serie",
     ]
 
     variables_categorielles = [
+        "date",
+        "combattant_1",
+        "combattant_2",
+        "combattant_1_nickname",
+        "combattant_2_nickname",
         "combattant_1_style_de_combat",
         "combattant_2_style_de_combat",
         "combattant_1_country_of_residence_tapology",
@@ -273,7 +282,10 @@ def _main_nettoyage_avant_preprocess(DataCombats: pd.DataFrame) -> pd.DataFrame:
     DataCombats = _supprimer_combattants_problematiques(DataCombats)
     DataCombats = _garder_combats_apres_2014(DataCombats).reset_index(drop=True)
     DataCombats = _impute_dimension_variables(DataCombats)
+    liste_diff = [col for col in DataCombats.columns if "diff" in col]
+    DataCombats.drop(columns=liste_diff, inplace=True)
     DataCombats = _difference_num_combats(DataCombats)
+    breakpoint()
 
     (
         variables_numeriques,
