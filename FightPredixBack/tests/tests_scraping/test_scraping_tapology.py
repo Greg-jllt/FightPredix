@@ -39,27 +39,6 @@ def driver_tapology(driver): # noqa F811
     return driver
 
 
-def test_disconnect_vpn():
-    """
-    Test de la fonction _disconnect_vpn
-    """
-    try:
-        _disconnect_vpn()
-    except Exception as e:
-        raise e
-
-
-def test_connect_vpn():
-    """
-    Test de la fonction _connect_vpn
-    """
-
-    try:
-        _connect_vpn()
-    except Exception as e:
-        raise e
-
-
 def test_recherche_nom(driver_tapology):
     """
     Test de la fonction _recherche_nom

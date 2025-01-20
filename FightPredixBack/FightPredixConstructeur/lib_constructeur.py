@@ -521,25 +521,8 @@ def _stat_actualisation(combats: pd.DataFrame) -> pd.DataFrame:
                     dico_principale["forme"].append(cbt["forme"])
                     dico_principale["serie"].append(cbt["serie"])
                     dico_principale["nb_mois_dernier_combat"].append(cbt["nb_mois_dernier_combat"])
-                    
+
     return pd.DataFrame(dico_principale)
-        
-        
-    #     if nom_db == row["combattant_1"]:
-    #         cbt_1 = _sub_fonction_actualisation(df, combattant_1,"combattant_1", resultat, date, data_combattant)
-    #         if len(cbt_1) > 0:
-    #             dico_principale["name"].append(cbt_1["nom"])
-    #             dico_principale["forme"].append(cbt_1["forme"])
-    #             dico_principale["serie"].append(cbt_1["serie"])
-    #             dico_principale["nb_mois_dernier_combat"].append(cbt_1["nb_mois_dernier_combat"])
-    #     elif nom_db == row["combattant_2"]:    
-    #         cbt_2 = _sub_fonction_actualisation(df, combattant_2,"combattant_2", resultat, date, data_combattant)
-    #         if len(cbt_2) > 0:
-    #             dico_principale["name"].append(cbt_2["nom"])
-    #             dico_principale["forme"].append(cbt_2["forme"])
-    #             dico_principale["serie"].append(cbt_2["serie"])
-    #             dico_principale["nb_mois_dernier_combat"].append(cbt_2["nb_mois_dernier_combat"])
-    # return pd.DataFrame(dico_principale)
 
 
 def _format_last_stats(
