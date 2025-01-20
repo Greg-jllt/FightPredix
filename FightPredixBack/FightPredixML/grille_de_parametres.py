@@ -75,7 +75,7 @@ parametres_boosting = {
 parametres_random_forest = {
     "preprocessor__num__knn_imputer__n_neighbors": [100],
     "preprocessor__num__Suppress_low_var__threshold": [0.9 * (1 - 0.9)],
-    "feature_selection_random_forest__threshold": [0],
+    "feature_selection_random_forest__threshold": [0, 0.001, 0.05],
     "feature_selection_random_forest__estimator__n_estimators": [400],
     "feature_selection_random_forest__estimator__max_features": [84],
     "random_forest__criterion": ["entropy"],
@@ -92,7 +92,6 @@ parametres_regression_logistique = {
     "feature_selection_random_forest__estimator__max_features": [84],
     "preprocessor__num__knn_imputer__n_neighbors": [400],
     "regression_logistique__penalty": ["l1"],
-    "regression_logistique__C": [0.01],
 }
 
 parametres_neural_network = {
