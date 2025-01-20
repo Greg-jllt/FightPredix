@@ -380,7 +380,6 @@ elif st.session_state.current_page == "predictions":
         if "DataFighters" in st.session_state and "DataCombats" in st.session_state:
             DataFighters = st.session_state["DataFighters"]
             DataCombats = st.session_state["DataCombats"]
-
             DataCombats = _calcul_nb_mois_dernier_combat(DataCombats)
 
             num_features, cat_features, output_features = _liste_features()
