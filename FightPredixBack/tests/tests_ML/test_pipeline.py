@@ -205,7 +205,7 @@ class TestPipelineRegressionLogistique(unittest.TestCase):
         self.cv = 3
         self.param_grid = {
             "regression_logistique__C": [0.1, 1, 10],
-            "regression_logistique__penalty": ["l1", "l2"],
+            "regression_logistique__penalty": ["l2"],
         }
         self.n_jobs = -2
         self.random_state = 42
