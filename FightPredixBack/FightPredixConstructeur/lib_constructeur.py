@@ -231,10 +231,6 @@ def _sub_fonction_age(
             elif pd.notna(dob):
                 Age_t = date_combat_annee - datetime.strptime(dob, "%b %d, %Y").year
                 return Age_t
-            else:
-                return np.nan
-        else:
-            return np.nan
 
 
 def _age_temps_t(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -> pd.DataFrame:
@@ -255,7 +251,6 @@ def _age_temps_t(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -> pd.Da
         Combats.loc[i, "combattant_2_age_t"] = _sub_fonction_age(
             caracteristiques, combattant_2, date_combat_annee, ajd
         )
-
     return Combats
 
 
@@ -527,15 +522,76 @@ def _calcul_statistique_generique(
 #     return combats
 
 
+def _sub_fonction_actualisation(df:pd.DataFrame, combattant:str, prefixe:str, resultat:int, date:datetime, data_combattant:pd.DataFrame) -> dict:
+    temp_dict: dict = {}
+    temp_dict["nom"] = combattant
+    calcul_forme = 0
+    
+    for c1, c2, r in zip(data_combattant["combattant_1"], data_combattant["combattant_2"], data_combattant["resultat"]):
+        if c1 == combattant:
+            calcul_forme += 1 if r == 0 else -1
+        elif c2 == combattant:
+            calcul_forme += 1 if r == 1 else -1
+    temp_dict["forme"] = calcul_forme
+    
+    if (resultat == 0 and prefixe == "combattant_1") or (resultat == 1 and prefixe == "combattant_2"):
+        temp_dict["serie"] = df[f"{prefixe}_serie"].iloc[0] + 1
+    else :
+        temp_dict["serie"] = 0
+    
+    temp_dict["nb_mois_dernier_combat"] = round((datetime.now() - date).days/ 30)
+
+    return temp_dict
+
+
+def _stat_actualisation(combats: pd.DataFrame) -> pd.DataFrame:
+    dico_principale: dict = {}
+    dico_principale["name"] = []
+    dico_principale["forme"] = []
+    dico_principale["serie"] = []
+    dico_principale["nb_mois_dernier_combat"] = []
+    noms_df = set(combats["combattant_1"].unique().tolist() + combats["combattant_2"].unique().tolist())
+    for nom_db in noms_df:
+        df =  combats[( combats["combattant_1"]== nom_db) | (combats["combattant_2"] == nom_db)]
+        df["date"] = pd.to_datetime(df["date"], unit="ms")
+
+        data_combattant = df.iloc[:3]
+        row = df.iloc[0]
+        combattant_1 = row["combattant_1"]
+        combattant_2 = row["combattant_2"]
+        date = row["date"]
+        resultat = row["resultat"]
+        
+        
+        if nom_db == row["combattant_1"]:
+            cbt_1 = _sub_fonction_actualisation(df, combattant_1,"combattant_1", resultat, date, data_combattant)
+            if len(cbt_1) > 0:
+                dico_principale["name"].append(cbt_1["nom"])
+                dico_principale["forme"].append(cbt_1["forme"])
+                dico_principale["serie"].append(cbt_1["serie"])
+                dico_principale["nb_mois_dernier_combat"].append(cbt_1["nb_mois_dernier_combat"])
+        elif nom_db == row["combattant_2"]:    
+            cbt_2 = _sub_fonction_actualisation(df, combattant_2,"combattant_2", resultat, date, data_combattant)
+            if len(cbt_2) > 0:
+                dico_principale["name"].append(cbt_2["nom"])
+                dico_principale["forme"].append(cbt_2["forme"])
+                dico_principale["serie"].append(cbt_2["serie"])
+                dico_principale["nb_mois_dernier_combat"].append(cbt_2["nb_mois_dernier_combat"])
+    return pd.DataFrame(dico_principale)
+
 
 def _format_last_stats(
-    dico_last_stats: dict, caracteristiques: pd.DataFrame
+    dico_last_stats: dict, caracteristiques: pd.DataFrame, df_forme_serie:pd.DataFrame
 ) -> pd.DataFrame:
+    """
+    Permet de joindre les dernières statistiques des combattants avec les caractéristiques des combattants
+    """
+    
     last_stats = pd.DataFrame(dico_last_stats).T
     last_stats.reset_index(inplace=True)
     last_stats.rename(columns={"index": "name"}, inplace=True)
     last_stats.columns = last_stats.columns.str.strip()
-
+    last_stats = last_stats.merge(df_forme_serie, how="left", on="name")
     for nom_last_stats in last_stats["name"]:
         for nom_caracteristiques in caracteristiques["name"]:
             if (
@@ -547,9 +603,7 @@ def _format_last_stats(
                     nom_caracteristiques
                 )
                 break
-
     return last_stats
-
 
 def _format_last_stats_nom_identique(
     dico_last_stats_nom_identique: dict, caracteristiques: pd.DataFrame
@@ -711,6 +765,7 @@ def _main_constructeur(
         dico_var = json.load(file)
 
     combats.columns = [_nettoyage_nom_colonne(col) for col in combats.columns]
+    df_forme_serie = _stat_actualisation(combats)
     logger.info("Assignement des statistiques cumulatives des combattants")
     combats, dico_last_stats, dico_last_stats_nom_identique = (
         _assignement_stat_combattant(data=combats, dico_var=dico_var)
@@ -723,7 +778,7 @@ def _main_constructeur(
 
     last_stats, last_stats_nom_identique = (
         _format_last_stats(
-            dico_last_stats=dico_last_stats, caracteristiques=caracteristiques
+            dico_last_stats=dico_last_stats, caracteristiques=caracteristiques, df_forme_serie = df_forme_serie
         ),
         _format_last_stats_nom_identique(
             dico_last_stats_nom_identique=dico_last_stats_nom_identique,

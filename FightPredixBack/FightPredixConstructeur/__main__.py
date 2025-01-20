@@ -5,9 +5,8 @@ Module principal de construction des nouvelles variables
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 import pandas as pd
-
-from .lib_constructeur import _main_constructeur
 from FightPredixBack.FightPredixScraping.lib_ufc_stats import _ratrappage_manquants
+from .lib_constructeur import _main_constructeur
 from .lib_nettoyage_avant_preprocess import (
     _main_nettoyage_avant_preprocess,
 )
@@ -34,7 +33,7 @@ if __name__ == "__main__":
     combats = pd.read_json("FightPredixBack/Data/Data_ufc_combats_complet.json")
 
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless")
     main_driver = webdriver.Chrome(options=chrome_options)
 
     combats, Data = _constructeur(combats, Data, main_driver)

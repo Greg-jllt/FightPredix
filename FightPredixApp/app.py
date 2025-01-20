@@ -354,6 +354,11 @@ elif st.session_state.current_page == "combattants":
             with e2:
                 st.plotly_chart(fig_2, use_container_width=True)
 
+            if "portee_de_la_jambe" in df.columns or "age" in df.columns:
+                df.rename(
+                    columns={"portee_de_la_jambe": "portée_de_la_jambe", "age": "âge"},
+                    inplace=True,
+                )
             data = df.loc[
                 (df["name"] == fighter_1) | (df["name"] == fighter_2),
                 [
@@ -386,10 +391,11 @@ elif st.session_state.current_page == "predictions":
 
             predictions: list = []
 
-            DataFighters.rename(
-                columns={"portée_de_la_jambe": "portee_de_la_jambe", "âge": "age"},
-                inplace=True,
-            )
+            if "portée_de_la_jambe" in DataFighters.columns or "âge" in DataFighters.columns:
+                DataFighters.rename(
+                    columns={"portée_de_la_jambe": "portee_de_la_jambe", "âge": "age"},
+                    inplace=True,
+                )
 
             indice_nom1 = DataFighters[
                 DataFighters["name"] == st.session_state["fighter_1"]

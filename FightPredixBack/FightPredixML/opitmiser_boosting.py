@@ -15,6 +15,13 @@ from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 from joblib import parallel_backend
 from sklearn.decomposition import PCA
+from datetime import datetime
+from FightPredixBack.outils import configure_logger
+
+
+date = datetime.now().strftime("%Y-%m-%d")
+logger = configure_logger(f"{date}_crawler_optimisation_boosting")
+
 
 
 def _pipeline_boosting(
@@ -93,7 +100,12 @@ def _pipeline_boosting(
             y_train[variable_a_predire],
             boosting__sample_weight=y_train[variable_de_poids],
         )
-
+    logger.info(
+        f"Meilleurs hyperparamètres pour la régression logistique : {grid_search.best_params_}"
+    )
+    logger.info(
+        f"Meilleurs scores d'entrainement pour le modèle régression logistique : {grid_search.best_score_}"
+    )
     return dict(
         nom="GradientBoostingClassifier",
         modele=grid_search.best_estimator_,

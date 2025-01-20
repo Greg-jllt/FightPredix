@@ -285,7 +285,6 @@ def _main_nettoyage_avant_preprocess(DataCombats: pd.DataFrame) -> pd.DataFrame:
     liste_diff = [col for col in DataCombats.columns if "diff" in col]
     DataCombats.drop(columns=liste_diff, inplace=True)
     DataCombats = _difference_num_combats(DataCombats)
-    breakpoint()
 
     (
         variables_numeriques,

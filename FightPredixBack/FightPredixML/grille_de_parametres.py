@@ -6,9 +6,9 @@ Ce fichier contient les grilles de paramètres pour les modèles de machine lear
 import numpy as np
 
 parametres_boosting = {
-    "preprocessor__num__knn_imputer__n_neighbors": [100, 400, 800],
+    "preprocessor__num__knn_imputer__n_neighbors": [400, 800],
     "preprocessor__num__Suppress_low_var__threshold": [0.9 * (1 - 0.9)],
-    "feature_selection_random_forest__threshold": [0, 0.001, 0.005],
+    "feature_selection_random_forest__threshold": [0, 0.005],
     "feature_selection_random_forest__estimator__n_estimators": [400],
     "feature_selection_random_forest__estimator__max_features": [84],
     "boosting__n_estimators": [100, 250, 500, 1000],
@@ -17,9 +17,9 @@ parametres_boosting = {
 }
 
 parametres_random_forest = {
-    "preprocessor__num__knn_imputer__n_neighbors": [100, 400, 800],
+    "preprocessor__num__knn_imputer__n_neighbors": [400, 800],
     "preprocessor__num__Suppress_low_var__threshold": [0.9 * (1 - 0.9)],
-    "feature_selection_random_forest__threshold": [0, 0.001, 0.005],
+    "feature_selection_random_forest__threshold": [0, 0.005],
     "feature_selection_random_forest__estimator__n_estimators": [400],
     "feature_selection_random_forest__estimator__max_features": [84],
     "random_forest__criterion": ["entropy"],
@@ -31,7 +31,7 @@ parametres_random_forest = {
 
 parametres_regression_logistique = {
     "preprocessor__num__Suppress_low_var__threshold": [0.9 * (1 - 0.9)],
-    "feature_selection_random_forest__threshold": [0, 0.001, 0.005],
+    "feature_selection_random_forest__threshold": [0, 0.005],
     "feature_selection_random_forest__estimator__n_estimators": [400],
     "feature_selection_random_forest__estimator__max_features": [84],
     "preprocessor__num__knn_imputer__n_neighbors": [400],
@@ -41,10 +41,10 @@ parametres_regression_logistique = {
 }
 
 parametres_neural_network = {
-    "feature_selection_random_forest__threshold": [0, 0.0001, 0.005],
+    "feature_selection_random_forest__threshold": [0, 0.005],
     "feature_selection_random_forest__estimator__max_features": [84],
     "feature_selection_random_forest__estimator__n_estimators": [400],
-    "preprocessor__num__knn_imputer__n_neighbors": [100, 400, 800],
+    "preprocessor__num__knn_imputer__n_neighbors": [400, 800],
     "preprocessor__num__Suppress_low_var__threshold": [0.9 * (1 - 0.9)],
     "neural_network__hidden_layer_sizes": [(50,), (50, 2), (80,), (150,)],
     "neural_network__alpha": np.logspace(-5, np.log10(1 / 2), 10),
@@ -54,10 +54,10 @@ parametres_neural_network = {
 }
 
 parametres_svm = {
-    "feature_selection_random_forest__threshold": [0, 0.0001, 0.005],
-    "feature_selection_random_forest__estimator__n_estimators": [400],
+    "feature_selection_random_forest__threshold": [0, 0.005],
+    "feature_selection_random_forest__estimator__n_estimators" : [400],
     "feature_selection_random_forest__estimator__max_features": [84],
-    "preprocessor__num__knn_imputer__n_neighbors": [100, 400, 800],
+    "preprocessor__num__knn_imputer__n_neighbors": [400, 800],
     "preprocessor__num__Suppress_low_var__threshold": [0.9 * (1 - 0.9)],
     "svm__C": np.logspace(-3, 3, 10),
     "svm__gamma": np.logspace(-5, np.log10(1 / 2), 10),

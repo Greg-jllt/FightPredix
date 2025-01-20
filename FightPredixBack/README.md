@@ -96,13 +96,18 @@ cd ..
 - **Lancer et terminer ce processus conduira à l'écrasement de la base de données actuelle. Vous aurez tout de même la possibilité de récupérer l'ancienne base en reclonant le projet**
 - **Ce processus peut-être assez couteux en temps et en calcul.**
 
-8. Lancez le module souhaité (FightPredixScraping, FightPredixConstructeur ou FightPredixML), si vous souhaitez reconstruire totalement les données alors lancez les différents modules dans l'ordre suivant :
+8. Lancez le module souhaité (FightPredixScraping FightPredixConstructeur ou FightPredixML), si vous souhaitez reconstruire totalement les données alors lancez les différents modules dans l'ordre suivant :
 
 ```bash
 python -m FightPredixBack.FightPredixScraping
 python -m FightPredixBack.FightPredixConstructeur
+```
+
+```bash
 python -m FightPredixBack.FightPredixML
 ```
+
+**Attention : Les modules FightPredixScraping et FightPredixConstructeur ont pour objectif de mettre la base de données à jour, ne lancez pas FightPredixConstructeur si vous n'avez pas effectué FightPredixScraping auparavant, sinon votre base de données ne prendra pas les derniers combats effectués à l'ufc**
 
 ## Fonctionnalités
 
