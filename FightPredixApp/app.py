@@ -5,8 +5,8 @@ import plotly.graph_objects as go
 import joblib
 from PIL import Image
 
-from FightPredixApp.style import init_pages
-from FightPredixApp.lib_streamlit import (
+from style import init_pages
+from lib_streamlit import (
     _liste_features,
     _prediction_streamlit,
     _download_et_convert_image,
