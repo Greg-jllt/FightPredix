@@ -83,7 +83,7 @@ def _pipeline_svm(
                     estimator=RandomForestClassifier(random_state=random_state, verbose=verbose)
                 ),
             ),
-            ("svm", SVC(class_weight="balanced", random_state=random_state, verbose=verbose)),
+            ("svm", SVC(class_weight="balanced", random_state=random_state, verbose=verbose, probability=True)),
         ]
     )
 
