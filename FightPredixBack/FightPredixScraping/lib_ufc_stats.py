@@ -32,9 +32,9 @@ def _temp_dict_ufc_stats(cplt_name: str, nickname: str, rows: list) -> dict:
         (
             fuzz.ratio(
                 f"{cplt_name.lower()} {nickname.lower()}",
-                f"{prenom.lower()} {nom.lower()} {surnom.lower()}",
+                f"{prenom.lower()} {nom.lower()} {surnom.lower()}",  # type: ignore
             )
-            if _surnom_egaux(nickname, surnom)
+            if _surnom_egaux(nickname, surnom)  # type: ignore
             else fuzz.ratio(f"{prenom.lower()} {nom.lower()}", f"{cplt_name.lower()}")
         ): (prenom, nom, surnom if isinstance(surnom, str) and surnom else "")
         for row in rows
@@ -84,7 +84,7 @@ def _accès_cbt_page(temp_dict: dict, driver: webdriver.Chrome) -> None:
         if (prenom_cell == prenom or not prenom) and (nom_cell == nom or not nom):
             try:
                 link = row.find_element(By.XPATH, ".//a").get_attribute("href")
-                driver.get(link)
+                driver.get(link)  # type: ignore
             except Exception:
                 logger.error(f"Aucun lien n'a été trouvé pour {prenom} {nom}")
             break
@@ -323,7 +323,7 @@ def _compte_victoires_defaites_cbt(driver: webdriver.Chrome) -> Counter:
 
 
 def _recherche_url(
-    driver: webdriver, cplt_name: str, nickname: str
+    driver: webdriver.Chrome, cplt_name: str, nickname: str
 ) -> dict | tuple[None, None]:
     """
     Fonction de recherche de l'URL du combattant sur le site UFC Stats
@@ -356,8 +356,8 @@ def _recherche_url(
 
 def _traiter_combattants(
     data: pd.DataFrame,
-    driver: webdriver,
-    noms_combattants: pd.Series,
+    driver: webdriver.Chrome,
+    noms_combattants: list[str],
     nicknames: pd.Series,
 ):
     """
@@ -414,7 +414,7 @@ def _cherche_combattant_UFC_stats(
     logger.info("Recherche des combattants sur le site UFC Stats")
     noms_combattants = data["NAME"]
     nicknames = data["NICKNAME"]
-    return _traiter_combattants(data, driver, noms_combattants, nicknames)
+    return _traiter_combattants(data, driver, noms_combattants.tolist(), nicknames)
 
 
 def _ratrappage_manquants(

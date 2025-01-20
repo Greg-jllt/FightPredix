@@ -43,9 +43,9 @@ def test_recolte_victoires(driver):  # noqa F811
     driver.implicitly_wait(50)
     resultats = _recolte_victoires(driver)
 
-    assert resultats[0] == 28
-    assert resultats[1] == 1
-    assert resultats[2] == 0
+    assert resultats[0] == 28  # type: ignore
+    assert resultats[1] == 1  # type: ignore
+    assert resultats[2] == 0  # type: ignore
 
 
 def test_collecteur_finish(driver):  # noqa F811
@@ -88,7 +88,7 @@ def test_traitement_metriques(driver):  # noqa F811
         "Sub. Avg.": 0.5,
     }
     driver.implicitly_wait(50)
-    assert _traitement_metriques(driver, win_draw_loss) == dict_res
+    assert _traitement_metriques(driver, win_draw_loss) == dict_res  # type: ignore
 
 
 def test_convertisseur_taille():

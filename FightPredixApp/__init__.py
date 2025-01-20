@@ -1,6 +1,5 @@
-from .lib_streamlit import (
+from FightPredixApp.lib_streamlit import (
     _liste_features,
-    _calcul_nb_mois_dernier_combat,
     _prediction_streamlit,
     _download_et_convert_image,
 )

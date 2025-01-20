@@ -36,7 +36,7 @@ def _comparer_score_entrainement(
     logger.info(
         f"Le meilleur modèle est {nom_meilleur_modele} avec un score de {meilleur_score}"
     )
-    return meilleur_modele
+    return meilleur_modele  # type: ignore
 
 
 def _tester_surapprentissage(
@@ -68,7 +68,7 @@ def _tester_surapprentissage(
 
 def _selectionner_meilleurs_modeles(
     X_test: pd.DataFrame,
-    y_test: pd.Series,
+    y_test: pd.DataFrame,
     modeles: list[ModelDict | None],
     seuil_surapprentissage: float = 0.05,
 ) -> Pipeline:

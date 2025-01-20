@@ -17,7 +17,9 @@ from selenium.common.exceptions import TimeoutException, WebDriverException
 from typing import Any
 from datetime import datetime
 
-from .lib_page_combattant_ufc import _extraire_info_combattant
+from FightPredixBack.FightPredixScraping.lib_page_combattant_ufc import (
+    _extraire_info_combattant,
+)
 from FightPredixBack.outils import configure_logger
 
 import re
@@ -98,7 +100,7 @@ def _deja_present(data: pd.DataFrame, url: str) -> bool:
 
 
 def _page_principal_UFC(
-    main_driver: webdriver.Chrome, Data: pd.DataFrame = None
+    main_driver: webdriver.Chrome, Data: pd.DataFrame = None  # type: ignore
 ) -> pd.DataFrame:
     """
     Fonction permettant de recolter les informations des combattants de l'UFC

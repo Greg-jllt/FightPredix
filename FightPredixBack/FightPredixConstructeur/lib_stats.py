@@ -29,12 +29,13 @@ def _format_date(data: pd.DataFrame):
 
     data["date"] = new_dates
 
+
 def _calcul_stat_cumul(
     data: pd.DataFrame,
     data_combattant: pd.DataFrame,
     nom: str,
     dico_var: dict[str, tuple[str, str]],
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, dict]:
     """
     Fonction qui permet de calculer les statistiques cumulatives d'un combattant
     en fonction des combats qu'il a effectué auparavant.

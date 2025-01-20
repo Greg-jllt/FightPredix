@@ -63,7 +63,7 @@ def _combattant_actif(driver: webdriver.Chrome, dictio: defaultdict) -> None:
         dictio["Actif"] = False
 
 
-def _bio_combattant(driver: webdriver.chrome, dictio: defaultdict) -> None:
+def _bio_combattant(driver: webdriver.Chrome, dictio: defaultdict) -> None:
     """
     Fonction qui extrait les informations biographiques d'un combattant
     """

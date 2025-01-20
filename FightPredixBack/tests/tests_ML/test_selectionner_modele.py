@@ -49,7 +49,7 @@ def test_comparer_score_entrainement(data_fixture):
         },
     ]
 
-    meilleur_modele = _comparer_score_entrainement(modeles)
+    meilleur_modele = _comparer_score_entrainement(modeles)  # type: ignore
 
     assert meilleur_modele == "modele2"
 
@@ -59,24 +59,48 @@ def test_tester_surapprentissage(data_fixture):
     Test de la fonction _tester_surapprentissage
     """
     modele = {
-        "modele": Pipeline([("classifier",LogisticRegression().fit(
-            data_fixture.drop(
-                columns=["resultat", "poids_ml", "combattant_1_cat", "combattant_2_cat"]
-            ).loc[:3],
-            data_fixture["resultat"].loc[:3],
-        ))]),
+        "modele": Pipeline(
+            [
+                (
+                    "classifier",
+                    LogisticRegression().fit(
+                        data_fixture.drop(
+                            columns=[
+                                "resultat",
+                                "poids_ml",
+                                "combattant_1_cat",
+                                "combattant_2_cat",
+                            ]
+                        ).loc[:3],
+                        data_fixture["resultat"].loc[:3],
+                    ),
+                )
+            ]
+        ),
         "score_entrainement": 0.8,
         "nom": "modele1",
     }
 
     modele2 = {
-        "modele": Pipeline([("classifier",LogisticRegression().fit(
-            data_fixture.drop(
-                columns=["resultat", "poids_ml", "combattant_1_cat", "combattant_2_cat"]
-            ).loc[:3],
-            data_fixture["resultat"].loc[:3],
-        ))]),
-        "score_entrainement": 0.,
+        "modele": Pipeline(
+            [
+                (
+                    "classifier",
+                    LogisticRegression().fit(
+                        data_fixture.drop(
+                            columns=[
+                                "resultat",
+                                "poids_ml",
+                                "combattant_1_cat",
+                                "combattant_2_cat",
+                            ]
+                        ).loc[:3],
+                        data_fixture["resultat"].loc[:3],
+                    ),
+                )
+            ]
+        ),
+        "score_entrainement": 0.0,
         "nom": "modele2",
     }
 
@@ -89,11 +113,11 @@ def test_tester_surapprentissage(data_fixture):
     score_test2 = modele2["modele"].score(X_test, np.array([y_test]))
 
     if score_test < 0.7:
-        assert _tester_surapprentissage(X_test, np.array([y_test]), modele, seuil_surapprentissage=0.05)
+        assert _tester_surapprentissage(X_test, np.array([y_test]), modele, seuil_surapprentissage=0.05)  # type: ignore
     else:
-        assert not _tester_surapprentissage(X_test, np.array([y_test]), modele, seuil_surapprentissage=0.05)
+        assert not _tester_surapprentissage(X_test, np.array([y_test]), modele, seuil_surapprentissage=0.05)  # type: ignore
 
     if score_test2 < -0.1:
-        assert _tester_surapprentissage(X_test, np.array([y_test]), modele2, seuil_surapprentissage=0.05)
+        assert _tester_surapprentissage(X_test, np.array([y_test]), modele2, seuil_surapprentissage=0.05)  # type: ignore
     else:
-        assert not _tester_surapprentissage(X_test, np.array([y_test]), modele2, seuil_surapprentissage=0.05)
+        assert not _tester_surapprentissage(X_test, np.array([y_test]), modele2, seuil_surapprentissage=0.05)  # type: ignore

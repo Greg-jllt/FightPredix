@@ -42,8 +42,8 @@ def _creer_liste_arbitres(soup: BeautifulSoup) -> dict[str, list[str]]:
 
     lignes = (
         soup.find(class_="tableau-gauche bg-tableau-defaut")
-        .find(class_="bloc")
-        .find_all("tr")
+        .find(class_="bloc")  # type: ignore
+        .find_all("tr")  # type: ignore
     )
 
     for ligne in lignes:

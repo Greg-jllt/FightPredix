@@ -5,8 +5,8 @@ import plotly.graph_objects as go
 import joblib
 from PIL import Image
 
-from style import init_pages
-from lib_streamlit import (
+from FightPredixApp.style import init_pages
+from FightPredixApp.lib_streamlit import (
     _liste_features,
     _prediction_streamlit,
     _download_et_convert_image,
@@ -14,16 +14,19 @@ from lib_streamlit import (
 
 init_pages()
 
+
 @st.cache_resource
 def charger_model():
     return joblib.load("model.pkl")
- 
+
+
 if os.path.exists("model.pkl"):
     model = charger_model()
 
 # Gestion de l'état pour suivre la page courante
 if "current_page" not in st.session_state:
     st.session_state.current_page = "home"  # Page par défaut
+
 
 # Navbar avec boutons Streamlit
 def navbar():
@@ -49,7 +52,9 @@ def navbar():
         if st.button("Prédictions", key="predictions"):
             st.session_state.current_page = "predictions"
 
+
 navbar()
+
 
 def navbar_sidebar():
 
@@ -79,13 +84,14 @@ def titre(texte):
         unsafe_allow_html=True,
     )
 
+
 # navbar_sidebar()
 
 if "predictable" not in st.session_state:
-        st.session_state["predictable"] = False
+    st.session_state["predictable"] = False
 
 if st.session_state.current_page == "home":
-    _, cent_co,_ = st.columns([1.5,1, 1])
+    _, cent_co, _ = st.columns([1.5, 1, 1])
 
     with cent_co:
         image_path = os.path.join(
@@ -94,20 +100,26 @@ if st.session_state.current_page == "home":
         st.image(image_path, width=350)
 
     titre("Bienvenue sur FightPredix !")
-    st.write("FightPredix est une application développé avec python dans le but d'essayer de prédire les résultats des combats de L'UFC.")
-    st.write("La section combattants permet de comparer deux combattants et de voir leurs statistiques respectives. Une fois la sélèction effectué cliquez sur le logo.")
-    st.write("Enfin la section prédictions, comme son nom l'indique, permet de prédire le résultat d'un combat entre deux combattants.")
+    st.write(
+        "FightPredix est une application développé avec python dans le but d'essayer de prédire les résultats des combats de L'UFC."
+    )
+    st.write(
+        "La section combattants permet de comparer deux combattants et de voir leurs statistiques respectives. Une fois la sélèction effectué cliquez sur le logo."
+    )
+    st.write(
+        "Enfin la section prédictions, comme son nom l'indique, permet de prédire le résultat d'un combat entre deux combattants."
+    )
 
 
 elif st.session_state.current_page == "combattants":
-     
-    _, cent_co,_ = st.columns([1.5,1, 1])
+
+    _, cent_co, _ = st.columns([1.5, 1, 1])
 
     with cent_co:
-        titre("Section Combattants") 
+        titre("Section Combattants")
 
     st.markdown(
-    """
+        """
     <style>
         .vs-text {
             font-size: 50px;
@@ -118,7 +130,9 @@ elif st.session_state.current_page == "combattants":
             height: 100%;
         }
     </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     if "fighters" not in st.session_state:
         st.session_state["fighters"] = False
@@ -144,7 +158,7 @@ elif st.session_state.current_page == "combattants":
         os.path.dirname(os.path.abspath(__file__)), "DataApp", "Data_final_combats.json"
     )
     a1, a2 = st.columns([0.5, 1])
-    
+
     if "DataFighters" not in st.session_state:
         st.session_state["DataFighters"] = pd.read_json(fighters_path)
 
@@ -175,7 +189,9 @@ elif st.session_state.current_page == "combattants":
                     df["name"] == fighter_1, "img_cbt"
                 ].iloc[0]
                 if st.session_state["url_1"] == "NO":
-                    st.session_state["url_1"] = os.path.join("FightPredixApp\img", "fighter.png")
+                    st.session_state["url_1"] = os.path.join(
+                        "FightPredixApp\img", "fighter.png"
+                    )
                 col1.image(st.session_state["url_1"], width=300)
 
         with col2:
@@ -189,8 +205,10 @@ elif st.session_state.current_page == "combattants":
                     df["name"] == fighter_2, "img_cbt"
                 ].iloc[0]
                 if st.session_state["url_2"] == "NO":  # type: ignore
-                    st.session_state["url_2"] = os.path.join("FightPredixApp\img", "fighter.png")
-                st.write(st.session_state["url_2"])
+                    st.session_state["url_2"] = os.path.join(
+                        "FightPredixApp\img", "fighter.png"
+                    )
+
                 col3.image(st.session_state["url_2"], width=300)
 
         if fighter_1 == "None" or fighter_2 == "None" or fighter_1 == fighter_2:
@@ -390,7 +408,10 @@ elif st.session_state.current_page == "predictions":
 
             predictions: list = []
 
-            if "portée_de_la_jambe" in DataFighters.columns or "âge" in DataFighters.columns:
+            if (
+                "portée_de_la_jambe" in DataFighters.columns
+                or "âge" in DataFighters.columns
+            ):
                 DataFighters.rename(
                     columns={"portée_de_la_jambe": "portee_de_la_jambe", "âge": "age"},
                     inplace=True,
@@ -409,25 +430,25 @@ elif st.session_state.current_page == "predictions":
                 DataFighters,
                 num_features,
                 cat_features,
-            ) 
+            )
 
             if st.session_state["url_1"][19:26] != "fighter":
                 image_path_1 = _download_et_convert_image(
                     st.session_state.get("url_1", "None"), "FightPredixApp/img/cbt1.jpg"
                 )
-            else :
+            else:
                 image_path_1 = st.session_state["url_1"]
 
             if st.session_state["url_2"][19:26] != "fighter":
                 image_path_2 = _download_et_convert_image(
                     st.session_state.get("url_2", "None"), "FightPredixApp/img/cbt2.jpg"
                 )
-            else :
+            else:
                 image_path_2 = st.session_state["url_2"]
 
             if image_path_1 is not None and image_path_2 is not None:
                 cbt1 = Image.open(image_path_1)
-                cbt2  = Image.open(image_path_2)
+                cbt2 = Image.open(image_path_2)
 
             values = [resultats[0], resultats[1]]
             labels = [st.session_state["fighter_1"], st.session_state["fighter_2"]]
@@ -435,62 +456,58 @@ elif st.session_state.current_page == "predictions":
 
             fig = go.Figure()
 
-            fig.add_trace(go.Bar(x=labels, 
-                                y=values, 
-                                marker_color=['#00172B', '#00172B'],
-                                opacity=1))
+            fig.add_trace(
+                go.Bar(
+                    x=labels, y=values, marker_color=["#00172B", "#00172B"], opacity=1
+                )
+            )
 
             fig.add_layout_image(
-                    dict(
-                        source=cbt1,
-                        xref="x domain",
-                        yref="y domain",
-                        x=0.75-1/2,
-                        y=values[0]/2, 
-                        layer="above",
-                        xanchor="center",
-                        yanchor="bottom", 
-                        sizex=0.6,
-                        sizey=0.6,
-                    )
+                dict(
+                    source=cbt1,
+                    xref="x domain",
+                    yref="y domain",
+                    x=0.75 - 1 / 2,
+                    y=values[0] / 2,
+                    layer="above",
+                    xanchor="center",
+                    yanchor="bottom",
+                    sizex=0.6,
+                    sizey=0.6,
                 )
-            
-            fig.add_layout_image(
-                    dict(
-                        source=cbt2,
-                        xref="x domain",
-                        yref="y domain",
-                        x=0.75,
-                        y=values[1]/2, 
-                        layer="above",
-                        xanchor="center",
-                        yanchor="bottom", 
-                        sizex=0.6,
-                        sizey=0.6,
-                    )
-                )
+            )
 
+            fig.add_layout_image(
+                dict(
+                    source=cbt2,
+                    xref="x domain",
+                    yref="y domain",
+                    x=0.75,
+                    y=values[1] / 2,
+                    layer="above",
+                    xanchor="center",
+                    yanchor="bottom",
+                    sizex=0.6,
+                    sizey=0.6,
+                )
+            )
 
             fig.update_layout(
                 title="",
                 xaxis_title="",
                 yaxis=dict(
-                    title=' ', 
-                    range=[0, 2],
-                    showticklabels=False, 
-                    showgrid=False        
+                    title=" ", range=[0, 2], showticklabels=False, showgrid=False
                 ),
                 height=600,
                 width=900,
-                plot_bgcolor='rgba(0,0,0,0)',
-                paper_bgcolor='rgba(0,0,0,0)',
-                template="plotly_white"
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+                template="plotly_white",
             )
 
-            _, cent_co,_ = st.columns([1,1, 1])
+            _, cent_co, _ = st.columns([1, 1, 1])
             with cent_co:
                 st.plotly_chart(fig)
                 st.write(
                     f"Selon l'algorrithme, {st.session_state['fighter_1']} a une probabilité de vaincre {st.session_state['fighter_2']} de {round(values[0] * 100)}%, la où {st.session_state['fighter_2']} a une probabilité de vaincre {st.session_state['fighter_1']} de {round(values[1] * 100)}%."
                 )
-

@@ -67,12 +67,12 @@ def _get_combattant_data(
     return (
         {
             f"combattant_1_{frappe_type}": frappe.text
-            for frappe_type, frappe in zip(frappe_types, selected_elements)
+            for frappe_type, frappe in zip(frappe_types, selected_elements)  # type: ignore
         }
         if color == temp_dict["winner_color"]
         else {
             f"combattant_2_{frappe_type}": frappe.text
-            for frappe_type, frappe in zip(frappe_types, selected_elements)
+            for frappe_type, frappe in zip(frappe_types, selected_elements)  # type: ignore
         }
     )
 
@@ -101,15 +101,15 @@ def _explore_events(
 
     winner_data = _get_combattant_data(
         frappe_types,
-        elements_cbt_1,
-        elements_cbt_2,
+        elements_cbt_1,  # type: ignore
+        elements_cbt_2,  # type: ignore
         temp_dict["winner_color"],
         temp_dict,
     )
     looser_data = _get_combattant_data(
         frappe_types,
-        elements_cbt_1,
-        elements_cbt_2,
+        elements_cbt_1,  # type: ignore
+        elements_cbt_2,  # type: ignore
         temp_dict["looser_color"],
         temp_dict,
     )
@@ -241,7 +241,7 @@ def _acces_events(liste_events: list, driver: webdriver.Chrome) -> pd.DataFrame:
                 row_data_link = row.get_attribute("data-link")
 
                 results, i = _sub_access_events(
-                    row, results, i, driver, sub_driver, frappe_types, row_data_link
+                    row, results, i, driver, sub_driver, frappe_types, row_data_link  # type: ignore
                 )
 
         except (Exception, KeyboardInterrupt) as e:
@@ -279,8 +279,8 @@ def _recup_donnes_total(soup: BeautifulSoup) -> pl.DataFrame:
     dictio_total = {
         col.text.strip() + "total": row.text.strip()
         for col, row in zip(
-            table.find_all("th", class_="b-fight-details__table-col"),
-            table.find_all("td", class_="b-fight-details__table-col"),
+            table.find_all("th", class_="b-fight-details__table-col"),  # type: ignore
+            table.find_all("td", class_="b-fight-details__table-col"),  # type: ignore
         )
     }
 
@@ -297,7 +297,7 @@ def _recup_donnes_total(soup: BeautifulSoup) -> pl.DataFrame:
     return Totals
 
 
-def _recup_donnes_sig_str(soup: BeautifulSoup) -> dict:
+def _recup_donnes_sig_str(soup: BeautifulSoup) -> pl.DataFrame:
     """
     Fonction de recolte des statistiques des combats
     """

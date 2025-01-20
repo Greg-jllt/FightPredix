@@ -141,7 +141,7 @@ def _scraper_combattant(
             soup = BeautifulSoup(driver.page_source, "html.parser")
             dictio: defaultdict = defaultdict()
             tableau = soup.find("div", attrs={"id": "standardDetails"})
-            ligne = tableau.find_all("div")
+            ligne = tableau.find_all("div")  # type: ignore
             dictio["NAME"] = nom_ufc
             logger.info(f"Scraping de {dictio['NAME']}")
             for cellule in ligne:
@@ -228,7 +228,9 @@ def _update_and_log_fighters(
     """
 
     try:
-        with open("FightPredixBack/FightPredixScraping/temp_data/actual_combattant_tapology.json") as f:
+        with open(
+            "FightPredixBack/FightPredixScraping/temp_data/actual_combattant_tapology.json"
+        ) as f:
             data_tapology = json.load(f)
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Fichier introuvable:\n{e}")
@@ -254,7 +256,9 @@ def _initialisation_des_donnees_a_scraper(
     """
 
     try:
-        data_ufc = pl.read_json("FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json")
+        data_ufc = pl.read_json(
+            "FightPredixBack/FightPredixScraping/temp_data/Data_ufc_fighters.json"
+        )
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Fichier introuvable:\n{e}")
 
@@ -277,10 +281,15 @@ def _fusionner_tapologies(combattant: defaultdict):
     """
 
     try:
-        with open("FightPredixBack/FightPredixScraping/temp_data/actual_combattant_tapology.json") as f:
+        with open(
+            "FightPredixBack/FightPredixScraping/temp_data/actual_combattant_tapology.json"
+        ) as f:
             data = json.load(f)
         data.append(combattant)
-        with open("FightPredixBack/FightPredixScraping/temp_data/actual_combattant_tapology.json", "w") as f:
+        with open(
+            "FightPredixBack/FightPredixScraping/temp_data/actual_combattant_tapology.json",
+            "w",
+        ) as f:
             json.dump(data, f)
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Fichier introuvable:\n{e}")
@@ -537,7 +546,10 @@ def _main_scraping_tapology():
         except Exception as e:
             logger.warning(f"Erreur lors du scraping: {e}")
             if not recuperer_ancien_scraping:
-                with open("FightPredixBack/FightPredixScraping/temp_data/actuel_combattant_tapology.json", "w") as f:
+                with open(
+                    "FightPredixBack/FightPredixScraping/temp_data/actuel_combattant_tapology.json",
+                    "w",
+                ) as f:
                     json.dump(liste_combattant_scrapes, f)
 
     driver.quit()

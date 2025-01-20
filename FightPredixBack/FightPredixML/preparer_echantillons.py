@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 def _creer_x_y(
     Data: pd.DataFrame, variable_a_predire: str, variable_de_poids: str
-) -> tuple[pd.DataFrame, pd.Series]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Cette fonction permet de créer les variables explicatives et la variable cible
     A noter que nous plaçons la variable de poids dans y avec la variable cible
@@ -63,7 +63,7 @@ def _preparer_echantillons(
     variable_de_poids: str,
     test_size: float,
     random_state: int,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Cette fonction permet de préparer les données de tests et d'entraînement
     """

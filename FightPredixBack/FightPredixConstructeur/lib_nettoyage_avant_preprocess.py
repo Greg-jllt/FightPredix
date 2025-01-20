@@ -241,14 +241,14 @@ def _liste_features() -> tuple[list[str], list[str], str, str]:
 
 def _suppress_nan(
     DataCombats: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.Series, str]:
+) -> pd.DataFrame:
     """
     Cette fonction effectue les derniers ajustements sur les données avant de les passer dans le modèle.
     supprime les colonnes avec plus de 30% de valeurs manquantes
     supprime les lignes avec plus de 40% de valeurs manquantes
     """
 
-    DataCombats.dropna(thresh=0.65 * DataCombats.shape[1], inplace=True)
+    DataCombats.dropna(thresh=0.65 * DataCombats.shape[1], inplace=True)  # type: ignore
     size = DataCombats.shape
     nan_values = DataCombats.isna().sum()
     nan_values = nan_values.sort_values(ascending=True) * 100 / size[0]

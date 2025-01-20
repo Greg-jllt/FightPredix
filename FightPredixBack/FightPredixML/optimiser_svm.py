@@ -80,10 +80,12 @@ def _pipeline_svm(
             (
                 "feature_selection_random_forest",
                 SelectFromModel(
-                    estimator=RandomForestClassifier(random_state=random_state, verbose=verbose)
+                    estimator=RandomForestClassifier(
+                        random_state=random_state, verbose=verbose
+                    )
                 ),
             ),
-            ("svm", SVC(class_weight="balanced", random_state=random_state, verbose=verbose, probability=True)),
+            ("svm", SVC(class_weight="balanced", random_state=random_state, verbose=verbose, probability=True)),  # type: ignore
         ]
     )
 

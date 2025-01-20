@@ -121,10 +121,10 @@ def _create_home_variables(data_tapology: pl.DataFrame) -> pl.DataFrame:
     for location in list_lieu_de_residence:
         if location:
             loc = geolocator.geocode(
-                location.lower(), language="en", addressdetails=True, timeout=50
+                location.lower(), language="en", addressdetails=True, timeout=50  # type: ignore
             )
             if loc:
-                address = loc.raw["address"]
+                address = loc.raw["address"]  # type: ignore
                 if "country" in address.keys():
                     country = address.get("country")
                 else:
@@ -167,10 +167,10 @@ def _birth_country(data_tapology: pl.DataFrame) -> pl.DataFrame:
     for location in locations:
         if location:
             loc = geolocator.geocode(
-                location.lower(), language="en", addressdetails=True, timeout=50
+                location.lower(), language="en", addressdetails=True, timeout=50  # type: ignore
             )
             if loc:
-                address = loc.raw["address"]
+                address = loc.raw["address"]  # type: ignore
                 country = address.get("country")
                 liste_place_of_birth.append(country)
             else:

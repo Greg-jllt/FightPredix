@@ -80,10 +80,12 @@ def _pipeline_neural_network(
             (
                 "feature_selection_random_forest",
                 SelectFromModel(
-                    estimator=RandomForestClassifier(random_state=random_state, verbose=verbose)
+                    estimator=RandomForestClassifier(
+                        random_state=random_state, verbose=verbose
+                    )
                 ),
             ),
-            ("neural_network", MLPClassifier(random_state=random_state, verbose=verbose)),
+            ("neural_network", MLPClassifier(random_state=random_state, verbose=verbose)),  # type: ignore
         ]
     )
 

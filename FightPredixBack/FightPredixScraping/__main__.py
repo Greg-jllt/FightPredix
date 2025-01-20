@@ -7,7 +7,9 @@ from FightPredixBack.outils import configure_logger
 from FightPredixBack.FightPredixScraping.lib_ufc_stats import _ratrappage_manquants
 from FightPredixBack.FightPredixScraping.lib_front_page_ufc import _page_principal_UFC
 from FightPredixBack.FightPredixScraping.lib_combats import _main_combat_recolte
-from FightPredixBack.FightPredixScraping.lib_ufc_stats import _cherche_combattant_UFC_stats
+from FightPredixBack.FightPredixScraping.lib_ufc_stats import (
+    _cherche_combattant_UFC_stats,
+)
 from FightPredixBack.FightPredixScraping.lib_join_ufc_tapology import _main_tapology
 from FightPredixBack.FightPredixScraping.lib_arbitre import _main_arbitre
 
@@ -18,7 +20,6 @@ from selenium import webdriver
 import polars as pl
 import pandas as pd
 import os
-
 
 
 date = datetime.now().strftime("%Y-%m-%d")
@@ -103,8 +104,8 @@ def main():
     data_arbitres = _main_arbitre().to_pandas()
     combats = _join_arbitre(combats, data_arbitres).to_pandas()
 
-    combats = _ratrappage_manquants(combats, Data, main_driver)
-    
+    combats = _ratrappage_manquants(combats, Data.to_pandas(), main_driver)
+
     combats.to_json(
         "FightPredixBack/Data/Data_ufc_combats_complet.json", orient="records"
     )

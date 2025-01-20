@@ -165,7 +165,7 @@ def _optimiser_modeles(
         logger.error(f"Erreur lors de l'optimisation du modèle boosting : {e}")
 
     joblib.dump(
-        dico_boosting["modele"], "FightPredixBack/FightPredixML/modele/boosting.pkl"
+        dico_boosting["modele"], "FightPredixBack/FightPredixML/modele/boosting.pkl"  # type: ignore
     )
 
     logger.info(

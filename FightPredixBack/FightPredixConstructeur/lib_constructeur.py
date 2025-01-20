@@ -11,7 +11,9 @@ from rapidfuzz import fuzz
 from datetime import datetime
 from unidecode import unidecode
 from sklearn.preprocessing import MinMaxScaler
-from .lib_stats import _assignement_stat_combattant
+from FightPredixBack.FightPredixConstructeur.lib_stats import (
+    _assignement_stat_combattant,
+)
 
 import json
 import numpy as np
@@ -63,10 +65,10 @@ def _ajout_cat_combts(
         combattant_2 = combat["combattant_2"]
 
         combats = _sub_fonction_differences_cat(
-            combattant_1, "combattant_1", caracteristiques, combats, i
+            combattant_1, "combattant_1", caracteristiques, combats, i  # type: ignore
         )
         combats = _sub_fonction_differences_cat(
-            combattant_2, "combattant_2", caracteristiques, combats, i
+            combattant_2, "combattant_2", caracteristiques, combats, i  # type: ignore
         )
 
     return combats
@@ -127,7 +129,7 @@ def _transformation_debut_octogone(Data: pd.DataFrame) -> pd.DataFrame:
         Data["DÉBUT DE L'OCTOGONE"], format="%b. %d, %Y", errors="coerce"
     )
     Data["DÉBUT DE L'OCTOGONE"] = pd.to_numeric(
-        (pd.to_datetime("today") - Data["DÉBUT DE L'OCTOGONE"]).dt.days // 30
+        (pd.to_datetime("today") - Data["DÉBUT DE L'OCTOGONE"]).dt.days // 30  # type: ignore
     ).astype(float)
 
     return Data
@@ -214,10 +216,10 @@ def _cleaning(data: pd.DataFrame) -> pd.DataFrame:
 
 def _sub_fonction_age(
     Data: pd.DataFrame,
-    combattant: pd.DataFrame,
-    date_combat_annee: datetime,
+    combattant: str,
+    date_combat_annee: int,
     ajd: datetime,
-) -> int:
+) -> int | None:
     """
     Sous fonction qui calcule l'age des combattants au moment du combat
     """
@@ -245,10 +247,10 @@ def _age_temps_t(caracteristiques: pd.DataFrame, combats: pd.DataFrame) -> pd.Da
         ajd = datetime.now()
         combattant_1 = combat["combattant_1"]
         combattant_2 = combat["combattant_2"]
-        Combats.loc[i, "combattant_1_age_t"] = _sub_fonction_age(
+        Combats.at[i, "combattant_1_age_t"] = _sub_fonction_age(
             caracteristiques, combattant_1, date_combat_annee, ajd
         )
-        Combats.loc[i, "combattant_2_age_t"] = _sub_fonction_age(
+        Combats.at[i, "combattant_2_age_t"] = _sub_fonction_age(
             caracteristiques, combattant_2, date_combat_annee, ajd
         )
     return Combats
@@ -386,7 +388,6 @@ def _calcul_nb_mois_dernier_combat(
     )
 
 
-
 def _calcul_methode_temps_t(
     temp_dict: dict,
     cob: pd.DataFrame,
@@ -420,7 +421,10 @@ def _calcul_methode_temps_t(
 
 
 def _calcul_statistique_generique(
-    combats: pd.DataFrame, calculs_par_combattant: Callable, date: bool = False, methode: bool = False
+    combats: pd.DataFrame,
+    calculs_par_combattant: Callable,
+    date: bool = False,
+    methode: bool = False,
 ) -> pd.DataFrame:
     """
     Fonction générique pour calculer des statistiques de combattants à partir des combats.
@@ -430,8 +434,8 @@ def _calcul_statistique_generique(
 
     if methode is True:
         for prefixe in ["combattant_1", "combattant_2"]:
-            for methode in ["DEC", "KO/TKO", "SUB", "DQ"]:
-                cob[f"{prefixe}_{methode}"] = 0
+            for methode_finish in ["DEC", "KO/TKO", "SUB", "DQ"]:
+                cob[f"{prefixe}_{methode_finish}"] = 0
 
     temp_dict: dict = {}
 
@@ -455,7 +459,7 @@ def _calcul_statistique_generique(
         nickname_1 = nickname_1 if isinstance(nickname_1, str) else "NO"
         nickname_2 = nickname_2 if isinstance(nickname_2, str) else "NO"
 
-        if methode is False :
+        if methode is False:
             calculs_par_combattant(
                 temp_dict, cob, combattant_1, nickname_1, "combattant_1", resultat, i
             )
@@ -464,32 +468,59 @@ def _calcul_statistique_generique(
             )
         else:
             calculs_par_combattant(
-                temp_dict, cob, combattant_1, nickname_1, "combattant_1", resultat, methode, i
+                temp_dict,
+                cob,
+                combattant_1,
+                nickname_1,
+                "combattant_1",
+                resultat,
+                methode,
+                i,
             )
             calculs_par_combattant(
-                temp_dict, cob, combattant_2, nickname_2, "combattant_2", resultat, methode, i
+                temp_dict,
+                cob,
+                combattant_2,
+                nickname_2,
+                "combattant_2",
+                resultat,
+                methode,
+                i,
             )
 
     cob = cob.sort_index(ascending=True)
     return cob
 
 
-def _sub_fonction_actualisation(df:pd.DataFrame, combattant:str, prefixe:str, resultat:int, date:datetime, data_combattant:pd.DataFrame) -> dict:
+def _sub_fonction_actualisation(
+    df: pd.DataFrame,
+    combattant: str,
+    prefixe: str,
+    resultat: int,
+    date: datetime,
+    data_combattant: pd.DataFrame,
+) -> dict:
     temp_dict: dict = {}
     temp_dict["nom"] = combattant
     temp_dict["forme"] = 0
-    
-    for c1, c2, r in zip(data_combattant["combattant_1"], data_combattant["combattant_2"], data_combattant["resultat"]):
+
+    for c1, c2, r in zip(
+        data_combattant["combattant_1"],
+        data_combattant["combattant_2"],
+        data_combattant["resultat"],
+    ):
         if c1 == combattant:
             temp_dict["forme"] += 1 if r == 0 else -1
         elif c2 == combattant:
-            temp_dict["forme"] += 1 if r == 1 else -1    
-    if (resultat == 0 and prefixe == "combattant_1") or (resultat == 1 and prefixe == "combattant_2"):
+            temp_dict["forme"] += 1 if r == 1 else -1
+    if (resultat == 0 and prefixe == "combattant_1") or (
+        resultat == 1 and prefixe == "combattant_2"
+    ):
         temp_dict["serie"] = df[f"{prefixe}_serie"].iloc[0] + 1
-    else :
+    else:
         temp_dict["serie"] = 0
-    
-    temp_dict["nb_mois_dernier_combat"] = round((datetime.now() - date).days/ 30)
+
+    temp_dict["nb_mois_dernier_combat"] = round((datetime.now() - date).days / 30)
 
     return temp_dict
 
@@ -502,36 +533,48 @@ def _stat_actualisation(combats: pd.DataFrame) -> pd.DataFrame:
         "serie": [],
         "nb_mois_dernier_combat": [],
     }
-    noms_df = set(combats["combattant_1"].unique().tolist() + combats["combattant_2"].unique().tolist())
+    noms_df = set(
+        combats["combattant_1"].unique().tolist()
+        + combats["combattant_2"].unique().tolist()
+    )
     combats["date"] = pd.to_datetime(combats["date"], unit="ms")
 
     for nom_db in noms_df:
-        df =  combats[( combats["combattant_1"]== nom_db) | (combats["combattant_2"] == nom_db)]
+        df = combats[
+            (combats["combattant_1"] == nom_db) | (combats["combattant_2"] == nom_db)
+        ]
 
         data_combattant = df.iloc[:3]
         row = df.iloc[0]
         date = row["date"]
         resultat = row["resultat"]
 
-        for prefixe, combattant in [("combattant_1", row["combattant_1"]), ("combattant_2", row["combattant_2"])]:
+        for prefixe, combattant in [
+            ("combattant_1", row["combattant_1"]),
+            ("combattant_2", row["combattant_2"]),
+        ]:
             if nom_db == combattant:
-                cbt = _sub_fonction_actualisation(df, combattant, prefixe, resultat, date, data_combattant)
+                cbt = _sub_fonction_actualisation(
+                    df, combattant, prefixe, resultat, date, data_combattant
+                )
                 if len(cbt) > 0:
                     dico_principale["name"].append(cbt["nom"])
                     dico_principale["forme"].append(cbt["forme"])
                     dico_principale["serie"].append(cbt["serie"])
-                    dico_principale["nb_mois_dernier_combat"].append(cbt["nb_mois_dernier_combat"])
+                    dico_principale["nb_mois_dernier_combat"].append(
+                        cbt["nb_mois_dernier_combat"]
+                    )
 
     return pd.DataFrame(dico_principale)
 
 
 def _format_last_stats(
-    dico_last_stats: dict, caracteristiques: pd.DataFrame, df_forme_serie:pd.DataFrame
+    dico_last_stats: dict, caracteristiques: pd.DataFrame, df_forme_serie: pd.DataFrame
 ) -> pd.DataFrame:
     """
     Permet de joindre les dernières statistiques des combattants avec les caractéristiques des combattants
     """
-    
+
     last_stats = pd.DataFrame(dico_last_stats).T
     last_stats.reset_index(inplace=True)
     last_stats.rename(columns={"index": "name"}, inplace=True)
@@ -549,6 +592,7 @@ def _format_last_stats(
                 )
                 break
     return last_stats
+
 
 def _format_last_stats_nom_identique(
     dico_last_stats_nom_identique: dict, caracteristiques: pd.DataFrame
@@ -632,7 +676,7 @@ def _attribution_poids(DataCombats: pd.DataFrame) -> pd.DataFrame:
         + DataCombats["combattant_2_losses_t"]
     )
     DataCombats = DataCombats[~DataCombats["nb_combat_des_deux_combattants"].isna()]
-    DataCombats["poids_ml"] = MinMaxScaler(feature_range=(0.2, 0.8)).fit_transform(
+    DataCombats["poids_ml"] = MinMaxScaler(feature_range=(0, 1)).fit_transform(
         DataCombats[["nb_combat_des_deux_combattants"]]
     )
 
@@ -657,7 +701,7 @@ def _assignement_taille_poids_reach_portee_de_la_jambe(
 
 def _main_constructeur(
     combats: pd.DataFrame, caracteristiques: pd.DataFrame
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     logger.info("Début du constructeur")
     logger.info("Calcule de l'age des combattants")
     caracteristiques = _age_by_DOB(caracteristiques)
@@ -723,7 +767,9 @@ def _main_constructeur(
 
     last_stats, last_stats_nom_identique = (
         _format_last_stats(
-            dico_last_stats=dico_last_stats, caracteristiques=caracteristiques, df_forme_serie = df_forme_serie
+            dico_last_stats=dico_last_stats,
+            caracteristiques=caracteristiques,
+            df_forme_serie=df_forme_serie,
         ),
         _format_last_stats_nom_identique(
             dico_last_stats_nom_identique=dico_last_stats_nom_identique,
